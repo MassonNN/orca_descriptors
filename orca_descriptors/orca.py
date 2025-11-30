@@ -254,6 +254,25 @@ class Orca:
             output_lines = []
             errors_detected = []
             
+            # Keywords that indicate progress (will be logged at INFO level)
+            progress_keywords = [
+                'ORCA SCF ITERATION',
+                'ITERATION',
+                'GEOMETRY OPTIMIZATION CYCLE',
+                'FINAL SINGLE POINT ENERGY',
+                'TOTAL RUN TIME',
+                'TERMINATED NORMALLY',
+                'STARTING',
+                'COMPLETED',
+                'CONVERGED',
+                'OPTIMIZATION CONVERGED',
+                'SCF CONVERGED',
+                'FINAL ENERGY',
+                'GEOMETRY OPTIMIZATION',
+                'RUNNING',
+                'CALCULATION',
+            ]
+            
             try:
                 for line in process.stdout:
                     if line:
@@ -279,7 +298,13 @@ class Orca:
                             errors_detected.append(line.rstrip())
                             logger.error(f"ORCA ERROR DETECTED: {line.rstrip()}")
                         
-                        logger.info(line.rstrip())
+                        # Log progress messages at INFO level, everything else at DEBUG
+                        is_progress = any(keyword in line_upper for keyword in progress_keywords)
+                        if is_progress:
+                            logger.info(line.rstrip())
+                        else:
+                            logger.debug(line.rstrip())
+                        
                         log_file.write(line)
                         log_file.flush()
             except KeyboardInterrupt:
