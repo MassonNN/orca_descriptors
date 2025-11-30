@@ -1,0 +1,32 @@
+[project]
+name = "orca-descriptors"
+version = "0.1.0"
+description = "A library of QSAR descriptors calculation using ORCA script"
+authors = [
+    {name = "MassonNN",email = "me@ilyalyapin.ru"}
+]
+license = {text = "LICENSE.md"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "rdkit>=2023.0.0",
+]
+
+[project.scripts]
+orca_descriptors = "orca_descriptors.cli:main"
+
+[tool.poetry]
+packages = [{include = "orca_descriptors"}]
+
+[tool.poetry.scripts]
+orca_descriptors = "orca_descriptors.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.1,<10.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
