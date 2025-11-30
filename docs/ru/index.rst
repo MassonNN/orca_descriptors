@@ -1,0 +1,28 @@
+Документация ORCA Descriptors
+==============================
+
+Библиотека Python для автоматического расчета квантовохимических дескрипторов для QSAR анализа с использованием программы квантовой химии ORCA.
+
+.. note::
+   This documentation is also available in `English <../en/index.html>`_ / Эта документация также доступна на `английском языке <../en/index.html>`_.
+
+Содержание
+----------
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Документация
+
+   installation
+   tutorial
+   benchmark
+   api/index
+   cli
+
+Индексы и таблицы
+------------------
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
