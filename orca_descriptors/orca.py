@@ -223,6 +223,7 @@ class Orca:
             n_processors=self.n_processors,
         )
         
+        # Log estimation and start only in DEBUG mode
         if estimated_time > 0:
             hours = int(estimated_time // 3600)
             minutes = int((estimated_time % 3600) // 60)
@@ -233,12 +234,12 @@ class Orca:
                 time_str = f"{minutes}m {seconds}s"
             else:
                 time_str = f"{seconds}s"
-            logger.info(f"Estimated calculation time: ~{time_str}")
+            logger.debug(f"Estimated calculation time: ~{time_str}")
         
-        logger.info("=" * 70)
-        logger.info(f"Running ORCA calculation: {input_filename}")
-        logger.info(f"Working directory: {self.working_dir}")
-        logger.info("=" * 70)
+        logger.debug("=" * 70)
+        logger.debug(f"Running ORCA calculation: {input_filename}")
+        logger.debug(f"Working directory: {self.working_dir}")
+        logger.debug("=" * 70)
         
         with open(log_file_path, "w") as log_file:
             process = subprocess.Popen(
@@ -253,25 +254,6 @@ class Orca:
             
             output_lines = []
             errors_detected = []
-            
-            # Keywords that indicate progress (will be logged at INFO level)
-            progress_keywords = [
-                'ORCA SCF ITERATION',
-                'ITERATION',
-                'GEOMETRY OPTIMIZATION CYCLE',
-                'FINAL SINGLE POINT ENERGY',
-                'TOTAL RUN TIME',
-                'TERMINATED NORMALLY',
-                'STARTING',
-                'COMPLETED',
-                'CONVERGED',
-                'OPTIMIZATION CONVERGED',
-                'SCF CONVERGED',
-                'FINAL ENERGY',
-                'GEOMETRY OPTIMIZATION',
-                'RUNNING',
-                'CALCULATION',
-            ]
             
             try:
                 for line in process.stdout:
@@ -298,12 +280,8 @@ class Orca:
                             errors_detected.append(line.rstrip())
                             logger.error(f"ORCA ERROR DETECTED: {line.rstrip()}")
                         
-                        # Log progress messages at INFO level, everything else at DEBUG
-                        is_progress = any(keyword in line_upper for keyword in progress_keywords)
-                        if is_progress:
-                            logger.info(line.rstrip())
-                        else:
-                            logger.debug(line.rstrip())
+                        # All ORCA output goes to DEBUG only
+                        logger.debug(line.rstrip())
                         
                         log_file.write(line)
                         log_file.flush()
@@ -340,9 +318,9 @@ class Orca:
                     logger.error("=" * 70)
                     raise RuntimeError(f"ORCA calculation failed with errors:\n{error_msg}")
         
-        logger.info("=" * 70)
-        logger.info(f"ORCA calculation finished with return code: {return_code}")
-        logger.info("=" * 70)
+        logger.debug("=" * 70)
+        logger.debug(f"ORCA calculation finished with return code: {return_code}")
+        logger.debug("=" * 70)
         
         output_file = None
         possible_outputs = [
@@ -472,7 +450,7 @@ class Orca:
             raise RuntimeError(f"ORCA calculation failed:\n{error_msg}")
         
         if output_content:
-            logger.info("ORCA calculation completed successfully (terminated normally)")
+            logger.debug("ORCA calculation completed successfully (terminated normally)")
         
         if return_code != 0:
             log_content = ""
@@ -1380,9 +1358,48 @@ class Orca:
         descriptors_list = []
         
         total = len(smiles_list)
+        
+        # Pre-calculate estimated times for all molecules if progress is enabled
+        estimated_times = []
+        if progress and total > 1:
+            for smiles in smiles_list:
+                try:
+                    mol = AddHs(MolFromSmiles(smiles))
+                    if mol is not None:
+                        estimated_time = self.time_estimator.estimate_time(
+                            mol=mol,
+                            method_type=self.method_type,
+                            functional=self.functional,
+                            basis_set=self.basis_set,
+                            n_processors=self.n_processors,
+                        )
+                        estimated_times.append(estimated_time)
+                    else:
+                        estimated_times.append(0.0)
+                except Exception:
+                    estimated_times.append(0.0)
+        
         for idx, smiles in enumerate(smiles_list):
             if progress and total > 1:
-                logger.info(f"Processing molecule {idx + 1}/{total}: {smiles}")
+                remaining = total - idx
+                
+                # Calculate remaining estimated time
+                remaining_estimated = sum(estimated_times[idx:]) if estimated_times else 0.0
+                
+                # Format remaining time
+                if remaining_estimated > 0:
+                    hours = int(remaining_estimated // 3600)
+                    minutes = int((remaining_estimated % 3600) // 60)
+                    seconds = int(remaining_estimated % 60)
+                    if hours > 0:
+                        time_str = f"~{hours}h {minutes}m {seconds}s"
+                    elif minutes > 0:
+                        time_str = f"~{minutes}m {seconds}s"
+                    else:
+                        time_str = f"~{seconds}s"
+                    logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, estimated time: {time_str})")
+                else:
+                    logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining})")
             
             try:
                 mol = AddHs(MolFromSmiles(smiles))
