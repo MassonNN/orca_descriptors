@@ -11,8 +11,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 project = "ORCA Descriptors"
 copyright = "2024, MassonNN"
 author = "MassonNN"
-release = "0.1.0"
-version = "0.1.0"
+release = "0.1.1"
+version = "0.1.1"
 
 # Extensions
 extensions = [
