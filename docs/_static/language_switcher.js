@@ -33,19 +33,52 @@
         var currentHash = window.location.hash;
         var currentSearch = window.location.search;
         
-        // Replace language in path
-        var newPath = currentPath;
+        // Normalize path (remove trailing slash except for root)
+        var normalizedPath = currentPath;
+        if (normalizedPath !== '/' && normalizedPath.endsWith('/')) {
+            normalizedPath = normalizedPath.slice(0, -1);
+        }
         
-        if (currentPath.includes('/' + currentLang + '/')) {
-            newPath = currentPath.replace('/' + currentLang + '/', '/' + otherLang + '/');
-        } else if (currentPath.includes('/' + otherLang + '/')) {
-            newPath = currentPath.replace('/' + otherLang + '/', '/' + currentLang + '/');
+        var newPath = normalizedPath;
+        
+        // Handle language replacement
+        // Structure: English at root (/), Russian at /ru/
+        if (normalizedPath.startsWith('/ru/')) {
+            // Currently on Russian version
+            if (otherLang === 'en') {
+                // Switch to English: remove /ru/ prefix
+                newPath = normalizedPath.replace('/ru/', '/');
+                // Handle case when /ru/ becomes empty
+                if (newPath === '' || newPath === '/ru') {
+                    newPath = '/';
+                }
+            } else {
+                // Should not happen, but handle it
+                newPath = normalizedPath.replace('/ru/', '/' + otherLang + '/');
+            }
+        } else if (normalizedPath === '/ru') {
+            // Special case: /ru without trailing slash
+            newPath = otherLang === 'en' ? '/' : '/ru/';
+        } else if (normalizedPath.startsWith('/en/')) {
+            // Currently on /en/ path (shouldn't happen in production, but handle it)
+            if (otherLang === 'ru') {
+                newPath = normalizedPath.replace('/en/', '/ru/');
+            } else {
+                newPath = normalizedPath.replace('/en/', '/');
+            }
+        } else if (normalizedPath === '/' || normalizedPath === '') {
+            // Currently on root (English)
+            if (otherLang === 'ru') {
+                newPath = '/ru/';
+            } else {
+                newPath = '/';
+            }
         } else {
-            // If path doesn't contain language, try to determine from structure
-            var pathParts = currentPath.split('/').filter(function(p) { return p; });
+            // Path doesn't have language prefix
+            var pathParts = normalizedPath.split('/').filter(function(p) { return p; });
             var langIndex = -1;
             
-            // Look for 'en' or 'ru' in path
+            // Look for 'en' or 'ru' in path parts
             for (var i = 0; i < pathParts.length; i++) {
                 if (pathParts[i] === 'en' || pathParts[i] === 'ru') {
                     langIndex = i;
@@ -54,18 +87,24 @@
             }
             
             if (langIndex >= 0) {
+                // Found language in path, replace it
                 pathParts[langIndex] = otherLang;
                 newPath = '/' + pathParts.join('/');
             } else {
-                // Fallback: add language to path
-                if (currentPath.startsWith('/docs/')) {
-                    newPath = currentPath.replace('/docs/', '/docs/' + otherLang + '/');
-                } else if (currentPath === '/' || currentPath === '') {
-                    newPath = '/' + otherLang + '/';
+                // No language in path - this is English version (at root)
+                if (otherLang === 'ru') {
+                    // Switch to Russian: add /ru/ prefix
+                    newPath = '/ru' + normalizedPath;
                 } else {
-                    newPath = '/' + otherLang + currentPath;
+                    // Stay at root
+                    newPath = normalizedPath;
                 }
             }
+        }
+        
+        // Ensure path starts with /
+        if (!newPath.startsWith('/')) {
+            newPath = '/' + newPath;
         }
         
         // Preserve hash and search params
