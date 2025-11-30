@@ -31,19 +31,22 @@ language = "en"
 # HTML output
 html_theme = "furo"
 html_static_path = ["../_static"]
+html_logo = "../_static/logo.jpg"
 html_theme_options = {
     "navigation_with_keys": True,
     "sidebar_hide_name": False,
     "light_css_variables": {
         "color-brand-primary": "#2980b9",
         "color-brand-content": "#3498db",
-        "color-sidebar-background": "#f8f9fa",
+        "color-background-primary": "#ffffff",
+        "color-sidebar-background": "#ffffff",
         "color-sidebar-item-background--hover": "#e9ecef",
     },
     "dark_css_variables": {
         "color-brand-primary": "#3498db",
         "color-brand-content": "#5dade2",
-        "color-sidebar-background": "#1e1e1e",
+        "color-background-primary": "#ffffff",
+        "color-sidebar-background": "#ffffff",
         "color-sidebar-item-background--hover": "#2d2d2d",
     },
 }

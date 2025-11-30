@@ -1,6 +1,11 @@
 ORCA Descriptors Documentation
 =============================
 
+.. image:: ../_static/logo.jpg
+   :alt: ORCA Descriptors Logo
+   :align: center
+   :width: 200px
+
 A Python library for automatic calculation of quantum chemical descriptors for QSAR analysis using ORCA quantum chemistry software.
 
 .. note::

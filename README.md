@@ -13,6 +13,18 @@ A Python library for automatic calculation of quantum chemical descriptors for Q
 pip install orca-descriptors
 ```
 
+**Note**: After installation, the `orca_descriptors` command-line tool will be available in your PATH. If you installed with `pip install --user`, you may need to add `~/.local/bin` to your PATH:
+
+```bash
+# For bash/zsh (add to ~/.bashrc or ~/.zshrc)
+export PATH="$HOME/.local/bin:$PATH"
+
+# For fish shell (add to ~/.config/fish/config.fish)
+set -gx PATH $HOME/.local/bin $PATH
+```
+
+After adding to PATH, restart your terminal or run `source ~/.bashrc` (or `source ~/.zshrc`).
+
 ### Using Poetry (development)
 
 ```bash

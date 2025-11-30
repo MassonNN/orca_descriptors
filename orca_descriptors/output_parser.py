@@ -38,6 +38,7 @@ class ORCAOutputParser:
         data["entropy"] = self._parse_entropy(content)
         data["molecular_volume"] = self._parse_molecular_volume(content)
         data["polar_surface_area"] = self._parse_polar_surface_area(content, data.get("coordinates", []))
+        data["orbital_energies"] = self._parse_all_orbital_energies(content)
         
         return data
     
@@ -407,4 +408,51 @@ class ORCAOutputParser:
         psa += atom_counts.get("S", 0) * 12.0
         
         return psa
+    
+    def _parse_all_orbital_energies(self, content: str) -> list[float]:
+        """Parse all orbital energies in eV.
+        
+        Returns list of orbital energies, ordered from lowest to highest.
+        Occupied orbitals come first, then virtual orbitals.
+        """
+        orbital_energies: list[float] = []
+        
+        lines = content.split("\n")
+        orbital_sections = []
+        for i, line in enumerate(lines):
+            if "ORBITAL ENERGIES" in line.upper():
+                orbital_sections.append(i)
+        
+        start_idx = orbital_sections[-1] if orbital_sections else -1
+        
+        if start_idx >= 0:
+            start_idx += 1
+            if start_idx < len(lines) and "---" in lines[start_idx]:
+                start_idx += 1
+            if start_idx < len(lines) and not lines[start_idx].strip():
+                start_idx += 1
+            if start_idx < len(lines) and "NO" in lines[start_idx] and "OCC" in lines[start_idx]:
+                start_idx += 1
+            
+            for i in range(start_idx, len(lines)):
+                line = lines[i]
+                
+                if line.strip() == "" or "*Only the first" in line or "Total SCF time" in line or "FINAL SINGLE POINT" in line or "DFT DISPERSION" in line:
+                    break
+                
+                if "NO" in line and "OCC" in line and "E(Eh)" in line:
+                    continue
+                
+                if "---" in line and len(line.strip()) < 20:
+                    continue
+                
+                parts = line.split()
+                if len(parts) >= 4:
+                    try:
+                        energy_ev = float(parts[3])
+                        orbital_energies.append(energy_ev)
+                    except (ValueError, IndexError):
+                        continue
+        
+        return orbital_energies
 
