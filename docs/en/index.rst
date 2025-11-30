@@ -1,7 +1,7 @@
 ORCA Descriptors Documentation
 =============================
 
-.. image:: ../_static/logo.jpg
+.. image:: ../_static/logo.png
    :alt: ORCA Descriptors Logo
    :align: center
    :width: 200px

@@ -31,7 +31,7 @@ language = "ru"
 # HTML output
 html_theme = "furo"
 html_static_path = ["../_static"]
-html_logo = "../_static/logo.jpg"
+html_logo = "../_static/logo.png"
 html_theme_options = {
     "navigation_with_keys": True,
     "sidebar_hide_name": False,
