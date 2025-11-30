@@ -3,6 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
+        <link rel="prefetch" href="../../_static/logo.jpg" as="image">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
         <title>orca_descriptors.orca - ORCA Descriptors 0.1.0 documentation</title>
@@ -196,6 +197,9 @@
     <div class="sidebar-container">
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/logo.jpg" alt="Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">ORCA Descriptors 0.1.0 documentation</span>
   
@@ -1197,6 +1201,391 @@
             <span class="k">if</span> <span class="n">volume</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">estimated_sasa</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">volume</span> <span class="o">**</span> <span class="p">(</span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">))</span>
                 <span class="k">return</span> <span class="n">estimated_sasa</span>
+            <span class="k">return</span> <span class="mf">0.0</span></div>
+
+    
+<div class="viewcode-block" id="Orca.mo_energy">
+<a class="viewcode-back" href="../../api/orca.html#orca_descriptors.orca.Orca.mo_energy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mo_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get molecular orbital energy by index.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol: RDKit molecule</span>
+<span class="sd">            index: Orbital index (negative for occupied: -1=HOMO, -2=HOMO-1, etc.)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Orbital energy in eV</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_output</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+        <span class="n">orbital_energies</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;orbital_energies&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">orbital_energies</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No orbital energies found in ORCA output&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        
+        <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">occupied</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">orbital_energies</span> <span class="k">if</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">occupied</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">occupied</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Requested orbital index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> out of range&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">orbital_energies</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">orbital_energies</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Requested orbital index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> out of range&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="mf">0.0</span></div>
+
+    
+<div class="viewcode-block" id="Orca.get_min_h_charge">
+<a class="viewcode-back" href="../../api/orca.html#orca_descriptors.orca.Orca.get_min_h_charge">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_min_h_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ESP&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get minimum net atomic charge for hydrogen atoms.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol: RDKit molecule</span>
+<span class="sd">            method: Charge method (currently only &quot;ESP&quot; supported, uses Mulliken as fallback)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Minimum hydrogen charge in atomic units</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_output</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+        <span class="n">atom_charges</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;atom_charges&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        
+        <span class="n">h_charges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">()):</span>
+            <span class="n">atom</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;H&quot;</span><span class="p">:</span>
+                <span class="n">charge</span> <span class="o">=</span> <span class="n">atom_charges</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="n">h_charges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">charge</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">h_charges</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No hydrogen atoms found in molecule&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">h_charges</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="Orca.xy_shadow">
+<a class="viewcode-back" href="../../api/orca.html#orca_descriptors.orca.Orca.xy_shadow">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">xy_shadow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate XY shadow area (projection area on XY plane).</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol: RDKit molecule</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            XY shadow area in Å²</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_output</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coordinates&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">coordinates</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No coordinates found in ORCA output&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        
+        <span class="n">x_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">]</span>
+        <span class="n">y_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">x_coords</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">y_coords</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        
+        <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">x_coords</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">x_coords</span><span class="p">)</span>
+        <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">y_coords</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">y_coords</span><span class="p">)</span>
+        
+        <span class="n">area</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">area</span></div>
+
+    
+<div class="viewcode-block" id="Orca.meric">
+<a class="viewcode-back" href="../../api/orca.html#orca_descriptors.orca.Orca.meric">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">meric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate MERIC (Minimum Electrophilicity Index for Carbon).</span>
+<span class="sd">        </span>
+<span class="sd">        MERIC predicts sites susceptible to nucleophilic attack.</span>
+<span class="sd">        For carbon bonded to heteroatoms (O, N, etc.), MERIC is typically negative.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol: RDKit molecule</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Minimum MERIC value in eV (typically negative for electrophilic carbons)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_output</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+        <span class="n">atom_charges</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;atom_charges&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coordinates&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">coordinates</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No coordinates found in ORCA output&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        
+        <span class="n">meric_values</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">()):</span>
+            <span class="n">atom</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            
+            <span class="n">has_heteroatom</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetNeighbors</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="s2">&quot;Br&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">]:</span>
+                    <span class="n">has_heteroatom</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+            
+            <span class="k">if</span> <span class="n">has_heteroatom</span><span class="p">:</span>
+                <span class="n">charge</span> <span class="o">=</span> <span class="n">atom_charges</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="n">homo</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;homo_energy&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="n">lumo</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lumo_energy&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">homo</span> <span class="o">!=</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">lumo</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+                    <span class="n">mu</span> <span class="o">=</span> <span class="p">(</span><span class="n">homo</span> <span class="o">+</span> <span class="n">lumo</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+                    <span class="n">eta</span> <span class="o">=</span> <span class="p">(</span><span class="n">lumo</span> <span class="o">-</span> <span class="n">homo</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+                    <span class="k">if</span> <span class="n">eta</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">electrophilicity</span> <span class="o">=</span> <span class="o">-</span><span class="nb">abs</span><span class="p">(</span><span class="n">homo</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">eta</span><span class="p">)</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">charge</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">electrophilicity</span> <span class="o">=</span> <span class="o">-</span><span class="nb">abs</span><span class="p">(</span><span class="n">homo</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">charge</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span>
+                    <span class="n">meric_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">electrophilicity</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">meric_values</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">meric_values</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="Orca.topological_distance">
+<a class="viewcode-back" href="../../api/orca.html#orca_descriptors.orca.Orca.topological_distance">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">topological_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">atom1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">atom2</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate sum of topological distances between all pairs of atoms of specified types.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol: RDKit molecule</span>
+<span class="sd">            atom1: First atom type (e.g., &#39;O&#39;)</span>
+<span class="sd">            atom2: Second atom type (e.g., &#39;O&#39;)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Sum of topological distances (integer)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span>
+        
+        <span class="n">atom1_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">())</span> 
+                         <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()</span> <span class="o">==</span> <span class="n">atom1</span><span class="p">]</span>
+        <span class="n">atom2_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">())</span> 
+                         <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()</span> <span class="o">==</span> <span class="n">atom2</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">atom1_indices</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">atom2_indices</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        
+        <span class="n">adj</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">())}</span>
+        <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBonds</span><span class="p">():</span>
+            <span class="n">begin_idx</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span>
+            <span class="n">end_idx</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetEndAtomIdx</span><span class="p">()</span>
+            <span class="n">adj</span><span class="p">[</span><span class="n">begin_idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end_idx</span><span class="p">)</span>
+            <span class="n">adj</span><span class="p">[</span><span class="n">end_idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">begin_idx</span><span class="p">)</span>
+        
+        <span class="n">total_distance</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="n">atom1_indices</span><span class="p">:</span>
+            <span class="n">distances</span> <span class="o">=</span> <span class="p">{</span><span class="n">start</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+            <span class="n">queue</span> <span class="o">=</span> <span class="n">deque</span><span class="p">([</span><span class="n">start</span><span class="p">])</span>
+            
+            <span class="k">while</span> <span class="n">queue</span><span class="p">:</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">adj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="p">[]):</span>
+                    <span class="k">if</span> <span class="n">neighbor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
+                        <span class="n">distances</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span> <span class="o">=</span> <span class="n">distances</span><span class="p">[</span><span class="n">current</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                        <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">atom2_indices</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="n">start</span> <span class="ow">and</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
+                    <span class="n">total_distance</span> <span class="o">+=</span> <span class="n">distances</span><span class="p">[</span><span class="n">end</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="n">total_distance</span></div>
+
+    
+<div class="viewcode-block" id="Orca.m_log_p">
+<a class="viewcode-back" href="../../api/orca.html#orca_descriptors.orca.Orca.m_log_p">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">m_log_p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate Moriguchi Log P (octanol/water partition coefficient).</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol: RDKit molecule</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Log P value (positive for hydrophobic, negative for hydrophilic)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem</span><span class="w"> </span><span class="kn">import</span> <span class="n">Crippen</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logp</span> <span class="o">=</span> <span class="n">Crippen</span><span class="o">.</span><span class="n">MolLogP</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">logp</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to calculate M log P: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mf">0.0</span></div>
+
+    
+<div class="viewcode-block" id="Orca.moran_autocorrelation">
+<a class="viewcode-back" href="../../api/orca.html#orca_descriptors.orca.Orca.moran_autocorrelation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">moran_autocorrelation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">lag</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">weight</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;vdw_volume&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate Moran autocorrelation descriptor.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol: RDKit molecule</span>
+<span class="sd">            lag: Lag distance (default: 2)</span>
+<span class="sd">            weight: Weighting scheme (&#39;vdw_volume&#39;, &#39;atomic_mass&#39;, etc.)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Moran autocorrelation value (typically in range -1.0 to 1.0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem</span><span class="w"> </span><span class="kn">import</span> <span class="n">Descriptors</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="n">lag</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.0</span>
+            
+            <span class="k">if</span> <span class="n">weight</span> <span class="o">==</span> <span class="s2">&quot;vdw_volume&quot;</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem</span><span class="w"> </span><span class="kn">import</span> <span class="n">rdMolDescriptors</span>
+                <span class="n">weights</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                    <span class="n">atom</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="n">symbol</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()</span>
+                    <span class="n">vdw_radii</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="mf">1.7</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="mf">1.55</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span> <span class="mf">1.52</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">:</span> <span class="mf">1.47</span><span class="p">,</span> 
+                                <span class="s1">&#39;P&#39;</span><span class="p">:</span> <span class="mf">1.8</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">:</span> <span class="mf">1.8</span><span class="p">,</span> <span class="s1">&#39;Cl&#39;</span><span class="p">:</span> <span class="mf">1.75</span><span class="p">,</span> <span class="s1">&#39;Br&#39;</span><span class="p">:</span> <span class="mf">1.85</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">:</span> <span class="mf">1.98</span><span class="p">}</span>
+                    <span class="n">radius</span> <span class="o">=</span> <span class="n">vdw_radii</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+                    <span class="n">volume</span> <span class="o">=</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">3.14159</span> <span class="o">*</span> <span class="p">(</span><span class="n">radius</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
+                    <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">GetMass</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">weights</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span><span class="n">w</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">):</span>
+                <span class="k">return</span> <span class="mf">0.0</span>
+            
+            <span class="n">mean_weight</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
+            
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem</span><span class="w"> </span><span class="kn">import</span> <span class="n">rdMolDescriptors</span>
+                <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">rdMolDescriptors</span><span class="o">.</span><span class="n">GetDistanceMatrix</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span>
+                <span class="n">n_atoms</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">()</span>
+                <span class="n">dist_matrix</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_atoms</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">)]</span>
+                <span class="n">adj</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">)}</span>
+                <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBonds</span><span class="p">():</span>
+                    <span class="n">b</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span>
+                    <span class="n">e</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetEndAtomIdx</span><span class="p">()</span>
+                    <span class="n">adj</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="n">adj</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">):</span>
+                    <span class="n">distances</span> <span class="o">=</span> <span class="p">{</span><span class="n">start</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+                    <span class="n">queue</span> <span class="o">=</span> <span class="n">deque</span><span class="p">([</span><span class="n">start</span><span class="p">])</span>
+                    <span class="k">while</span> <span class="n">queue</span><span class="p">:</span>
+                        <span class="n">current</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">adj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="p">[]):</span>
+                            <span class="k">if</span> <span class="n">neighbor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
+                                <span class="n">distances</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span> <span class="o">=</span> <span class="n">distances</span><span class="p">[</span><span class="n">current</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                                <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">end</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">distances</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">dist_matrix</span><span class="p">[</span><span class="n">start</span><span class="p">][</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span>
+            
+            <span class="n">distances</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+                    <span class="n">dist_val</span> <span class="o">=</span> <span class="n">dist_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">dist_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">dist_val</span> <span class="o">==</span> <span class="n">lag</span><span class="p">:</span>
+                        <span class="n">distances</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">distances</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.0</span>
+            
+            <span class="n">autocorr</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
+                <span class="n">wi</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">wj</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">autocorr</span> <span class="o">+=</span> <span class="p">(</span><span class="n">wi</span> <span class="o">-</span> <span class="n">mean_weight</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">wj</span> <span class="o">-</span> <span class="n">mean_weight</span><span class="p">)</span>
+            
+            <span class="n">variance</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">w</span> <span class="o">-</span> <span class="n">mean_weight</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.0</span>
+            
+            <span class="k">if</span> <span class="n">variance</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.0</span>
+            
+            <span class="n">autocorr</span> <span class="o">=</span> <span class="n">autocorr</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">*</span> <span class="n">variance</span><span class="p">)</span> <span class="k">if</span> <span class="n">variance</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+            
+            <span class="k">return</span> <span class="n">autocorr</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to calculate Moran autocorrelation: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mf">0.0</span></div>
+
+    
+<div class="viewcode-block" id="Orca.autocorrelation_hats">
+<a class="viewcode-back" href="../../api/orca.html#orca_descriptors.orca.Orca.autocorrelation_hats">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">autocorrelation_hats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">lag</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unweighted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate HATS autocorrelation descriptor (H-bond acceptor/donor).</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol: RDKit molecule</span>
+<span class="sd">            lag: Lag distance (default: 4)</span>
+<span class="sd">            unweighted: If True, use unweighted autocorrelation</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            HATS autocorrelation value (typically close to zero)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem</span><span class="w"> </span><span class="kn">import</span> <span class="n">Descriptors</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="n">lag</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.0</span>
+            
+            <span class="n">h_bond_atoms</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="n">atom</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">symbol</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">]:</span>
+                    <span class="n">h_bond_atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">h_bond_atoms</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.0</span>
+            
+            <span class="n">distances</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">h_bond_atoms</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">h_bond_atoms</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">dist</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetDistanceMatrix</span><span class="p">()[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">dist</span> <span class="o">==</span> <span class="n">lag</span><span class="p">:</span>
+                                <span class="n">distances</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
+                        <span class="k">except</span><span class="p">:</span>
+                            <span class="k">continue</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">distances</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.0</span>
+            
+            <span class="k">if</span> <span class="n">unweighted</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">GetSymbol</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="mf">0.0</span> 
+                          <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+                <span class="n">mean_weight</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+                
+                <span class="n">autocorr</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
+                    <span class="n">wi</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span>
+                    <span class="n">wj</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">if</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span>
+                    <span class="n">autocorr</span> <span class="o">+=</span> <span class="p">(</span><span class="n">wi</span> <span class="o">-</span> <span class="n">mean_weight</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">wj</span> <span class="o">-</span> <span class="n">mean_weight</span><span class="p">)</span>
+                
+                <span class="n">variance</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">w</span> <span class="o">-</span> <span class="n">mean_weight</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">variance</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="mf">0.0</span>
+                
+                <span class="n">autocorr</span> <span class="o">=</span> <span class="n">autocorr</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">*</span> <span class="n">variance</span><span class="p">)</span> <span class="k">if</span> <span class="n">variance</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+                <span class="k">return</span> <span class="n">autocorr</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to calculate HATS autocorrelation: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="mf">0.0</span></div>
 </div>
 

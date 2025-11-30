@@ -459,6 +459,138 @@ solvent probe. Requires 3D coordinates from ORCA optimization.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.mo_energy">
+<span class="sig-name descname"><span class="pre">mo_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.mo_energy"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.mo_energy" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Get molecular orbital energy by index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – RDKit molecule</p></li>
+<li><p><strong>index</strong> – Orbital index (negative for occupied: -1=HOMO, -2=HOMO-1, etc.)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Orbital energy in eV</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.get_min_h_charge">
+<span class="sig-name descname"><span class="pre">get_min_h_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ESP'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.get_min_h_charge"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.get_min_h_charge" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Get minimum net atomic charge for hydrogen atoms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – RDKit molecule</p></li>
+<li><p><strong>method</strong> – Charge method (currently only «ESP» supported, uses Mulliken as fallback)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Minimum hydrogen charge in atomic units</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.xy_shadow">
+<span class="sig-name descname"><span class="pre">xy_shadow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.xy_shadow"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.xy_shadow" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Calculate XY shadow area (projection area on XY plane).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> – RDKit molecule</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>XY shadow area in Å²</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.meric">
+<span class="sig-name descname"><span class="pre">meric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.meric"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.meric" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Calculate MERIC (Minimum Electrophilicity Index for Carbon).</p>
+<p>MERIC predicts sites susceptible to nucleophilic attack.
+For carbon bonded to heteroatoms (O, N, etc.), MERIC is typically negative.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> – RDKit molecule</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Minimum MERIC value in eV (typically negative for electrophilic carbons)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.topological_distance">
+<span class="sig-name descname"><span class="pre">topological_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.topological_distance"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.topological_distance" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Calculate sum of topological distances between all pairs of atoms of specified types.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – RDKit molecule</p></li>
+<li><p><strong>atom1</strong> – First atom type (e.g., „O“)</p></li>
+<li><p><strong>atom2</strong> – Second atom type (e.g., „O“)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sum of topological distances (integer)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.m_log_p">
+<span class="sig-name descname"><span class="pre">m_log_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.m_log_p"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.m_log_p" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Calculate Moriguchi Log P (octanol/water partition coefficient).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mol</strong> – RDKit molecule</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Log P value (positive for hydrophobic, negative for hydrophilic)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.moran_autocorrelation">
+<span class="sig-name descname"><span class="pre">moran_autocorrelation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'vdw_volume'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.moran_autocorrelation"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.moran_autocorrelation" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Calculate Moran autocorrelation descriptor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – RDKit molecule</p></li>
+<li><p><strong>lag</strong> – Lag distance (default: 2)</p></li>
+<li><p><strong>weight</strong> – Weighting scheme („vdw_volume“, „atomic_mass“, etc.)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Moran autocorrelation value (typically in range -1.0 to 1.0)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.autocorrelation_hats">
+<span class="sig-name descname"><span class="pre">autocorrelation_hats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unweighted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.autocorrelation_hats"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.autocorrelation_hats" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Calculate HATS autocorrelation descriptor (H-bond acceptor/donor).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – RDKit molecule</p></li>
+<li><p><strong>lag</strong> – Lag distance (default: 4)</p></li>
+<li><p><strong>unweighted</strong> – If True, use unweighted autocorrelation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>HATS autocorrelation value (typically close to zero)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -542,6 +674,14 @@ solvent probe. Requires 3D coordinates from ORCA optimization.</p>
 <li><a class="reference internal" href="#orca_descriptors.orca.Orca.num_rotatable_bonds"><code class="docutils literal notranslate"><span class="pre">Orca.num_rotatable_bonds()</span></code></a></li>
 <li><a class="reference internal" href="#orca_descriptors.orca.Orca.wiener_index"><code class="docutils literal notranslate"><span class="pre">Orca.wiener_index()</span></code></a></li>
 <li><a class="reference internal" href="#orca_descriptors.orca.Orca.solvent_accessible_surface_area"><code class="docutils literal notranslate"><span class="pre">Orca.solvent_accessible_surface_area()</span></code></a></li>
+<li><a class="reference internal" href="#orca_descriptors.orca.Orca.mo_energy"><code class="docutils literal notranslate"><span class="pre">Orca.mo_energy()</span></code></a></li>
+<li><a class="reference internal" href="#orca_descriptors.orca.Orca.get_min_h_charge"><code class="docutils literal notranslate"><span class="pre">Orca.get_min_h_charge()</span></code></a></li>
+<li><a class="reference internal" href="#orca_descriptors.orca.Orca.xy_shadow"><code class="docutils literal notranslate"><span class="pre">Orca.xy_shadow()</span></code></a></li>
+<li><a class="reference internal" href="#orca_descriptors.orca.Orca.meric"><code class="docutils literal notranslate"><span class="pre">Orca.meric()</span></code></a></li>
+<li><a class="reference internal" href="#orca_descriptors.orca.Orca.topological_distance"><code class="docutils literal notranslate"><span class="pre">Orca.topological_distance()</span></code></a></li>
+<li><a class="reference internal" href="#orca_descriptors.orca.Orca.m_log_p"><code class="docutils literal notranslate"><span class="pre">Orca.m_log_p()</span></code></a></li>
+<li><a class="reference internal" href="#orca_descriptors.orca.Orca.moran_autocorrelation"><code class="docutils literal notranslate"><span class="pre">Orca.moran_autocorrelation()</span></code></a></li>
+<li><a class="reference internal" href="#orca_descriptors.orca.Orca.autocorrelation_hats"><code class="docutils literal notranslate"><span class="pre">Orca.autocorrelation_hats()</span></code></a></li>
 </ul>
 </li>
 </ul>

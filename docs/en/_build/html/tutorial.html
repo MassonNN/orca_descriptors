@@ -300,6 +300,31 @@
 <span class="c1"># Thermodynamic descriptors</span>
 <span class="n">energy</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">total_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="n">gibbs</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">gibbs_free_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+
+<span class="c1"># Molecular orbital descriptors</span>
+<span class="n">homo_minus_1</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">mo_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">index</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># HOMO-1 energy</span>
+
+<span class="c1"># Charge descriptors</span>
+<span class="n">min_h_charge</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">get_min_h_charge</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ESP&quot;</span><span class="p">)</span>  <span class="c1"># Minimum H charge</span>
+
+<span class="c1"># Geometric descriptors</span>
+<span class="n">xy_area</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">xy_shadow</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># XY projection area</span>
+
+<span class="c1"># Reactivity descriptors</span>
+<span class="n">meric</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">meric</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># Electrophilicity index for carbon</span>
+
+<span class="c1"># Topological descriptors</span>
+<span class="n">t_oo</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">topological_distance</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">)</span>  <span class="c1"># Sum of O-O distances</span>
+<span class="n">nrot</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">num_rotatable_bonds</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># Number of rotatable bonds</span>
+<span class="n">wiener</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">wiener_index</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># Wiener index</span>
+
+<span class="c1"># Physicochemical descriptors</span>
+<span class="n">logp</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">m_log_p</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># Octanol/water partition coefficient</span>
+<span class="n">sasa</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">solvent_accessible_surface_area</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># SASA</span>
+
+<span class="c1"># Autocorrelation descriptors</span>
+<span class="n">mats2v</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">moran_autocorrelation</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">lag</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;vdw_volume&#39;</span><span class="p">)</span>
+<span class="n">hats4u</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">autocorrelation_hats</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">lag</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">unweighted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -381,6 +406,83 @@
 </pre></div>
 </div>
 </section>
+<section id="available-descriptors">
+<h2>Available Descriptors<a class="headerlink" href="#available-descriptors" title="Link to this heading">¶</a></h2>
+<p>The library provides a comprehensive set of descriptors for QSAR analysis:</p>
+<section id="energy-descriptors">
+<h3>Energy Descriptors<a class="headerlink" href="#energy-descriptors" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">homo_energy(mol)</span></code> - HOMO energy (eV)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lumo_energy(mol)</span></code> - LUMO energy (eV)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gap_energy(mol)</span></code> - HOMO-LUMO gap (eV)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mo_energy(mol,</span> <span class="pre">index)</span></code> - Molecular orbital energy by index (eV)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">total_energy(mol)</span></code> - Total energy (Hartree)</p></li>
+</ul>
+</section>
+<section id="dft-descriptors">
+<h3>DFT Descriptors<a class="headerlink" href="#dft-descriptors" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ch_potential(mol)</span></code> - Chemical potential (eV)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">electronegativity(mol)</span></code> - Electronegativity (eV)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">abs_hardness(mol)</span></code> - Absolute hardness (eV)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">abs_softness(mol)</span></code> - Absolute softness (1/eV)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">frontier_electron_density(mol)</span></code> - Frontier electron density</p></li>
+</ul>
+</section>
+<section id="charge-descriptors">
+<h3>Charge Descriptors<a class="headerlink" href="#charge-descriptors" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_atom_charges(mol)</span></code> - Mulliken atomic charges</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_min_h_charge(mol,</span> <span class="pre">method=&quot;ESP&quot;)</span></code> - Minimum hydrogen charge</p></li>
+</ul>
+</section>
+<section id="geometric-descriptors">
+<h3>Geometric Descriptors<a class="headerlink" href="#geometric-descriptors" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">xy_shadow(mol)</span></code> - XY projection area (Å²)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">molecular_volume(mol)</span></code> - Molecular volume (Å³)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_bond_lengths(mol,</span> <span class="pre">atom1,</span> <span class="pre">atom2)</span></code> - Bond lengths (Å)</p></li>
+</ul>
+</section>
+<section id="reactivity-descriptors">
+<h3>Reactivity Descriptors<a class="headerlink" href="#reactivity-descriptors" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">meric(mol)</span></code> - Minimum electrophilicity index for carbon (eV)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dipole_moment(mol)</span></code> - Dipole moment (Debye)</p></li>
+</ul>
+</section>
+<section id="topological-descriptors">
+<h3>Topological Descriptors<a class="headerlink" href="#topological-descriptors" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">topological_distance(mol,</span> <span class="pre">atom1,</span> <span class="pre">atom2)</span></code> - Sum of topological distances</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_rotatable_bonds(mol)</span></code> - Number of rotatable bonds</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wiener_index(mol)</span></code> - Wiener index</p></li>
+</ul>
+</section>
+<section id="physicochemical-descriptors">
+<h3>Physicochemical Descriptors<a class="headerlink" href="#physicochemical-descriptors" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">m_log_p(mol)</span></code> - Moriguchi Log P (octanol/water partition coefficient)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">polar_surface_area(mol)</span></code> - Polar surface area (Å²)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">solvent_accessible_surface_area(mol)</span></code> - SASA (Å²)</p></li>
+</ul>
+</section>
+<section id="thermodynamic-descriptors">
+<h3>Thermodynamic Descriptors<a class="headerlink" href="#thermodynamic-descriptors" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gibbs_free_energy(mol)</span></code> - Gibbs free energy (Hartree)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">entropy(mol)</span></code> - Entropy (J/(mol·K))</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">enthalpy(mol)</span></code> - Enthalpy (Hartree)</p></li>
+</ul>
+</section>
+<section id="autocorrelation-descriptors">
+<h3>Autocorrelation Descriptors<a class="headerlink" href="#autocorrelation-descriptors" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">moran_autocorrelation(mol,</span> <span class="pre">lag,</span> <span class="pre">weight)</span></code> - Moran autocorrelation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">autocorrelation_hats(mol,</span> <span class="pre">lag,</span> <span class="pre">unweighted)</span></code> - HATS autocorrelation</p></li>
+</ul>
+</section>
+</section>
 </section>
 
         </article>
@@ -450,6 +552,18 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#example-workflow">Example Workflow</a></li>
+<li><a class="reference internal" href="#available-descriptors">Available Descriptors</a><ul>
+<li><a class="reference internal" href="#energy-descriptors">Energy Descriptors</a></li>
+<li><a class="reference internal" href="#dft-descriptors">DFT Descriptors</a></li>
+<li><a class="reference internal" href="#charge-descriptors">Charge Descriptors</a></li>
+<li><a class="reference internal" href="#geometric-descriptors">Geometric Descriptors</a></li>
+<li><a class="reference internal" href="#reactivity-descriptors">Reactivity Descriptors</a></li>
+<li><a class="reference internal" href="#topological-descriptors">Topological Descriptors</a></li>
+<li><a class="reference internal" href="#physicochemical-descriptors">Physicochemical Descriptors</a></li>
+<li><a class="reference internal" href="#thermodynamic-descriptors">Thermodynamic Descriptors</a></li>
+<li><a class="reference internal" href="#autocorrelation-descriptors">Autocorrelation Descriptors</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -465,6 +579,6 @@
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
-    <script src="_static/language_switcher.js?v=da574619"></script>
+    <script src="_static/language_switcher.js?v=a3e6eca9"></script>
     </body>
 </html>

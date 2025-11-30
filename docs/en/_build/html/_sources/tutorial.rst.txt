@@ -45,6 +45,31 @@ Calculate descriptors::
    # Thermodynamic descriptors
    energy = orca.total_energy(mol)
    gibbs = orca.gibbs_free_energy(mol)
+   
+   # Molecular orbital descriptors
+   homo_minus_1 = orca.mo_energy(mol, index=-2)  # HOMO-1 energy
+   
+   # Charge descriptors
+   min_h_charge = orca.get_min_h_charge(mol, method="ESP")  # Minimum H charge
+   
+   # Geometric descriptors
+   xy_area = orca.xy_shadow(mol)  # XY projection area
+   
+   # Reactivity descriptors
+   meric = orca.meric(mol)  # Electrophilicity index for carbon
+   
+   # Topological descriptors
+   t_oo = orca.topological_distance(mol, 'O', 'O')  # Sum of O-O distances
+   nrot = orca.num_rotatable_bonds(mol)  # Number of rotatable bonds
+   wiener = orca.wiener_index(mol)  # Wiener index
+   
+   # Physicochemical descriptors
+   logp = orca.m_log_p(mol)  # Octanol/water partition coefficient
+   sasa = orca.solvent_accessible_surface_area(mol)  # SASA
+   
+   # Autocorrelation descriptors
+   mats2v = orca.moran_autocorrelation(mol, lag=2, weight='vdw_volume')
+   hats4u = orca.autocorrelation_hats(mol, lag=4, unweighted=True)
 
 Caching
 ~~~~~~~
@@ -123,4 +148,73 @@ Here's a complete example of calculating descriptors for multiple molecules::
    # Process results
    for r in results:
        print(f"{r['smiles']}: Gap = {r['gap']:.2f} eV")
+
+Available Descriptors
+---------------------
+
+The library provides a comprehensive set of descriptors for QSAR analysis:
+
+Energy Descriptors
+~~~~~~~~~~~~~~~~~~
+
+- ``homo_energy(mol)`` - HOMO energy (eV)
+- ``lumo_energy(mol)`` - LUMO energy (eV)
+- ``gap_energy(mol)`` - HOMO-LUMO gap (eV)
+- ``mo_energy(mol, index)`` - Molecular orbital energy by index (eV)
+- ``total_energy(mol)`` - Total energy (Hartree)
+
+DFT Descriptors
+~~~~~~~~~~~~~~~
+
+- ``ch_potential(mol)`` - Chemical potential (eV)
+- ``electronegativity(mol)`` - Electronegativity (eV)
+- ``abs_hardness(mol)`` - Absolute hardness (eV)
+- ``abs_softness(mol)`` - Absolute softness (1/eV)
+- ``frontier_electron_density(mol)`` - Frontier electron density
+
+Charge Descriptors
+~~~~~~~~~~~~~~~~~~
+
+- ``get_atom_charges(mol)`` - Mulliken atomic charges
+- ``get_min_h_charge(mol, method="ESP")`` - Minimum hydrogen charge
+
+Geometric Descriptors
+~~~~~~~~~~~~~~~~~~~~~
+
+- ``xy_shadow(mol)`` - XY projection area (Å²)
+- ``molecular_volume(mol)`` - Molecular volume (Å³)
+- ``get_bond_lengths(mol, atom1, atom2)`` - Bond lengths (Å)
+
+Reactivity Descriptors
+~~~~~~~~~~~~~~~~~~~~~~
+
+- ``meric(mol)`` - Minimum electrophilicity index for carbon (eV)
+- ``dipole_moment(mol)`` - Dipole moment (Debye)
+
+Topological Descriptors
+~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``topological_distance(mol, atom1, atom2)`` - Sum of topological distances
+- ``num_rotatable_bonds(mol)`` - Number of rotatable bonds
+- ``wiener_index(mol)`` - Wiener index
+
+Physicochemical Descriptors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``m_log_p(mol)`` - Moriguchi Log P (octanol/water partition coefficient)
+- ``polar_surface_area(mol)`` - Polar surface area (Å²)
+- ``solvent_accessible_surface_area(mol)`` - SASA (Å²)
+
+Thermodynamic Descriptors
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``gibbs_free_energy(mol)`` - Gibbs free energy (Hartree)
+- ``entropy(mol)`` - Entropy (J/(mol·K))
+- ``enthalpy(mol)`` - Enthalpy (Hartree)
+
+Autocorrelation Descriptors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``moran_autocorrelation(mol, lag, weight)`` - Moran autocorrelation
+- ``autocorrelation_hats(mol, lag, unweighted)`` - HATS autocorrelation
 

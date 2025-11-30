@@ -300,6 +300,31 @@
 <span class="c1"># Термодинамические дескрипторы</span>
 <span class="n">energy</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">total_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="n">gibbs</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">gibbs_free_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+
+<span class="c1"># Дескрипторы молекулярных орбиталей</span>
+<span class="n">homo_minus_1</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">mo_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">index</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Энергия HOMO-1</span>
+
+<span class="c1"># Дескрипторы зарядов</span>
+<span class="n">min_h_charge</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">get_min_h_charge</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ESP&quot;</span><span class="p">)</span>  <span class="c1"># Минимальный заряд водорода</span>
+
+<span class="c1"># Геометрические дескрипторы</span>
+<span class="n">xy_area</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">xy_shadow</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># Площадь проекции на плоскость XY</span>
+
+<span class="c1"># Дескрипторы реакционной способности</span>
+<span class="n">meric</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">meric</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># Индекс электрофильности для углерода</span>
+
+<span class="c1"># Топологические дескрипторы</span>
+<span class="n">t_oo</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">topological_distance</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">)</span>  <span class="c1"># Сумма расстояний O-O</span>
+<span class="n">nrot</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">num_rotatable_bonds</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># Количество вращающихся связей</span>
+<span class="n">wiener</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">wiener_index</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># Индекс Винера</span>
+
+<span class="c1"># Физико-химические дескрипторы</span>
+<span class="n">logp</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">m_log_p</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># Коэффициент распределения октанол/вода</span>
+<span class="n">sasa</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">solvent_accessible_surface_area</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># SASA</span>
+
+<span class="c1"># Дескрипторы автокорреляции</span>
+<span class="n">mats2v</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">moran_autocorrelation</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">lag</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;vdw_volume&#39;</span><span class="p">)</span>
+<span class="n">hats4u</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">autocorrelation_hats</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">lag</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">unweighted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -381,6 +406,83 @@
 </pre></div>
 </div>
 </section>
+<section id="id8">
+<h2>Доступные дескрипторы<a class="headerlink" href="#id8" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Библиотека предоставляет комплексный набор дескрипторов для QSAR анализа:</p>
+<section id="id9">
+<h3>Энергетические дескрипторы<a class="headerlink" href="#id9" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">homo_energy(mol)</span></code> - Энергия HOMO (эВ)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lumo_energy(mol)</span></code> - Энергия LUMO (эВ)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gap_energy(mol)</span></code> - Разрыв HOMO-LUMO (эВ)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mo_energy(mol,</span> <span class="pre">index)</span></code> - Энергия молекулярной орбитали по индексу (эВ)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">total_energy(mol)</span></code> - Полная энергия (Хартри)</p></li>
+</ul>
+</section>
+<section id="dft">
+<h3>DFT дескрипторы<a class="headerlink" href="#dft" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ch_potential(mol)</span></code> - Химический потенциал (эВ)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">electronegativity(mol)</span></code> - Электроотрицательность (эВ)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">abs_hardness(mol)</span></code> - Абсолютная жесткость (эВ)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">abs_softness(mol)</span></code> - Абсолютная мягкость (1/эВ)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">frontier_electron_density(mol)</span></code> - Плотность фронтирных электронов</p></li>
+</ul>
+</section>
+<section id="id10">
+<h3>Дескрипторы зарядов<a class="headerlink" href="#id10" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_atom_charges(mol)</span></code> - Атомные заряды Малликена</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_min_h_charge(mol,</span> <span class="pre">method=&quot;ESP&quot;)</span></code> - Минимальный заряд водорода</p></li>
+</ul>
+</section>
+<section id="id11">
+<h3>Геометрические дескрипторы<a class="headerlink" href="#id11" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">xy_shadow(mol)</span></code> - Площадь проекции на плоскость XY (Å²)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">molecular_volume(mol)</span></code> - Молекулярный объем (Å³)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_bond_lengths(mol,</span> <span class="pre">atom1,</span> <span class="pre">atom2)</span></code> - Длины связей (Å)</p></li>
+</ul>
+</section>
+<section id="id12">
+<h3>Дескрипторы реакционной способности<a class="headerlink" href="#id12" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">meric(mol)</span></code> - Минимальный индекс электрофильности для углерода (эВ)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dipole_moment(mol)</span></code> - Дипольный момент (Дебай)</p></li>
+</ul>
+</section>
+<section id="id13">
+<h3>Топологические дескрипторы<a class="headerlink" href="#id13" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">topological_distance(mol,</span> <span class="pre">atom1,</span> <span class="pre">atom2)</span></code> - Сумма топологических расстояний</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_rotatable_bonds(mol)</span></code> - Количество вращающихся связей</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wiener_index(mol)</span></code> - Индекс Винера</p></li>
+</ul>
+</section>
+<section id="id14">
+<h3>Физико-химические дескрипторы<a class="headerlink" href="#id14" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">m_log_p(mol)</span></code> - Коэффициент распределения Моригучи (октанол/вода)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">polar_surface_area(mol)</span></code> - Полярная площадь поверхности (Å²)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">solvent_accessible_surface_area(mol)</span></code> - Доступная площадь поверхности растворителя (Å²)</p></li>
+</ul>
+</section>
+<section id="id15">
+<h3>Термодинамические дескрипторы<a class="headerlink" href="#id15" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gibbs_free_energy(mol)</span></code> - Энергия Гиббса (Хартри)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">entropy(mol)</span></code> - Энтропия (Дж/(моль·К))</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">enthalpy(mol)</span></code> - Энтальпия (Хартри)</p></li>
+</ul>
+</section>
+<section id="id16">
+<h3>Дескрипторы автокорреляции<a class="headerlink" href="#id16" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">moran_autocorrelation(mol,</span> <span class="pre">lag,</span> <span class="pre">weight)</span></code> - Автокорреляция Моран</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">autocorrelation_hats(mol,</span> <span class="pre">lag,</span> <span class="pre">unweighted)</span></code> - Автокорреляция HATS</p></li>
+</ul>
+</section>
+</section>
 </section>
 
         </article>
@@ -450,6 +552,18 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#id7">Пример рабочего процесса</a></li>
+<li><a class="reference internal" href="#id8">Доступные дескрипторы</a><ul>
+<li><a class="reference internal" href="#id9">Энергетические дескрипторы</a></li>
+<li><a class="reference internal" href="#dft">DFT дескрипторы</a></li>
+<li><a class="reference internal" href="#id10">Дескрипторы зарядов</a></li>
+<li><a class="reference internal" href="#id11">Геометрические дескрипторы</a></li>
+<li><a class="reference internal" href="#id12">Дескрипторы реакционной способности</a></li>
+<li><a class="reference internal" href="#id13">Топологические дескрипторы</a></li>
+<li><a class="reference internal" href="#id14">Физико-химические дескрипторы</a></li>
+<li><a class="reference internal" href="#id15">Термодинамические дескрипторы</a></li>
+<li><a class="reference internal" href="#id16">Дескрипторы автокорреляции</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -466,6 +580,6 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="_static/translations.js?v=5b699b7f"></script>
-    <script src="_static/language_switcher.js?v=da574619"></script>
+    <script src="_static/language_switcher.js?v=a3e6eca9"></script>
     </body>
 </html>

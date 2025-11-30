@@ -57,6 +57,16 @@ mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
 homo = orca.homo_energy(mol)
 lumo = orca.lumo_energy(mol)
 gap = orca.gap_energy(mol)
+
+# Additional descriptors
+homo_minus_1 = orca.mo_energy(mol, index=-2)  # HOMO-1 energy
+min_h_charge = orca.get_min_h_charge(mol)  # Minimum H charge
+xy_shadow = orca.xy_shadow(mol)  # XY projection area
+meric = orca.meric(mol)  # Electrophilicity index
+logp = orca.m_log_p(mol)  # Log P coefficient
+nrot = orca.num_rotatable_bonds(mol)  # Rotatable bonds
+wiener = orca.wiener_index(mol)  # Wiener index
+sasa = orca.solvent_accessible_surface_area(mol)  # SASA
 ```
 
 ### As a Command-Line Utility
