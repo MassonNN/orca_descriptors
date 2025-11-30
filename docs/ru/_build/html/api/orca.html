@@ -11,7 +11,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
-    <link rel="stylesheet" type="text/css" href="../_static/language_switcher.css?v=b89d3bec" />
+    <link rel="stylesheet" type="text/css" href="../_static/language_switcher.css?v=a8e6fed2" />
     
     
 
@@ -33,8 +33,8 @@
   --color-code-foreground: #d0d0d0;
   --color-brand-primary: #3498db;
   --color-brand-content: #5dade2;
-  --color-background-primary: #ffffff;
-  --color-sidebar-background: #ffffff;
+  --color-background-primary: #1e1e1e;
+  --color-sidebar-background: #1e1e1e;
   --color-sidebar-item-background--hover: #2d2d2d;
   
     }
@@ -44,8 +44,8 @@
   --color-code-foreground: #d0d0d0;
   --color-brand-primary: #3498db;
   --color-brand-content: #5dade2;
-  --color-background-primary: #ffffff;
-  --color-sidebar-background: #ffffff;
+  --color-background-primary: #1e1e1e;
+  --color-sidebar-background: #1e1e1e;
   --color-sidebar-item-background--hover: #2d2d2d;
   
       }
@@ -214,6 +214,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Установка</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Туториал</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pandas_tutorial.html">Туториал по интеграции с Pandas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../benchmark.html">Бенчмарк и оценка времени</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Справочник API</a><input aria-label="Toggle navigation of Справочник API" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Класс Orca</a></li>
@@ -591,6 +592,46 @@ For carbon bonded to heteroatoms (O, N, etc.), MERIC is typically negative.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.calculate_descriptors">
+<span class="sig-name descname"><span class="pre">calculate_descriptors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smiles_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descriptors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.calculate_descriptors"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.calculate_descriptors" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Calculate descriptors for molecules from SMILES and add to DataFrame.</p>
+<p>This method provides optional pandas compatibility. If pandas is available,
+it accepts a pandas Series or DataFrame column and returns a DataFrame
+with added descriptor columns. If pandas is not available, it accepts
+a list of SMILES strings and returns a list of dictionaries.</p>
+<p>By default, calculates all available descriptors. Use the <cite>descriptors</cite>
+parameter to specify a subset of descriptors to calculate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>smiles_column</strong> – pandas Series/DataFrame column with SMILES strings,
+or a list of SMILES strings</p></li>
+<li><p><strong>descriptors</strong> – Optional list of descriptor names to calculate.
+If None, calculates all available descriptors.
+Available descriptors: „homo_energy“, „lumo_energy“, „gap_energy“,
+„ch_potential“, „electronegativity“, „abs_hardness“, „abs_softness“,
+„frontier_electron_density“, „total_energy“, „dipole_moment“,
+„polar_surface_area“, „gibbs_free_energy“, „entropy“, „enthalpy“,
+„molecular_volume“, „num_rotatable_bonds“, „wiener_index“,
+„solvent_accessible_surface_area“, „get_min_h_charge“, „xy_shadow“,
+„meric“, „m_log_p“, „moran_autocorrelation“, „autocorrelation_hats“</p></li>
+<li><p><strong>progress</strong> – Whether to show progress (default: True)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with descriptor columns added (if pandas available),
+or list of dictionaries (if pandas not available)</p>
+</dd>
+<dt class="field-odd">Исключение<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ImportError</strong> – If pandas is not installed and a pandas object is passed</p></li>
+<li><p><strong>ValueError</strong> – If an invalid descriptor name is provided</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -682,6 +723,7 @@ For carbon bonded to heteroatoms (O, N, etc.), MERIC is typically negative.</p>
 <li><a class="reference internal" href="#orca_descriptors.orca.Orca.m_log_p"><code class="docutils literal notranslate"><span class="pre">Orca.m_log_p()</span></code></a></li>
 <li><a class="reference internal" href="#orca_descriptors.orca.Orca.moran_autocorrelation"><code class="docutils literal notranslate"><span class="pre">Orca.moran_autocorrelation()</span></code></a></li>
 <li><a class="reference internal" href="#orca_descriptors.orca.Orca.autocorrelation_hats"><code class="docutils literal notranslate"><span class="pre">Orca.autocorrelation_hats()</span></code></a></li>
+<li><a class="reference internal" href="#orca_descriptors.orca.Orca.calculate_descriptors"><code class="docutils literal notranslate"><span class="pre">Orca.calculate_descriptors()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -700,6 +742,6 @@ For carbon bonded to heteroatoms (O, N, etc.), MERIC is typically negative.</p>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../_static/translations.js?v=5b699b7f"></script>
-    <script src="../_static/language_switcher.js?v=da574619"></script>
+    <script src="../_static/language_switcher.js?v=7559d160"></script>
     </body>
 </html>

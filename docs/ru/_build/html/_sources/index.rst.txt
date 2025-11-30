@@ -20,6 +20,7 @@
 
    installation
    tutorial
+   pandas_tutorial
    benchmark
    api/index
    cli

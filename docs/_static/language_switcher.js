@@ -221,9 +221,9 @@
         setTimeout(function() {
             createLanguageSwitcher();
             
-            // Watch for theme changes (Furo theme switcher)
+            // Watch for sidebar structure changes
             if (!observer) {
-                observer = new MutationObserver(function(mutations) {
+                var sidebarObserver = new MutationObserver(function(mutations) {
                     var switcherExists = document.querySelector('#language-switcher');
                     if (!switcherExists || !switcherExists.parentNode) {
                         switcherCreated = false;
@@ -231,40 +231,75 @@
                     }
                 });
                 
-                // Observe sidebar for changes
+                // Observe sidebar for structural changes
                 var sidebar = document.querySelector('.sidebar-container') || 
                              document.querySelector('aside.sidebar') ||
                              document.querySelector('aside');
                 if (sidebar) {
-                    observer.observe(sidebar, {
+                    sidebarObserver.observe(sidebar, {
                         childList: true,
                         subtree: true
                     });
                 }
-                
-                // Also observe body for theme changes
-                observer.observe(document.body, {
-                    attributes: true,
-                    attributeFilter: ['class', 'data-theme']
-                });
             }
         }, 300);
     }
     
     // Listen for theme changes
-    document.addEventListener('DOMContentLoaded', function() {
-        // Furo theme switcher may trigger events
-        var themeButton = document.querySelector('button[data-theme-toggle]') ||
-                         document.querySelector('[data-theme-toggle]');
-        if (themeButton) {
-            themeButton.addEventListener('click', function() {
+    function setupThemeListener() {
+        // Furo theme switcher buttons
+        var themeButtons = document.querySelectorAll('button[data-theme-toggle], [data-theme-toggle]');
+        themeButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
                 setTimeout(function() {
                     switcherCreated = false;
                     createLanguageSwitcher();
-                }, 200);
+                }, 300);
+            });
+        });
+        
+        // Watch for data-theme attribute changes on body (Furo's way)
+        if (!observer) {
+            observer = new MutationObserver(function(mutations) {
+                var themeChanged = false;
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && 
+                        (mutation.attributeName === 'data-theme' || mutation.attributeName === 'class')) {
+                        themeChanged = true;
+                    }
+                });
+                
+                if (themeChanged) {
+                    setTimeout(function() {
+                        switcherCreated = false;
+                        createLanguageSwitcher();
+                    }, 200);
+                } else {
+                    // Check if switcher was removed
+                    var switcherExists = document.querySelector('#language-switcher');
+                    if (!switcherExists || !switcherExists.parentNode) {
+                        switcherCreated = false;
+                        setTimeout(createLanguageSwitcher, 100);
+                    }
+                }
             });
         }
-    });
+        
+        // Observe body for theme changes
+        if (document.body) {
+            observer.observe(document.body, {
+                attributes: true,
+                attributeFilter: ['data-theme', 'class']
+            });
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', setupThemeListener);
+    
+    // Also set up immediately if DOM is already ready
+    if (document.readyState !== 'loading') {
+        setupThemeListener();
+    }
     
     // Initialize
     initializeSwitcher();

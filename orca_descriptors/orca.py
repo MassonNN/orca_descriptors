@@ -7,9 +7,9 @@ import re
 import subprocess
 import time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
-from rdkit.Chem import Mol, MolFromSmiles
+from rdkit.Chem import Mol, MolFromSmiles, AddHs
 
 from orca_descriptors.cache import CacheManager
 from orca_descriptors.input_generator import ORCAInputGenerator
@@ -1242,4 +1242,203 @@ class Orca:
         except Exception as e:
             logger.warning(f"Failed to calculate HATS autocorrelation: {e}")
             return 0.0
+    
+    def calculate_descriptors(
+        self,
+        smiles_column: Union[Any, list[str]],
+        descriptors: Optional[list[str]] = None,
+        progress: bool = True,
+    ) -> Any:
+        """Calculate descriptors for molecules from SMILES and add to DataFrame.
+        
+        This method provides optional pandas compatibility. If pandas is available,
+        it accepts a pandas Series or DataFrame column and returns a DataFrame
+        with added descriptor columns. If pandas is not available, it accepts
+        a list of SMILES strings and returns a list of dictionaries.
+        
+        By default, calculates all available descriptors. Use the `descriptors`
+        parameter to specify a subset of descriptors to calculate.
+        
+        Args:
+            smiles_column: pandas Series/DataFrame column with SMILES strings,
+                          or a list of SMILES strings
+            descriptors: Optional list of descriptor names to calculate.
+                       If None, calculates all available descriptors.
+                       Available descriptors: 'homo_energy', 'lumo_energy', 'gap_energy',
+                       'ch_potential', 'electronegativity', 'abs_hardness', 'abs_softness',
+                       'frontier_electron_density', 'total_energy', 'dipole_moment',
+                       'polar_surface_area', 'gibbs_free_energy', 'entropy', 'enthalpy',
+                       'molecular_volume', 'num_rotatable_bonds', 'wiener_index',
+                       'solvent_accessible_surface_area', 'get_min_h_charge', 'xy_shadow',
+                       'meric', 'm_log_p', 'moran_autocorrelation', 'autocorrelation_hats'
+            progress: Whether to show progress (default: True)
+            
+        Returns:
+            DataFrame with descriptor columns added (if pandas available),
+            or list of dictionaries (if pandas not available)
+            
+        Raises:
+            ImportError: If pandas is not installed and a pandas object is passed
+            ValueError: If an invalid descriptor name is provided
+        """
+        try:
+            import pandas as pd
+            pandas_available = True
+        except ImportError:
+            pandas_available = False
+        
+        if pandas_available:
+            if isinstance(smiles_column, pd.Series):
+                df = pd.DataFrame({'smiles': smiles_column})
+                smiles_list = smiles_column.tolist()
+            elif isinstance(smiles_column, pd.DataFrame):
+                if 'smiles' not in smiles_column.columns:
+                    raise ValueError("DataFrame must contain a 'smiles' column")
+                df = smiles_column.copy()
+                smiles_list = smiles_column['smiles'].tolist()
+            else:
+                raise TypeError(
+                    "smiles_column must be a pandas Series or DataFrame. "
+                    "For plain lists, install pandas or use individual descriptor methods."
+                )
+        else:
+            if isinstance(smiles_column, list):
+                df = None
+                smiles_list = smiles_column
+            else:
+                raise ImportError(
+                    "pandas is required for DataFrame/Series input. "
+                    "Install pandas with: pip install 'orca-descriptors[pandas]' "
+                    "or pass a list of SMILES strings."
+                )
+        
+        # Define all available descriptors
+        all_descriptors = [
+            'homo_energy',
+            'lumo_energy',
+            'gap_energy',
+            'ch_potential',
+            'electronegativity',
+            'abs_hardness',
+            'abs_softness',
+            'frontier_electron_density',
+            'total_energy',
+            'dipole_moment',
+            'polar_surface_area',
+            'gibbs_free_energy',
+            'entropy',
+            'enthalpy',
+            'molecular_volume',
+            'num_rotatable_bonds',
+            'wiener_index',
+            'solvent_accessible_surface_area',
+            'get_min_h_charge',
+            'xy_shadow',
+            'meric',
+            'm_log_p',
+            'moran_autocorrelation',
+            'autocorrelation_hats',
+        ]
+        
+        # Validate descriptor names if provided
+        if descriptors is not None:
+            invalid_descriptors = [d for d in descriptors if d not in all_descriptors]
+            if invalid_descriptors:
+                raise ValueError(
+                    f"Invalid descriptor names: {invalid_descriptors}. "
+                    f"Available descriptors: {', '.join(all_descriptors)}"
+                )
+            descriptors_to_calculate = descriptors
+        else:
+            descriptors_to_calculate = all_descriptors
+        
+        descriptors_list = []
+        
+        total = len(smiles_list)
+        for idx, smiles in enumerate(smiles_list):
+            if progress and total > 1:
+                logger.info(f"Processing molecule {idx + 1}/{total}: {smiles}")
+            
+            try:
+                mol = AddHs(MolFromSmiles(smiles))
+                if mol is None:
+                    logger.warning(f"Failed to parse SMILES: {smiles}")
+                    descriptors_list.append({})
+                    continue
+                
+                result_descriptors = {}
+                
+                # Calculate each requested descriptor
+                for desc_name in descriptors_to_calculate:
+                    try:
+                        if desc_name == 'homo_energy':
+                            result_descriptors['homo_energy'] = self.homo_energy(mol)
+                        elif desc_name == 'lumo_energy':
+                            result_descriptors['lumo_energy'] = self.lumo_energy(mol)
+                        elif desc_name == 'gap_energy':
+                            result_descriptors['gap_energy'] = self.gap_energy(mol)
+                        elif desc_name == 'ch_potential':
+                            result_descriptors['ch_potential'] = self.ch_potential(mol)
+                        elif desc_name == 'electronegativity':
+                            result_descriptors['electronegativity'] = self.electronegativity(mol)
+                        elif desc_name == 'abs_hardness':
+                            result_descriptors['abs_hardness'] = self.abs_hardness(mol)
+                        elif desc_name == 'abs_softness':
+                            result_descriptors['abs_softness'] = self.abs_softness(mol)
+                        elif desc_name == 'frontier_electron_density':
+                            frontier_density = self.frontier_electron_density(mol)
+                            if frontier_density:
+                                result_descriptors['frontier_electron_density'] = max(
+                                    charge for _, charge in frontier_density
+                                )
+                            else:
+                                result_descriptors['frontier_electron_density'] = 0.0
+                        elif desc_name == 'total_energy':
+                            result_descriptors['total_energy'] = self.total_energy(mol)
+                        elif desc_name == 'dipole_moment':
+                            result_descriptors['dipole_moment'] = self.dipole_moment(mol)
+                        elif desc_name == 'polar_surface_area':
+                            result_descriptors['polar_surface_area'] = self.polar_surface_area(mol)
+                        elif desc_name == 'gibbs_free_energy':
+                            result_descriptors['gibbs_free_energy'] = self.gibbs_free_energy(mol)
+                        elif desc_name == 'entropy':
+                            result_descriptors['entropy'] = self.entropy(mol)
+                        elif desc_name == 'enthalpy':
+                            result_descriptors['enthalpy'] = self.enthalpy(mol)
+                        elif desc_name == 'molecular_volume':
+                            result_descriptors['molecular_volume'] = self.molecular_volume(mol)
+                        elif desc_name == 'num_rotatable_bonds':
+                            result_descriptors['num_rotatable_bonds'] = self.num_rotatable_bonds(mol)
+                        elif desc_name == 'wiener_index':
+                            result_descriptors['wiener_index'] = self.wiener_index(mol)
+                        elif desc_name == 'solvent_accessible_surface_area':
+                            result_descriptors['solvent_accessible_surface_area'] = self.solvent_accessible_surface_area(mol)
+                        elif desc_name == 'get_min_h_charge':
+                            result_descriptors['get_min_h_charge'] = self.get_min_h_charge(mol)
+                        elif desc_name == 'xy_shadow':
+                            result_descriptors['xy_shadow'] = self.xy_shadow(mol)
+                        elif desc_name == 'meric':
+                            result_descriptors['meric'] = self.meric(mol)
+                        elif desc_name == 'm_log_p':
+                            result_descriptors['m_log_p'] = self.m_log_p(mol)
+                        elif desc_name == 'moran_autocorrelation':
+                            result_descriptors['moran_autocorrelation'] = self.moran_autocorrelation(mol, lag=2, weight='vdw_volume')
+                        elif desc_name == 'autocorrelation_hats':
+                            result_descriptors['autocorrelation_hats'] = self.autocorrelation_hats(mol, lag=4, unweighted=True)
+                    except Exception as e:
+                        logger.warning(f"Failed to calculate descriptor '{desc_name}' for SMILES {smiles}: {e}")
+                        result_descriptors[desc_name] = None
+                
+                descriptors_list.append(result_descriptors)
+                
+            except Exception as e:
+                logger.error(f"Error processing SMILES {smiles}: {e}")
+                descriptors_list.append({})
+        
+        if pandas_available and df is not None:
+            descriptor_df = pd.DataFrame(descriptors_list)
+            result_df = pd.concat([df.reset_index(drop=True), descriptor_df.reset_index(drop=True)], axis=1)
+            return result_df
+        else:
+            return descriptors_list
 

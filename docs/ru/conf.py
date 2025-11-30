@@ -45,8 +45,8 @@ html_theme_options = {
     "dark_css_variables": {
         "color-brand-primary": "#3498db",
         "color-brand-content": "#5dade2",
-        "color-background-primary": "#ffffff",
-        "color-sidebar-background": "#ffffff",
+        "color-background-primary": "#1e1e1e",
+        "color-sidebar-background": "#1e1e1e",
         "color-sidebar-item-background--hover": "#2d2d2d",
     },
 }

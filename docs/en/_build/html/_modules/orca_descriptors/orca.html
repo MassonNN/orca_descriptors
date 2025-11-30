@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/language_switcher.css?v=b89d3bec" />
+    <link rel="stylesheet" type="text/css" href="../../_static/language_switcher.css?v=a8e6fed2" />
     
     
 
@@ -32,8 +32,8 @@
   --color-code-foreground: #d0d0d0;
   --color-brand-primary: #3498db;
   --color-brand-content: #5dade2;
-  --color-background-primary: #ffffff;
-  --color-sidebar-background: #ffffff;
+  --color-background-primary: #1e1e1e;
+  --color-sidebar-background: #1e1e1e;
   --color-sidebar-item-background--hover: #2d2d2d;
   
     }
@@ -43,8 +43,8 @@
   --color-code-foreground: #d0d0d0;
   --color-brand-primary: #3498db;
   --color-brand-content: #5dade2;
-  --color-background-primary: #ffffff;
-  --color-sidebar-background: #ffffff;
+  --color-background-primary: #1e1e1e;
+  --color-sidebar-background: #1e1e1e;
   --color-sidebar-item-background--hover: #2d2d2d;
   
       }
@@ -213,6 +213,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pandas_tutorial.html">Pandas Integration Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../benchmark.html">Benchmark and Time Estimation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api/orca.html">Orca Class</a></li>
@@ -261,9 +262,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">MolFromSmiles</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mol</span><span class="p">,</span> <span class="n">MolFromSmiles</span><span class="p">,</span> <span class="n">AddHs</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">orca_descriptors.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheManager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">orca_descriptors.input_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">ORCAInputGenerator</span>
@@ -1587,6 +1588,208 @@
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to calculate HATS autocorrelation: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="mf">0.0</span></div>
+
+    
+<div class="viewcode-block" id="Orca.calculate_descriptors">
+<a class="viewcode-back" href="../../api/orca.html#orca_descriptors.orca.Orca.calculate_descriptors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_descriptors</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">smiles_column</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+        <span class="n">descriptors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate descriptors for molecules from SMILES and add to DataFrame.</span>
+<span class="sd">        </span>
+<span class="sd">        This method provides optional pandas compatibility. If pandas is available,</span>
+<span class="sd">        it accepts a pandas Series or DataFrame column and returns a DataFrame</span>
+<span class="sd">        with added descriptor columns. If pandas is not available, it accepts</span>
+<span class="sd">        a list of SMILES strings and returns a list of dictionaries.</span>
+<span class="sd">        </span>
+<span class="sd">        By default, calculates all available descriptors. Use the `descriptors`</span>
+<span class="sd">        parameter to specify a subset of descriptors to calculate.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            smiles_column: pandas Series/DataFrame column with SMILES strings,</span>
+<span class="sd">                          or a list of SMILES strings</span>
+<span class="sd">            descriptors: Optional list of descriptor names to calculate.</span>
+<span class="sd">                       If None, calculates all available descriptors.</span>
+<span class="sd">                       Available descriptors: &#39;homo_energy&#39;, &#39;lumo_energy&#39;, &#39;gap_energy&#39;,</span>
+<span class="sd">                       &#39;ch_potential&#39;, &#39;electronegativity&#39;, &#39;abs_hardness&#39;, &#39;abs_softness&#39;,</span>
+<span class="sd">                       &#39;frontier_electron_density&#39;, &#39;total_energy&#39;, &#39;dipole_moment&#39;,</span>
+<span class="sd">                       &#39;polar_surface_area&#39;, &#39;gibbs_free_energy&#39;, &#39;entropy&#39;, &#39;enthalpy&#39;,</span>
+<span class="sd">                       &#39;molecular_volume&#39;, &#39;num_rotatable_bonds&#39;, &#39;wiener_index&#39;,</span>
+<span class="sd">                       &#39;solvent_accessible_surface_area&#39;, &#39;get_min_h_charge&#39;, &#39;xy_shadow&#39;,</span>
+<span class="sd">                       &#39;meric&#39;, &#39;m_log_p&#39;, &#39;moran_autocorrelation&#39;, &#39;autocorrelation_hats&#39;</span>
+<span class="sd">            progress: Whether to show progress (default: True)</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame with descriptor columns added (if pandas available),</span>
+<span class="sd">            or list of dictionaries (if pandas not available)</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ImportError: If pandas is not installed and a pandas object is passed</span>
+<span class="sd">            ValueError: If an invalid descriptor name is provided</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+            <span class="n">pandas_available</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="n">pandas_available</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="k">if</span> <span class="n">pandas_available</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smiles_column</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;smiles&#39;</span><span class="p">:</span> <span class="n">smiles_column</span><span class="p">})</span>
+                <span class="n">smiles_list</span> <span class="o">=</span> <span class="n">smiles_column</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smiles_column</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="k">if</span> <span class="s1">&#39;smiles&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">smiles_column</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;DataFrame must contain a &#39;smiles&#39; column&quot;</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">smiles_column</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">smiles_list</span> <span class="o">=</span> <span class="n">smiles_column</span><span class="p">[</span><span class="s1">&#39;smiles&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;smiles_column must be a pandas Series or DataFrame. &quot;</span>
+                    <span class="s2">&quot;For plain lists, install pandas or use individual descriptor methods.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smiles_column</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">smiles_list</span> <span class="o">=</span> <span class="n">smiles_column</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                    <span class="s2">&quot;pandas is required for DataFrame/Series input. &quot;</span>
+                    <span class="s2">&quot;Install pandas with: pip install &#39;orca-descriptors[pandas]&#39; &quot;</span>
+                    <span class="s2">&quot;or pass a list of SMILES strings.&quot;</span>
+                <span class="p">)</span>
+        
+        <span class="c1"># Define all available descriptors</span>
+        <span class="n">all_descriptors</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;homo_energy&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;lumo_energy&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gap_energy&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ch_potential&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;electronegativity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;abs_hardness&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;abs_softness&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;frontier_electron_density&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;total_energy&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;dipole_moment&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;polar_surface_area&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gibbs_free_energy&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;entropy&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;enthalpy&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;molecular_volume&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;num_rotatable_bonds&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;wiener_index&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;solvent_accessible_surface_area&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;get_min_h_charge&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;xy_shadow&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;meric&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;m_log_p&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;moran_autocorrelation&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;autocorrelation_hats&#39;</span><span class="p">,</span>
+        <span class="p">]</span>
+        
+        <span class="c1"># Validate descriptor names if provided</span>
+        <span class="k">if</span> <span class="n">descriptors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">invalid_descriptors</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">descriptors</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_descriptors</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">invalid_descriptors</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Invalid descriptor names: </span><span class="si">{</span><span class="n">invalid_descriptors</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Available descriptors: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">all_descriptors</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="n">descriptors_to_calculate</span> <span class="o">=</span> <span class="n">descriptors</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">descriptors_to_calculate</span> <span class="o">=</span> <span class="n">all_descriptors</span>
+        
+        <span class="n">descriptors_list</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">smiles_list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">smiles</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">smiles_list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">progress</span> <span class="ow">and</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing molecule </span><span class="si">{</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">smiles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">mol</span> <span class="o">=</span> <span class="n">AddHs</span><span class="p">(</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">mol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to parse SMILES: </span><span class="si">{</span><span class="n">smiles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">descriptors_list</span><span class="o">.</span><span class="n">append</span><span class="p">({})</span>
+                    <span class="k">continue</span>
+                
+                <span class="n">result_descriptors</span> <span class="o">=</span> <span class="p">{}</span>
+                
+                <span class="c1"># Calculate each requested descriptor</span>
+                <span class="k">for</span> <span class="n">desc_name</span> <span class="ow">in</span> <span class="n">descriptors_to_calculate</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;homo_energy&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;homo_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">homo_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;lumo_energy&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;lumo_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lumo_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;gap_energy&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;gap_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gap_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;ch_potential&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;ch_potential&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ch_potential</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;electronegativity&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;electronegativity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">electronegativity</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;abs_hardness&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;abs_hardness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abs_hardness</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;abs_softness&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;abs_softness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abs_softness</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;frontier_electron_density&#39;</span><span class="p">:</span>
+                            <span class="n">frontier_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontier_electron_density</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">frontier_density</span><span class="p">:</span>
+                                <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;frontier_electron_density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                                    <span class="n">charge</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">charge</span> <span class="ow">in</span> <span class="n">frontier_density</span>
+                                <span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;frontier_electron_density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;total_energy&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;total_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;dipole_moment&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;dipole_moment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dipole_moment</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;polar_surface_area&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;polar_surface_area&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">polar_surface_area</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;gibbs_free_energy&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;gibbs_free_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gibbs_free_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;entropy&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;entropy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entropy</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;enthalpy&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;enthalpy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enthalpy</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;molecular_volume&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;molecular_volume&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecular_volume</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;num_rotatable_bonds&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;num_rotatable_bonds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_rotatable_bonds</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;wiener_index&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;wiener_index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wiener_index</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;solvent_accessible_surface_area&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;solvent_accessible_surface_area&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solvent_accessible_surface_area</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;get_min_h_charge&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;get_min_h_charge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_min_h_charge</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;xy_shadow&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;xy_shadow&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xy_shadow</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;meric&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;meric&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meric</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;m_log_p&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;m_log_p&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_log_p</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;moran_autocorrelation&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;moran_autocorrelation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moran_autocorrelation</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">lag</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;vdw_volume&#39;</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;autocorrelation_hats&#39;</span><span class="p">:</span>
+                            <span class="n">result_descriptors</span><span class="p">[</span><span class="s1">&#39;autocorrelation_hats&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">autocorrelation_hats</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">lag</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">unweighted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to calculate descriptor &#39;</span><span class="si">{</span><span class="n">desc_name</span><span class="si">}</span><span class="s2">&#39; for SMILES </span><span class="si">{</span><span class="n">smiles</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">result_descriptors</span><span class="p">[</span><span class="n">desc_name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                
+                <span class="n">descriptors_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result_descriptors</span><span class="p">)</span>
+                
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error processing SMILES </span><span class="si">{</span><span class="n">smiles</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">descriptors_list</span><span class="o">.</span><span class="n">append</span><span class="p">({})</span>
+        
+        <span class="k">if</span> <span class="n">pandas_available</span> <span class="ow">and</span> <span class="n">df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">descriptor_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">descriptors_list</span><span class="p">)</span>
+            <span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">descriptor_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result_df</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">descriptors_list</span></div>
 </div>
 
 
@@ -1626,6 +1829,6 @@
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
-    <script src="../../_static/language_switcher.js?v=da574619"></script>
+    <script src="../../_static/language_switcher.js?v=7559d160"></script>
     </body>
 </html>

@@ -10,8 +10,8 @@
 .language-switcher-btn {
     width: 100%;
     padding: 10px 16px;
-    background-color: var(--color-brand-primary, #663399);
-    color: white;
+    background-color: var(--color-brand-primary, #2980b9);
+    color: var(--color-background-primary, #ffffff);
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -22,7 +22,7 @@
 }
 
 .language-switcher-btn:hover {
-    background-color: var(--color-brand-content, #7a3fa8);
+    background-color: var(--color-brand-content, #3498db);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
@@ -44,14 +44,14 @@
     font-weight: 500;
     padding: 6px 12px;
     border-radius: 4px;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
     font-size: 14px;
 }
 
 .language-switcher-link:hover {
-    background-color: var(--color-background-hover, #f0f0f0);
+    background-color: var(--color-sidebar-item-background--hover, #f0f0f0);
     text-decoration: none;
-    color: var(--color-brand-primary, #663399);
+    color: var(--color-brand-primary, #2980b9);
 }
 
 /* Floating button fallback */
