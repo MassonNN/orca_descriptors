@@ -1,6 +1,4 @@
-from rdkit.Chem import Atom, MolFromSmiles
-
-from orca_descriptors.orca import Molecule
+from rdkit.Chem import Atom, MolFromSmiles, AddHs
 
 
 def test_chem_potential(orca):
@@ -8,7 +6,7 @@ def test_chem_potential(orca):
     The chemical potential (mu) for benzene (a stable molecule) 
     should be negative, as it is defined as: mu = -electronegativity.
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Call the function to perform the calculation and store the result
     result = orca.ch_potential(mol)
     
@@ -24,7 +22,7 @@ def test_electronegativity(orca):
     Electronegativity (chi) is defined as: chi = -mu. 
     Therefore, it must be positive.
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     result = orca.electronegativity(mol)
     
     # Assert 1: Electronegativity must be positive
@@ -39,7 +37,7 @@ def test_abs_hardness(orca):
     Absolute hardness (eta) is always positive. 
     For a stable molecule like benzene, it should be substantial.
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     result = orca.abs_hardness(mol)
     
     # Assert 1: Hardness is always positive
@@ -54,7 +52,7 @@ def test_abs_softness(orca):
     Absolute softness (S) is the reciprocal of hardness (S = 1/(2*eta)) 
     and is also always positive.
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     result = orca.abs_softness(mol)
     
     # Assert 1: Softness is always positive
@@ -69,7 +67,7 @@ def test_frontier_electron_density(orca):
     Frontier electron density (HOMO/LUMO) indicates reaction centers.
     In benzene, the frontier orbitals are delocalized across all carbon atoms.
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Assumes the function returns a list of tuples: (Atom, significant_frontier_electron_density)
     result: list[tuple[Atom, float]] = orca.frontier_electron_density(mol)  
     

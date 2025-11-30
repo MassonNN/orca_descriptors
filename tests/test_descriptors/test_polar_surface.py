@@ -1,4 +1,4 @@
-from orca_descriptors.orca import Molecule
+from rdkit.Chem import MolFromSmiles, AddHs
 
 
 def test_dipole_moment(orca):
@@ -6,7 +6,7 @@ def test_dipole_moment(orca):
     Dipole moment (mu_D) for highly symmetric, non-polar molecules like benzene 
     should be zero or extremely close to zero.
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Result is typically in Debye (D)
     result = orca.dipole_moment(mol)
     
@@ -21,7 +21,7 @@ def test_polar_surface_area(orca):
     Polar Surface Area (PSA) is the surface area contributed by nitrogen and oxygen 
     atoms. Since benzene has none, PSA must be zero.
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Result is typically in square Angstroms (Å^2)
     result = orca.polar_surface_area(mol)
     
@@ -39,7 +39,7 @@ def test_atom_charges(orca):
     
     Assume orca.get_atom_charges returns a dictionary: {atom_index: charge_value}
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Assume the function returns a mapping of atom index to charge
     charges: dict[int, float] = orca.get_atom_charges(mol)
     

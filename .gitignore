@@ -223,3 +223,9 @@ $RECYCLE.BIN/
 # ORCA cache directory
 .orca_cache/
 
+# Test data directory (contains ORCA calculation outputs)
+tests/test_data/
+test_data/
+
+# Benchmark data (machine-specific)
+.orca_benchmark.json

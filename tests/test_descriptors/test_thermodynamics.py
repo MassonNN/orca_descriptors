@@ -1,4 +1,4 @@
-from orca_descriptors.orca import Molecule
+from rdkit.Chem import MolFromSmiles, AddHs
 
 def test_gibbs_free_energy(orca):
     """
@@ -7,7 +7,7 @@ def test_gibbs_free_energy(orca):
     the total Gibbs Free Energy in absolute units (Hartree) must be a large 
     negative number.
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Result is typically in Atomic Units (Hartree)
     result = orca.gibbs_free_energy(mol)
     
@@ -22,7 +22,7 @@ def test_entropy(orca):
     Standard Entropy (ΔS) measures the molecular disorder. 
     It must always be a positive value.
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Result is typically in J/(mol*K) or cal/(mol*K)
     result = orca.entropy(mol)
     
@@ -38,7 +38,7 @@ def test_molecular_volume(orca):
     Molecular volume is a physical quantity reflecting the size of the molecule. 
     It must be a positive value.
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Result is typically in cubic Angstroms (Å^3)
     result = orca.molecular_volume(mol)
     
@@ -54,7 +54,7 @@ def test_enthalpy(orca):
     (translational, rotational, vibrational). For a stable molecule like benzene, 
     the total Enthalpy in absolute units (Hartree) must be a large negative number.
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Result is typically in Atomic Units (Hartree)
     result = orca.enthalpy(mol)
     
@@ -71,7 +71,7 @@ def test_ch_bond_lengths(orca):
     
     Assume orca.get_bond_lengths returns a list of tuples: (atom_index_1, atom_index_2, length)
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Get all C-H bond lengths (there are 6 of them)
     # The 'C' and 'H' arguments specify which atoms to search for bonds between.
     c_h_bond_lengths: list[tuple[int, int, float]] = orca.get_bond_lengths(mol, 'C', 'H')
@@ -98,7 +98,7 @@ def test_cc_bond_lengths(orca):
     
     Assume orca.get_bond_lengths returns a list of tuples: (atom_index_1, atom_index_2, length)
     """
-    mol = Molecule.from_smiles("C1=CC=CC=C1")
+    mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Get all C-C bond lengths (there are 6 of them in the ring)
     c_c_bond_lengths: list[tuple[int, int, float]] = orca.get_bond_lengths(mol, 'C', 'C')
     

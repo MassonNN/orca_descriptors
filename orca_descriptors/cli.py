@@ -6,7 +6,9 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from orca_descriptors import Molecule, Orca
+from rdkit.Chem import MolFromSmiles, AddHs
+
+from orca_descriptors import Orca
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -182,7 +184,10 @@ def cmd_run_benchmark(args: argparse.Namespace) -> int:
     # Use benzene as standard benchmark molecule for machine calibration
     benchmark_smiles = "C1=CC=CC=C1"
     try:
-        mol = Molecule.from_smiles(benchmark_smiles)
+        mol = MolFromSmiles(benchmark_smiles)
+        if mol is None:
+            raise ValueError(f"Invalid SMILES string: {benchmark_smiles}")
+        mol = AddHs(mol)
     except Exception as e:
         print(f"ERROR: Failed to parse benchmark molecule SMILES '{benchmark_smiles}': {e}", file=sys.stderr)
         return 1
@@ -234,7 +239,10 @@ def cmd_run_benchmark(args: argparse.Namespace) -> int:
 def cmd_approximate_time(args: argparse.Namespace) -> int:
     """Estimate calculation time without running the calculation."""
     try:
-        mol = Molecule.from_smiles(args.molecule)
+        mol = MolFromSmiles(args.molecule)
+        if mol is None:
+            raise ValueError(f"Invalid SMILES string: {args.molecule}")
+        mol = AddHs(mol)
     except Exception as e:
         print(f"ERROR: Failed to parse molecule SMILES '{args.molecule}': {e}", file=sys.stderr)
         return 1

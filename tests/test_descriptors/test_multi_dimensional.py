@@ -1,5 +1,5 @@
 import pytest
-from orca_descriptors import Molecule
+from rdkit.Chem import MolFromSmiles, AddHs
 
 # Structures and expected values for parametrization
 # [SMILES, Name, Expected Dipole Moment (D), Expected PSA (Å²), Expected Nrot]
@@ -26,7 +26,7 @@ def test_dipole_moment(orca, smiles, name, expected_dipole, expected_psa, expect
     Highly symmetric molecules (Benzene, Ethane) should have a near-zero dipole.
     Polar molecules (Acetone, Water) should have a significant dipole (> 1.0 D).
     """
-    mol = Molecule.from_smiles(smiles)
+    mol = AddHs(MolFromSmiles(smiles))
     result = orca.dipole_moment(mol)
     
     # Assert: Checks that the result is close to the expected value (0.5 D tolerance)
@@ -49,7 +49,7 @@ def test_polar_surface_area(orca, smiles, name, expected_dipole, expected_psa, e
     Polar Surface Area (PSA) test. Molecules without N/O atoms (Benzene, Ethane) 
     should have a PSA of zero. Molecules with N/O (Acetone, Water) should have a non-zero PSA.
     """
-    mol = Molecule.from_smiles(smiles)
+    mol = AddHs(MolFromSmiles(smiles))
     result = orca.polar_surface_area(mol)
     
     # Assert 1: PSA must be non-negative
@@ -75,7 +75,7 @@ def test_rotatable_bonds(orca, smiles, name, expected_dipole, expected_psa, expe
     Number of rotatable bonds (Nrot) test. Ethane has one C-C rotatable bond (Nrot=1). 
     Benzene, Acetone, and Water are rigid (Nrot=0).
     """
-    mol = Molecule.from_smiles(smiles)
+    mol = AddHs(MolFromSmiles(smiles))
     result = orca.num_rotatable_bonds(mol)
     
     # Assert 1: Nrot must be an integer

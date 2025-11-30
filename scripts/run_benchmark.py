@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from orca_descriptors import Orca
-from orca_descriptors.orca import Molecule
+from rdkit.Chem import MolFromSmiles, AddHs
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -28,7 +28,10 @@ def main():
     if len(sys.argv) > 1:
         smiles = sys.argv[1]
         print(f"Running benchmark with molecule: {smiles}")
-        mol = Molecule.from_smiles(smiles)
+        mol = MolFromSmiles(smiles)
+        if mol is None:
+            raise ValueError(f"Invalid SMILES string: {smiles}")
+        mol = AddHs(mol)
     else:
         print("Running benchmark with default molecule: benzene (C1=CC=CC=C1)")
         mol = None  # Will use default benzene

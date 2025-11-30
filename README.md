@@ -21,7 +21,8 @@ poetry install
 ### As a Python Library
 
 ```python
-from orca_descriptors import Orca, Molecule
+from orca_descriptors import Orca
+from rdkit.Chem import MolFromSmiles, AddHs
 
 # Initialize ORCA calculator
 orca = Orca(
@@ -34,8 +35,8 @@ orca = Orca(
     n_processors=8,
 )
 
-# Create molecule from SMILES
-mol = Molecule.from_smiles("C1=CC=CC=C1")
+# Create molecule from SMILES using RDKit
+mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
 
 # Calculate descriptors
 homo = orca.homo_energy(mol)
