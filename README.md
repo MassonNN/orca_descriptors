@@ -1,3 +1,6 @@
+
+![logo](https://github.com/user-attachments/assets/4cc73306-a8a3-4ef3-8bf5-11729e3c4db0)
+
 # ORCA Descriptors
 
 A Python library for automatic calculation of quantum chemical descriptors for QSAR analysis using ORCA quantum chemistry software.
