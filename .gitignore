@@ -204,6 +204,22 @@ $RECYCLE.BIN/
 
 # Property files
 *.property.txt
+*.prop
+*.prop.scf
+*.cube
+
+# ORCA calculation files
+*.carthess
+*.cpscfdata.tmp.*
+*.densities
+*.densitiesinfo
+*.diisao.tmp.*
+*.diise.tmp.*
+*.diist.tmp.*
+*.hostnames
+*.opt
+*.propint.tmp.*
+*.soscfv.tmp.*
 
 # Temporary files
 *.tmp
@@ -229,3 +245,4 @@ test_data/
 
 # Benchmark data (machine-specific)
 .orca_benchmark.json
+orca_*
