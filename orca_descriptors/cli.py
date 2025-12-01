@@ -121,6 +121,25 @@ def create_parser() -> argparse.ArgumentParser:
         default=300,
         help="Maximum time to wait for output file creation in seconds (default: 300)",
     )
+    common_parser.add_argument(
+        "--use_mpirun",
+        action="store_true",
+        help="Use mpirun for parallel execution (default: False)",
+    )
+    common_parser.add_argument(
+        "--mpirun_path",
+        type=str,
+        default=None,
+        help="Path to mpirun executable (default: None, will search in PATH)",
+    )
+    common_parser.add_argument(
+        "--extra_env",
+        type=str,
+        nargs="*",
+        default=None,
+        metavar="KEY=VALUE",
+        help="Additional environment variables to pass to ORCA process (format: KEY=VALUE). Can be specified multiple times.",
+    )
     
     # run_benchmark command
     benchmark_parser = subparsers.add_parser(
@@ -176,6 +195,28 @@ def parse_solvation_model(value: Optional[str]) -> Optional[str]:
     return value
 
 
+def parse_extra_env(env_list: Optional[list[str]]) -> Optional[dict]:
+    """Parse extra environment variables from list of KEY=VALUE strings.
+    
+    Args:
+        env_list: List of strings in format "KEY=VALUE"
+        
+    Returns:
+        Dictionary with environment variables, or None if env_list is None/empty
+    """
+    if not env_list:
+        return None
+    
+    env_dict = {}
+    for env_var in env_list:
+        if "=" not in env_var:
+            raise ValueError(f"Invalid environment variable format: {env_var}. Expected KEY=VALUE")
+        key, value = env_var.split("=", 1)
+        env_dict[key] = value
+    
+    return env_dict
+
+
 def cmd_run_benchmark(args: argparse.Namespace) -> int:
     """Run benchmark calculation.
     
@@ -195,6 +236,7 @@ def cmd_run_benchmark(args: argparse.Namespace) -> int:
     log_level = parse_log_level(args.log_level)
     dispersion = parse_dispersion_correction(args.dispersion_correction)
     solvation = parse_solvation_model(args.solvation_model)
+    extra_env = parse_extra_env(args.extra_env)
     
     orca = Orca(
         script_path=args.script_path,
@@ -213,6 +255,9 @@ def cmd_run_benchmark(args: argparse.Namespace) -> int:
         cache_dir=args.cache_dir,
         log_level=log_level,
         max_wait=args.max_wait,
+        use_mpirun=args.use_mpirun,
+        mpirun_path=args.mpirun_path,
+        extra_env=extra_env,
     )
     
     try:
@@ -250,6 +295,7 @@ def cmd_approximate_time(args: argparse.Namespace) -> int:
     log_level = parse_log_level(args.log_level)
     dispersion = parse_dispersion_correction(args.dispersion_correction)
     solvation = parse_solvation_model(args.solvation_model)
+    extra_env = parse_extra_env(args.extra_env)
     
     orca = Orca(
         script_path=args.script_path,
@@ -268,6 +314,9 @@ def cmd_approximate_time(args: argparse.Namespace) -> int:
         cache_dir=args.cache_dir,
         log_level=log_level,
         max_wait=args.max_wait,
+        use_mpirun=args.use_mpirun,
+        mpirun_path=args.mpirun_path,
+        extra_env=extra_env,
     )
     
     try:

@@ -32,6 +32,9 @@ class ORCATimeEstimator:
         basis_set: str = "def2-SVP",
         script_path: str = "orca",
         n_processors: int = 1,
+        use_mpirun: bool = False,
+        mpirun_path: Optional[str] = None,
+        extra_env: Optional[dict] = None,
     ) -> dict:
         """Run benchmark calculation to calibrate time estimation.
         
@@ -41,6 +44,9 @@ class ORCATimeEstimator:
             basis_set: Basis set to use
             script_path: Path to ORCA executable
             n_processors: Number of processors
+            use_mpirun: Whether to use mpirun for parallel execution (default: False)
+            mpirun_path: Path to mpirun executable (default: None, will search in PATH)
+            extra_env: Additional environment variables to pass to ORCA process (default: None)
             
         Returns:
             Dictionary with benchmark data
@@ -104,9 +110,26 @@ class ORCATimeEstimator:
         else:
             orca_path = script_path
         
-        cmd = [orca_path, input_file.name]
+        # Build command with optional mpirun
+        if use_mpirun:
+            import shutil
+            if mpirun_path:
+                mpirun = mpirun_path
+            else:
+                mpirun = shutil.which("mpirun")
+                if not mpirun:
+                    raise RuntimeError(
+                        "mpirun not found in PATH. Please specify mpirun_path or ensure mpirun is in PATH."
+                    )
+            cmd = [mpirun, "-np", str(n_processors), orca_path, input_file.name]
+        else:
+            cmd = [orca_path, input_file.name]
+        
+        # Build environment
         env = os.environ.copy()
         env["OMP_NUM_THREADS"] = str(n_processors)
+        if extra_env:
+            env.update(extra_env)
         
         # Define base_name before using it
         base_name = f"benchmark_{mol_hash}"

@@ -40,6 +40,9 @@ class Orca:
         cache_dir: Optional[str] = None,
         log_level: int = logging.INFO,
         max_wait: int = 300,
+        use_mpirun: bool = False,
+        mpirun_path: Optional[str] = None,
+        extra_env: Optional[dict] = None,
     ):
         """Initialize ORCA calculator.
         
@@ -60,6 +63,9 @@ class Orca:
             cache_dir: Directory for caching results (default: output_dir/.orca_cache)
             log_level: Logging level (default: logging.INFO)
             max_wait: Maximum time to wait for output file creation in seconds (default: 300)
+            use_mpirun: Whether to use mpirun for parallel execution (default: False)
+            mpirun_path: Path to mpirun executable (default: None, will search in PATH)
+            extra_env: Additional environment variables to pass to ORCA process (default: None)
         """
         if not logger.handlers:
             handler = logging.StreamHandler()
@@ -82,6 +88,9 @@ class Orca:
         self.charge = charge
         self.multiplicity = multiplicity
         self.max_wait = max_wait
+        self.use_mpirun = use_mpirun
+        self.mpirun_path = mpirun_path
+        self.extra_env = extra_env or {}
         
         self.working_dir.mkdir(parents=True, exist_ok=True)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -108,6 +117,47 @@ class Orca:
         )
         key = f"{smiles}_{params}"
         return hashlib.sha256(key.encode()).hexdigest()
+    
+    def _build_command(self, orca_path: str, input_filename: str) -> list[str]:
+        """Build command to run ORCA, optionally with mpirun.
+        
+        Args:
+            orca_path: Path to ORCA executable
+            input_filename: Name of input file
+            
+        Returns:
+            Command list for subprocess
+        """
+        if self.use_mpirun:
+            import shutil
+            if self.mpirun_path:
+                mpirun = self.mpirun_path
+            else:
+                mpirun = shutil.which("mpirun")
+                if not mpirun:
+                    raise RuntimeError(
+                        "mpirun not found in PATH. Please specify mpirun_path or ensure mpirun is in PATH."
+                    )
+            # Build mpirun command: mpirun -np <n_processors> <orca_path> <input_file>
+            cmd = [mpirun, "-np", str(self.n_processors), orca_path, input_filename]
+        else:
+            cmd = [orca_path, input_filename]
+        return cmd
+    
+    def _build_environment(self) -> dict:
+        """Build environment variables for ORCA process.
+        
+        Returns:
+            Dictionary with environment variables
+        """
+        env = os.environ.copy()
+        env["OMP_NUM_THREADS"] = str(self.n_processors)
+        
+        # Add extra environment variables
+        if self.extra_env:
+            env.update(self.extra_env)
+        
+        return env
     
     def _check_orca_errors(self, content: str) -> list[str]:
         """Check for errors in ORCA output.
@@ -209,9 +259,8 @@ class Orca:
                 raise RuntimeError(f"ORCA executable not found: {self.script_path}")
         
         input_filename = input_file.name
-        cmd = [orca_path, input_filename]
-        env = os.environ.copy()
-        env["OMP_NUM_THREADS"] = str(self.n_processors)
+        cmd = self._build_command(orca_path, input_filename)
+        env = self._build_environment()
         
         log_file_path = self.working_dir / f"orca_{mol_hash}.log"
         
@@ -677,6 +726,9 @@ class Orca:
             basis_set=self.basis_set,
             script_path=self.script_path,
             n_processors=self.n_processors,
+            use_mpirun=self.use_mpirun,
+            mpirun_path=self.mpirun_path,
+            extra_env=self.extra_env,
         )
     
     def estimate_calculation_time(

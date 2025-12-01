@@ -3,10 +3,10 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Алфавитный указатель" href="../../genindex.html"><link rel="search" title="Поиск" href="../../search.html">
-        <link rel="prefetch" href="../../_static/logo.jpg" as="image">
+        <link rel="prefetch" href="../../_static/logo.png" as="image">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>orca_descriptors.orca - документация ORCA Descriptors 0.1.0</title>
+        <title>orca_descriptors.orca - документация ORCA Descriptors 0.1.1</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -177,7 +177,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">документация ORCA Descriptors 0.1.0</div></a>
+      <a href="../../index.html"><div class="brand">документация ORCA Descriptors 0.1.1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -198,10 +198,10 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   <div class="sidebar-logo-container">
-    <img class="sidebar-logo" src="../../_static/logo.jpg" alt="Logo"/>
+    <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">документация ORCA Descriptors 0.1.0</span>
+  <span class="sidebar-brand-text">документация ORCA Descriptors 0.1.1</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Поиск" name="q" aria-label="Поиск">
@@ -297,6 +297,9 @@
         <span class="n">cache_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">log_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
         <span class="n">max_wait</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
+        <span class="n">use_mpirun</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">mpirun_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">extra_env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize ORCA calculator.</span>
 <span class="sd">        </span>
@@ -317,6 +320,9 @@
 <span class="sd">            cache_dir: Directory for caching results (default: output_dir/.orca_cache)</span>
 <span class="sd">            log_level: Logging level (default: logging.INFO)</span>
 <span class="sd">            max_wait: Maximum time to wait for output file creation in seconds (default: 300)</span>
+<span class="sd">            use_mpirun: Whether to use mpirun for parallel execution (default: False)</span>
+<span class="sd">            mpirun_path: Path to mpirun executable (default: None, will search in PATH)</span>
+<span class="sd">            extra_env: Additional environment variables to pass to ORCA process (default: None)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
             <span class="n">handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
@@ -339,6 +345,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">charge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span> <span class="o">=</span> <span class="n">multiplicity</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_wait</span> <span class="o">=</span> <span class="n">max_wait</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_mpirun</span> <span class="o">=</span> <span class="n">use_mpirun</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mpirun_path</span> <span class="o">=</span> <span class="n">mpirun_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_env</span> <span class="o">=</span> <span class="n">extra_env</span> <span class="ow">or</span> <span class="p">{}</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -365,6 +374,47 @@
         <span class="p">)</span>
         <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">smiles</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">params</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">orca_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">input_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build command to run ORCA, optionally with mpirun.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            orca_path: Path to ORCA executable</span>
+<span class="sd">            input_filename: Name of input file</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Command list for subprocess</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_mpirun</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirun_path</span><span class="p">:</span>
+                <span class="n">mpirun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirun_path</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mpirun</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">&quot;mpirun&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">mpirun</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="s2">&quot;mpirun not found in PATH. Please specify mpirun_path or ensure mpirun is in PATH.&quot;</span>
+                    <span class="p">)</span>
+            <span class="c1"># Build mpirun command: mpirun -np &lt;n_processors&gt; &lt;orca_path&gt; &lt;input_file&gt;</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">mpirun</span><span class="p">,</span> <span class="s2">&quot;-np&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_processors</span><span class="p">),</span> <span class="n">orca_path</span><span class="p">,</span> <span class="n">input_filename</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">orca_path</span><span class="p">,</span> <span class="n">input_filename</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">cmd</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build environment variables for ORCA process.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary with environment variables</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_processors</span><span class="p">)</span>
+        
+        <span class="c1"># Add extra environment variables</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_env</span><span class="p">:</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_env</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">env</span>
     
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_orca_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for errors in ORCA output.</span>
@@ -466,9 +516,8 @@
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ORCA executable not found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">script_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         
         <span class="n">input_filename</span> <span class="o">=</span> <span class="n">input_file</span><span class="o">.</span><span class="n">name</span>
-        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">orca_path</span><span class="p">,</span> <span class="n">input_filename</span><span class="p">]</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_processors</span><span class="p">)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_command</span><span class="p">(</span><span class="n">orca_path</span><span class="p">,</span> <span class="n">input_filename</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_environment</span><span class="p">()</span>
         
         <span class="n">log_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;orca_</span><span class="si">{</span><span class="n">mol_hash</span><span class="si">}</span><span class="s2">.log&quot;</span>
         
@@ -480,6 +529,7 @@
             <span class="n">n_processors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_processors</span><span class="p">,</span>
         <span class="p">)</span>
         
+        <span class="c1"># Log estimation and start only in DEBUG mode</span>
         <span class="k">if</span> <span class="n">estimated_time</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">hours</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">estimated_time</span> <span class="o">//</span> <span class="mi">3600</span><span class="p">)</span>
             <span class="n">minutes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">estimated_time</span> <span class="o">%</span> <span class="mi">3600</span><span class="p">)</span> <span class="o">//</span> <span class="mi">60</span><span class="p">)</span>
@@ -490,12 +540,12 @@
                 <span class="n">time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">minutes</span><span class="si">}</span><span class="s2">m </span><span class="si">{</span><span class="n">seconds</span><span class="si">}</span><span class="s2">s&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">seconds</span><span class="si">}</span><span class="s2">s&quot;</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Estimated calculation time: ~</span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Estimated calculation time: ~</span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running ORCA calculation: </span><span class="si">{</span><span class="n">input_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Working directory: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running ORCA calculation: </span><span class="si">{</span><span class="n">input_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Working directory: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
         
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">log_file</span><span class="p">:</span>
             <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
@@ -536,7 +586,9 @@
                             <span class="n">errors_detected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
                             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ORCA ERROR DETECTED: </span><span class="si">{</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                         
-                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+                        <span class="c1"># All ORCA output goes to DEBUG only</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+                        
                         <span class="n">log_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                         <span class="n">log_file</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
@@ -572,9 +624,9 @@
                     <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ORCA calculation failed with errors:</span><span class="se">\n</span><span class="si">{</span><span class="n">error_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ORCA calculation finished with return code: </span><span class="si">{</span><span class="n">return_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ORCA calculation finished with return code: </span><span class="si">{</span><span class="n">return_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
         
         <span class="n">output_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">possible_outputs</span> <span class="o">=</span> <span class="p">[</span>
@@ -704,7 +756,7 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ORCA calculation failed:</span><span class="se">\n</span><span class="si">{</span><span class="n">error_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="n">output_content</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ORCA calculation completed successfully (terminated normally)&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;ORCA calculation completed successfully (terminated normally)&quot;</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="n">return_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">log_content</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -984,6 +1036,9 @@
             <span class="n">basis_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span>
             <span class="n">script_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">script_path</span><span class="p">,</span>
             <span class="n">n_processors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_processors</span><span class="p">,</span>
+            <span class="n">use_mpirun</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_mpirun</span><span class="p">,</span>
+            <span class="n">mpirun_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mpirun_path</span><span class="p">,</span>
+            <span class="n">extra_env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_env</span><span class="p">,</span>
         <span class="p">)</span></div>
 
     
@@ -1704,9 +1759,48 @@
         <span class="n">descriptors_list</span> <span class="o">=</span> <span class="p">[]</span>
         
         <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">smiles_list</span><span class="p">)</span>
+        
+        <span class="c1"># Pre-calculate estimated times for all molecules if progress is enabled</span>
+        <span class="n">estimated_times</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">progress</span> <span class="ow">and</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">smiles</span> <span class="ow">in</span> <span class="n">smiles_list</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">mol</span> <span class="o">=</span> <span class="n">AddHs</span><span class="p">(</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">mol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">estimated_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_estimator</span><span class="o">.</span><span class="n">estimate_time</span><span class="p">(</span>
+                            <span class="n">mol</span><span class="o">=</span><span class="n">mol</span><span class="p">,</span>
+                            <span class="n">method_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">method_type</span><span class="p">,</span>
+                            <span class="n">functional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">functional</span><span class="p">,</span>
+                            <span class="n">basis_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span>
+                            <span class="n">n_processors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_processors</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">estimated_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">estimated_time</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">estimated_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">estimated_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">smiles</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">smiles_list</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">progress</span> <span class="ow">and</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing molecule </span><span class="si">{</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">smiles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">remaining</span> <span class="o">=</span> <span class="n">total</span> <span class="o">-</span> <span class="n">idx</span>
+                
+                <span class="c1"># Calculate remaining estimated time</span>
+                <span class="n">remaining_estimated</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">estimated_times</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span> <span class="k">if</span> <span class="n">estimated_times</span> <span class="k">else</span> <span class="mf">0.0</span>
+                
+                <span class="c1"># Format remaining time</span>
+                <span class="k">if</span> <span class="n">remaining_estimated</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">hours</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">remaining_estimated</span> <span class="o">//</span> <span class="mi">3600</span><span class="p">)</span>
+                    <span class="n">minutes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">remaining_estimated</span> <span class="o">%</span> <span class="mi">3600</span><span class="p">)</span> <span class="o">//</span> <span class="mi">60</span><span class="p">)</span>
+                    <span class="n">seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">remaining_estimated</span> <span class="o">%</span> <span class="mi">60</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">hours</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;~</span><span class="si">{</span><span class="n">hours</span><span class="si">}</span><span class="s2">h </span><span class="si">{</span><span class="n">minutes</span><span class="si">}</span><span class="s2">m </span><span class="si">{</span><span class="n">seconds</span><span class="si">}</span><span class="s2">s&quot;</span>
+                    <span class="k">elif</span> <span class="n">minutes</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;~</span><span class="si">{</span><span class="n">minutes</span><span class="si">}</span><span class="s2">m </span><span class="si">{</span><span class="n">seconds</span><span class="si">}</span><span class="s2">s&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;~</span><span class="si">{</span><span class="n">seconds</span><span class="si">}</span><span class="s2">s&quot;</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing molecule </span><span class="si">{</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> (remaining: </span><span class="si">{</span><span class="n">remaining</span><span class="si">}</span><span class="s2">, estimated time: </span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing molecule </span><span class="si">{</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> (remaining: </span><span class="si">{</span><span class="n">remaining</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
             
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">mol</span> <span class="o">=</span> <span class="n">AddHs</span><span class="p">(</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">))</span>
@@ -1825,7 +1919,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=559245ef"></script>
+</div><script src="../../_static/documentation_options.js?v=fcd23189"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
