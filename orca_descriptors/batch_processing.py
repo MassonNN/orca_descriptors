@@ -17,65 +17,175 @@ from orca_descriptors.orca import Orca
 logger = logging.getLogger(__name__)
 
 
+class DescriptorCall:
+    """Represents a descriptor method call with its parameters.
+    
+    This class is used to capture descriptor method calls with their parameters
+    when using the x_molecule() API.
+    """
+    def __init__(self, method_name: str, args: tuple = (), kwargs: dict = None):
+        """Initialize descriptor call.
+        
+        Args:
+            method_name: Name of the descriptor method
+            args: Positional arguments (excluding the molecule)
+            kwargs: Keyword arguments
+        """
+        self.method_name = method_name
+        self.args = args
+        self.kwargs = kwargs or {}
+    
+    def __repr__(self):
+        args_str = ", ".join(repr(a) for a in self.args)
+        kwargs_str = ", ".join(f"{k}={v!r}" for k, v in self.kwargs.items())
+        params = ", ".join(filter(None, [args_str, kwargs_str]))
+        return f"DescriptorCall({self.method_name!r}, {params})"
+
+
+class XMolecule:
+    """Mock molecule for defining descriptors with parameters.
+    
+    This class is used as a placeholder molecule when calling descriptor methods
+    on an Orca instance. When a descriptor method is called with an XMolecule
+    as the first argument, it returns a DescriptorCall object instead of
+    performing the actual calculation.
+    
+    Example::
+    
+        x = batch_processing.x_molecule()
+        desc = orca.ch_potential(x)  # Returns DescriptorCall('ch_potential', (), {})
+        desc = orca.mo_energy(x, -3)  # Returns DescriptorCall('mo_energy', (-3,), {})
+    """
+    def __init__(self, orca: Optional[Orca] = None):
+        """Initialize X molecule.
+        
+        Args:
+            orca: Optional Orca instance (not currently used, but kept for API compatibility)
+        """
+        self.orca = orca
+
+
 def _calculate_worker_multiprocessing(args: tuple) -> tuple[int, dict[str, Any]]:
     """Worker function for multiprocessing (top-level function for pickling).
     
     Args:
         args: Tuple of (idx, smiles, descriptors, total, orca_params)
               where orca_params is a dict with all Orca initialization parameters
+              and descriptors can be list of strings or list of DescriptorCall objects
         
     Returns:
         Tuple of (idx, result_dict)
     """
+    from orca_descriptors.batch_processing import DescriptorCall
+    
     idx, smiles, descriptors, total, orca_params = args
-    
-    # Create a new Orca instance for this process
     orca = Orca(**orca_params)
-    
-    # Prepare molecule
     try:
         mol = MolFromSmiles(smiles)
         if mol is None:
             logger.warning(f"[{idx + 1}/{total}] Failed to parse SMILES: {smiles}")
-            return idx, {desc: None for desc in descriptors}
+            if descriptors and isinstance(descriptors[0], DescriptorCall):
+                keys = []
+                for d in descriptors:
+                    param_str = ""
+                    if d.args:
+                        param_str = "_" + "_".join(str(a) for a in d.args)
+                    if d.kwargs:
+                        param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(d.kwargs.items()))
+                    keys.append(f"{d.method_name}{param_str}")
+            else:
+                keys = descriptors if descriptors else []
+            return idx, {desc: None for desc in keys}
         mol = AddHs(mol)
     except Exception as e:
         logger.debug(f"[{idx + 1}/{total}] Failed to parse SMILES '{smiles}': {e}")
-        return idx, {desc: None for desc in descriptors}
+        if descriptors and isinstance(descriptors[0], DescriptorCall):
+            keys = []
+            for d in descriptors:
+                param_str = ""
+                if d.args:
+                    param_str = "_" + "_".join(str(a) for a in d.args)
+                if d.kwargs:
+                    param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(d.kwargs.items()))
+                keys.append(f"{d.method_name}{param_str}")
+        else:
+            keys = descriptors if descriptors else []
+        return idx, {desc: None for desc in keys}
     
-    # Calculate descriptors
     result_descriptors = {}
     special_descriptors = {
         'moran_autocorrelation': {'lag': 2, 'weight': 'vdw_volume'},
         'autocorrelation_hats': {'lag': 4, 'unweighted': True},
     }
     
-    for desc_name in descriptors:
+    for desc in descriptors:
         try:
-            method = getattr(orca, desc_name, None)
-            
-            if method is None or not callable(method):
-                logger.debug(f"[{idx + 1}/{total}] Method '{desc_name}' not found or not callable")
-                result_descriptors[desc_name] = None
-                continue
-            
-            if desc_name in special_descriptors:
-                result = method(mol, **special_descriptors[desc_name])
-            elif desc_name == 'frontier_electron_density':
-                frontier_density = method(mol)
-                result = max(charge for _, charge in frontier_density) if frontier_density else 0.0
+            if isinstance(desc, DescriptorCall):
+                method_name = desc.method_name
+                method = getattr(orca, method_name, None)
+                
+                if method is None or not callable(method):
+                    logger.debug(f"[{idx + 1}/{total}] Method '{method_name}' not found or not callable")
+                    param_str = ""
+                    if desc.args:
+                        param_str = "_" + "_".join(str(a) for a in desc.args)
+                    if desc.kwargs:
+                        param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(desc.kwargs.items()))
+                    result_key = f"{method_name}{param_str}"
+                    result_descriptors[result_key] = None
+                    continue
+                
+                result = method(mol, *desc.args, **desc.kwargs)
+                
+                param_str = ""
+                if desc.args:
+                    param_str = "_" + "_".join(str(a) for a in desc.args)
+                if desc.kwargs:
+                    param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(desc.kwargs.items()))
+                result_key = f"{method_name}{param_str}"
+                
+                if method_name == 'frontier_electron_density' and isinstance(result, list):
+                    result = max(charge for _, charge in result) if result else 0.0
+                
+                result_descriptors[result_key] = result
             else:
-                result = method(mol)
-            
-            result_descriptors[desc_name] = result
+                desc_name = desc
+                method = getattr(orca, desc_name, None)
+                
+                if method is None or not callable(method):
+                    logger.debug(f"[{idx + 1}/{total}] Method '{desc_name}' not found or not callable")
+                    result_descriptors[desc_name] = None
+                    continue
+                
+                if desc_name in special_descriptors:
+                    result = method(mol, **special_descriptors[desc_name])
+                elif desc_name == 'frontier_electron_density':
+                    frontier_density = method(mol)
+                    result = max(charge for _, charge in frontier_density) if frontier_density else 0.0
+                else:
+                    result = method(mol)
+                
+                result_descriptors[desc_name] = result
         except Exception as e:
             error_msg = str(e)
             brief_error = error_msg.split('\n')[0] if error_msg else str(e)
+            
+            if isinstance(desc, DescriptorCall):
+                desc_name = desc.method_name
+                param_str = ""
+                if desc.args:
+                    param_str = "_" + "_".join(str(a) for a in desc.args)
+                if desc.kwargs:
+                    param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(desc.kwargs.items()))
+                result_key = f"{desc_name}{param_str}"
+            else:
+                desc_name = desc
+                result_key = desc_name
+            
             logger.info(f"[{idx + 1}/{total}] Error calculating '{desc_name}' for SMILES {smiles}: {brief_error}")
             logger.debug(f"[{idx + 1}/{total}] Full error: {error_msg}")
-            result_descriptors[desc_name] = None
+            result_descriptors[result_key] = None
     
-    # Cleanup temporary files
     try:
         mol_hash = orca._get_molecule_hash(mol)
         base_name = f"orca_{mol_hash}"
@@ -86,7 +196,6 @@ def _calculate_worker_multiprocessing(args: tuple) -> tuple[int, dict[str, Any]]
         ]
         for output_file in possible_outputs:
             if output_file.exists():
-                # Use the cleanup method from the Orca class
                 orca._cleanup_temp_files(base_name, output_file)
                 break
     except Exception as cleanup_error:
@@ -163,7 +272,11 @@ class ORCABatchProcessing:
             handler = logging.StreamHandler()
             formatter = logging.Formatter('%(levelname)s - %(message)s')
             handler.setFormatter(formatter)
+            handler.setLevel(log_level)
             logger.addHandler(handler)
+        else:
+            for handler in logger.handlers:
+                handler.setLevel(log_level)
         logger.setLevel(log_level)
         logger.propagate = False
         
@@ -199,9 +312,31 @@ class ORCABatchProcessing:
         else:
             self.n_workers = n_workers
         
-        # Ensure working directory exists
         self.orca.working_dir.mkdir(parents=True, exist_ok=True)
         self.orca.output_dir.mkdir(parents=True, exist_ok=True)
+    
+    def x_molecule(self) -> XMolecule:
+        """Create a mock molecule for defining descriptors with parameters.
+        
+        This method returns a special XMolecule object that can be used to
+        define descriptors with their parameters. When you call a descriptor
+        method on the Orca instance with this X molecule, it returns a
+        DescriptorCall object that captures the method name and parameters.
+        
+        Example::
+        
+            x = batch_processing.x_molecule()
+            descriptors = [
+                orca.ch_potential(x),
+                orca.topological_distance(x, 'O', 'O'),
+                orca.mo_energy(x, -3)
+            ]
+            result = batch_processing.calculate_descriptors(smiles_list, descriptors=descriptors)
+        
+        Returns:
+            XMolecule instance for defining descriptors
+        """
+        return XMolecule(self.orca)
     
     def _prepare_molecule(self, smiles: str) -> Optional[Mol]:
         """Prepare molecule from SMILES string.
@@ -327,7 +462,6 @@ class ORCABatchProcessing:
         for i, line in enumerate(lines):
             line_upper = line.upper()
             
-            # Skip SCF iteration info lines
             if any(keyword in line_upper for keyword in [
                 'LAST MAX-DENSITY', 'LAST RMS-DENSITY', 
                 'LAST DIIS ERROR', 'LAST ORBITAL GRADIENT', 'LAST ORBITAL ROTATION',
@@ -335,7 +469,6 @@ class ORCABatchProcessing:
             ]):
                 continue
             
-            # Skip SCF info that follows ERROR lines
             if 'ERROR DETECTED' in line_upper or 'ERROR:' in line_upper:
                 is_scf_info = False
                 for j in range(i + 1, min(i + 5, len(lines))):
@@ -358,11 +491,10 @@ class ORCABatchProcessing:
                     break
         
         if errors:
-            brief_error = errors[0].split('\n')[0]  # First line of first error
+            brief_error = errors[0].split('\n')[0]
             detailed_error = "\n\n".join(errors)
             return brief_error, detailed_error
         
-        # Check for termination status
         terminated_normally = (
             "ORCA TERMINATED NORMALLY" in content or 
             "TOTAL RUN TIME" in content or
@@ -370,7 +502,7 @@ class ORCABatchProcessing:
         )
         
         if not terminated_normally:
-            return "Calculation did not terminate normally", content[-500:]  # Last 500 chars
+            return "Calculation did not terminate normally", content[-500:]
         
         return "", ""
     
@@ -384,28 +516,27 @@ class ORCABatchProcessing:
             base_name: Base name for ORCA files (without extension)
             output_file: Path to the main output file (will be removed)
         """
-        # All ORCA file extensions to remove
         orca_extensions = [
-            '.inp',      # Input file
-            '.out',      # Output file
-            '.log',      # Log file
-            '.smd.out',  # SMD output file
-            '.gbw',      # Wavefunction file
-            '.densities', # Density files
+            '.inp',
+            '.out',
+            '.log',
+            '.smd.out',
+            '.gbw',
+            '.densities',
             '.densitiesinfo',
-            '.ges',      # Geometry file
-            '.property.txt',  # Property file
-            '.bibtex',   # Bibliography
-            '.cpcm',     # CPCM files
+            '.ges',
+            '.property.txt',
+            '.bibtex',
+            '.cpcm',
             '.cpcm_corr',
-            '.engrad',   # Energy gradient
-            '.opt',      # Optimization file
-            '.xyz',      # XYZ trajectory
-            '_trj.xyz',  # Trajectory file
-            '.molden',  # Molden file
-            '.mkl',     # MKL file
-            '.tmp',     # Temporary files
-            '.int.tmp', # Integral temporary files
+            '.engrad',
+            '.opt',
+            '.xyz',
+            '_trj.xyz',
+            '.molden',
+            '.mkl',
+            '.tmp',
+            '.int.tmp',
         ]
         
         removed_count = 0
@@ -436,7 +567,7 @@ class ORCABatchProcessing:
     def _calculate_single_molecule(
         self,
         smiles: str,
-        descriptors: list[str],
+        descriptors: Union[list[str], list[DescriptorCall]],
         idx: int,
         total: int,
     ) -> dict[str, Any]:
@@ -444,7 +575,7 @@ class ORCABatchProcessing:
         
         Args:
             smiles: SMILES string
-            descriptors: List of descriptor names to calculate
+            descriptors: List of descriptor names (str) or DescriptorCall objects
             idx: Current molecule index (0-based)
             total: Total number of molecules
             
@@ -457,7 +588,11 @@ class ORCABatchProcessing:
             mol = self._prepare_molecule(smiles)
             if mol is None:
                 logger.warning(f"[{idx + 1}/{total}] Failed to parse SMILES: {smiles}")
-                return {desc: None for desc in descriptors}
+                if descriptors and isinstance(descriptors[0], DescriptorCall):
+                    keys = [f"{d.method_name}_{'_'.join(str(a) for a in d.args)}" for d in descriptors]
+                else:
+                    keys = descriptors if descriptors else []
+                return {desc: None for desc in keys}
             
             result_descriptors = {}
             special_descriptors = {
@@ -465,28 +600,64 @@ class ORCABatchProcessing:
                 'autocorrelation_hats': {'lag': 4, 'unweighted': True},
             }
             
-            for desc_name in descriptors:
+            for desc in descriptors:
                 try:
-                    method = getattr(self.orca, desc_name, None)
-                    
-                    if method is None or not callable(method):
-                        logger.debug(f"[{idx + 1}/{total}] Method '{desc_name}' not found or not callable")
-                        result_descriptors[desc_name] = None
-                        continue
-                    
-                    if desc_name in special_descriptors:
-                        result = method(mol, **special_descriptors[desc_name])
-                    elif desc_name == 'frontier_electron_density':
-                        frontier_density = method(mol)
-                        result = max(charge for _, charge in frontier_density) if frontier_density else 0.0
+                    if isinstance(desc, DescriptorCall):
+                        method_name = desc.method_name
+                        method = getattr(self.orca, method_name, None)
+                        
+                        if method is None or not callable(method):
+                            logger.debug(f"[{idx + 1}/{total}] Method '{method_name}' not found or not callable")
+                            result_key = f"{method_name}_{'_'.join(str(a) for a in desc.args)}"
+                            result_descriptors[result_key] = None
+                            continue
+                        
+                        result = method(mol, *desc.args, **desc.kwargs)
+                        
+                        param_str = ""
+                        if desc.args:
+                            param_str = "_" + "_".join(str(a) for a in desc.args)
+                        if desc.kwargs:
+                            param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(desc.kwargs.items()))
+                        result_key = f"{method_name}{param_str}"
+                        
+                        if method_name == 'frontier_electron_density' and isinstance(result, list):
+                            result = max(charge for _, charge in result) if result else 0.0
+                        
+                        result_descriptors[result_key] = result
                     else:
-                        result = method(mol)
-                    
-                    result_descriptors[desc_name] = result
+                        desc_name = desc
+                        method = getattr(self.orca, desc_name, None)
+                        
+                        if method is None or not callable(method):
+                            logger.debug(f"[{idx + 1}/{total}] Method '{desc_name}' not found or not callable")
+                            result_descriptors[desc_name] = None
+                            continue
+                        
+                        if desc_name in special_descriptors:
+                            result = method(mol, **special_descriptors[desc_name])
+                        elif desc_name == 'frontier_electron_density':
+                            frontier_density = method(mol)
+                            result = max(charge for _, charge in frontier_density) if frontier_density else 0.0
+                        else:
+                            result = method(mol)
+                        
+                        result_descriptors[desc_name] = result
                 except Exception as e:
-                    # Check if it's an ORCA calculation error
                     error_msg = str(e)
                     brief_error, detailed_error = self._parse_orca_error(error_msg)
+                    
+                    if isinstance(desc, DescriptorCall):
+                        desc_name = desc.method_name
+                        param_str = ""
+                        if desc.args:
+                            param_str = "_" + "_".join(str(a) for a in desc.args)
+                        if desc.kwargs:
+                            param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(desc.kwargs.items()))
+                        result_key = f"{desc_name}{param_str}"
+                    else:
+                        desc_name = desc
+                        result_key = desc_name
                     
                     if brief_error:
                         logger.info(f"[{idx + 1}/{total}] Error calculating '{desc_name}' for SMILES {smiles}: {brief_error}")
@@ -495,9 +666,8 @@ class ORCABatchProcessing:
                         logger.info(f"[{idx + 1}/{total}] Error calculating '{desc_name}' for SMILES {smiles}: {e}")
                         logger.debug(f"[{idx + 1}/{total}] Full error traceback: {error_msg}")
                     
-                    result_descriptors[desc_name] = None
+                    result_descriptors[result_key] = None
             
-            # Cleanup temporary files after successful calculation
             try:
                 mol_hash = self.orca._get_molecule_hash(mol)
                 base_name = f"orca_{mol_hash}"
@@ -529,7 +699,19 @@ class ORCABatchProcessing:
                 logger.info(f"[{idx + 1}/{total}] Error processing SMILES {smiles}: {e}")
                 logger.debug(f"[{idx + 1}/{total}] Full error traceback: {error_msg}")
             
-            return {desc: None for desc in descriptors}
+            # Create keys for result dict
+            if descriptors and isinstance(descriptors[0], DescriptorCall):
+                keys = []
+                for d in descriptors:
+                    param_str = ""
+                    if d.args:
+                        param_str = "_" + "_".join(str(a) for a in d.args)
+                    if d.kwargs:
+                        param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(d.kwargs.items()))
+                    keys.append(f"{d.method_name}{param_str}")
+            else:
+                keys = descriptors if descriptors else []
+            return {desc: None for desc in keys}
     
     
     def _get_available_descriptors(self) -> list[str]:
@@ -604,13 +786,15 @@ class ORCABatchProcessing:
             elif isinstance(smiles_column, pd.DataFrame):
                 if 'smiles' not in smiles_column.columns:
                     raise ValueError("DataFrame must contain a 'smiles' column")
-                # Keep all original columns (including 'smiles' if it exists)
                 df = smiles_column.copy()
                 smiles_list = smiles_column['smiles'].tolist()
+            elif isinstance(smiles_column, list):
+                df = None
+                smiles_list = smiles_column
             else:
                 raise TypeError(
-                    "smiles_column must be a pandas Series or DataFrame. "
-                    "For plain lists, install pandas or use individual descriptor methods."
+                    "smiles_column must be a pandas Series, DataFrame, or a list of SMILES strings. "
+                    f"Got {type(smiles_column)}"
                 )
         else:
             if isinstance(smiles_column, list):
@@ -624,37 +808,55 @@ class ORCABatchProcessing:
                 )
         
         if descriptors is not None:
-            available = self._get_available_descriptors()
-            invalid_descriptors = [d for d in descriptors if d not in available]
-            if invalid_descriptors:
-                raise ValueError(
-                    f"Invalid descriptor names: {invalid_descriptors}. "
-                    f"Available descriptors: {', '.join(available)}"
-                )
-            descriptors_to_calculate = descriptors
+            descriptor_calls = []
+            descriptor_names = []
+            
+            for desc in descriptors:
+                if isinstance(desc, DescriptorCall):
+                    descriptor_calls.append(desc)
+                    param_str = ""
+                    if desc.args:
+                        param_str = "_" + "_".join(str(a) for a in desc.args)
+                    if desc.kwargs:
+                        param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(desc.kwargs.items()))
+                    descriptor_names.append(f"{desc.method_name}{param_str}")
+                elif isinstance(desc, str):
+                    descriptor_names.append(desc)
+                else:
+                    raise ValueError(
+                        f"Invalid descriptor type: {type(desc)}. "
+                        f"Expected str or DescriptorCall, got {desc}"
+                    )
+            
+            if descriptor_calls:
+                descriptors_to_calculate = descriptor_calls
+            else:
+                available = self._get_available_descriptors()
+                invalid_descriptors = [d for d in descriptor_names if d not in available]
+                if invalid_descriptors:
+                    raise ValueError(
+                        f"Invalid descriptor names: {invalid_descriptors}. "
+                        f"Available descriptors: {', '.join(available)}"
+                    )
+                descriptors_to_calculate = descriptor_names
         else:
             descriptors_to_calculate = self._get_available_descriptors()
         
         total = len(smiles_list)
         if total == 0:
             if pandas_available and df is not None:
-                # Return original DataFrame without adding anything
                 return df
             else:
                 return []
         
-        # Estimate times for all molecules
         estimated_times = []
         if progress and total > 1:
             logger.info("Estimating calculation times...")
             estimated_times = self._estimate_times(smiles_list)
             total_estimated = sum(estimated_times)
             
-            # Adjust time estimate for multiprocessing
             if self.parallel_mode == "multiprocessing" and total > 1 and self.n_workers > 1:
                 efficiency = self._get_parallel_efficiency(self.n_workers)
-                
-                # Parallel time = sequential time / (workers * efficiency)
                 parallel_estimated = total_estimated / (self.n_workers * efficiency)
                 logger.info(
                     f"Total estimated time (sequential): {self._format_time(total_estimated)}"
@@ -667,9 +869,7 @@ class ORCABatchProcessing:
             elif total_estimated > 0:
                 logger.info(f"Total estimated time: {self._format_time(total_estimated)}")
         
-        # Process molecules based on parallel mode
         if self.parallel_mode == "multiprocessing" and total > 1:
-            # Use multiprocessing
             efficiency = self._get_parallel_efficiency(self.n_workers)
             logger.info(
                 f"Processing {total} molecules using multiprocessing with {self.n_workers} workers "
@@ -692,7 +892,7 @@ class ORCABatchProcessing:
                 'charge': self.orca.charge,
                 'multiplicity': self.orca.multiplicity,
                 'cache_dir': str(self.orca.cache.cache_dir) if hasattr(self.orca.cache, 'cache_dir') else None,
-                'log_level': logging.DEBUG,  # Use DEBUG in workers to avoid duplicate INFO messages
+                'log_level': logging.DEBUG,
                 'max_wait': self.orca.max_wait,
                 'use_mpirun': self.orca.use_mpirun,
                 'mpirun_path': self.orca.mpirun_path,
@@ -707,59 +907,74 @@ class ORCABatchProcessing:
                 ]
                 results = pool.map(_calculate_worker_multiprocessing, args_list)
             
-            # Sort results by index to maintain order
             results.sort(key=lambda x: x[0])
             descriptors_list = [result[1] for result in results]
         else:
-            # Sequential processing
             descriptors_list = []
             actual_times = []
             
             for idx, smiles in enumerate(smiles_list):
+                is_cached = False
+                try:
+                    mol = self._prepare_molecule(smiles)
+                    if mol is not None:
+                        mol_hash = self.orca._get_molecule_hash(mol)
+                        cached_output = self.orca.cache.get(mol_hash)
+                        is_cached = cached_output is not None and cached_output.exists()
+                except Exception:
+                    pass
+                
                 if progress and total > 1:
                     remaining = total - idx
                     
-                    if actual_times and len(actual_times) > 0:
-                        alpha = 0.3
-                        if len(actual_times) == 1:
-                            avg_time = actual_times[0]
-                        else:
-                            avg_time = actual_times[0]
-                            for t in actual_times[1:]:
-                                avg_time = alpha * t + (1 - alpha) * avg_time
-                        remaining_estimated = avg_time * remaining
-                    else:
-                        remaining_estimated = sum(estimated_times[idx:]) if estimated_times else 0.0
-                    
-                    if remaining_estimated > 0:
-                        time_str = f"~{self._format_time(remaining_estimated)}"
-                        
+                    if is_cached:
                         if actual_times:
                             avg_actual = sum(actual_times) / len(actual_times)
                             logger.info(
                                 f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, "
-                                f"estimated time: {time_str}, avg: {avg_actual:.1f}s/molecule)"
+                                f"CACHED, avg: {avg_actual:.1f}s/molecule)"
                             )
                         else:
-                            logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, estimated time: {time_str})")
+                            logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, CACHED)")
                     else:
-                        logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining})")
+                        if actual_times and len(actual_times) > 0:
+                            alpha = 0.3
+                            if len(actual_times) == 1:
+                                avg_time = actual_times[0]
+                            else:
+                                avg_time = actual_times[0]
+                                for t in actual_times[1:]:
+                                    avg_time = alpha * t + (1 - alpha) * avg_time
+                            remaining_estimated = avg_time * remaining
+                        else:
+                            remaining_estimated = sum(estimated_times[idx:]) if estimated_times else 0.0
+                        
+                        if remaining_estimated > 0:
+                            time_str = f"~{self._format_time(remaining_estimated)}"
+                            
+                            if actual_times:
+                                avg_actual = sum(actual_times) / len(actual_times)
+                                logger.info(
+                                    f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, "
+                                    f"estimated time: {time_str}, avg: {avg_actual:.1f}s/molecule)"
+                                )
+                            else:
+                                logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, estimated time: {time_str})")
+                        else:
+                            logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining})")
                 
                 start_time = time.time()
                 result = self._calculate_single_molecule(smiles, descriptors_to_calculate, idx, total)
                 descriptors_list.append(result)
                 actual_times.append(time.time() - start_time)
         
-        # Combine results: add only descriptor columns (no new 'smiles' column)
         if pandas_available:
             descriptor_df = pd.DataFrame(descriptors_list)
             
             if df is not None:
-                # If input was DataFrame, add descriptors to it (preserving all original columns)
                 result_df = pd.concat([df.reset_index(drop=True), descriptor_df.reset_index(drop=True)], axis=1)
                 return result_df
             else:
-                # If input was Series, return only descriptors DataFrame (no 'smiles' column)
                 return descriptor_df
         else:
             return descriptors_list

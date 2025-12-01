@@ -82,7 +82,12 @@ class Orca:
             handler = logging.StreamHandler()
             formatter = logging.Formatter('%(levelname)s - %(message)s')
             handler.setFormatter(formatter)
+            handler.setLevel(log_level)
             logger.addHandler(handler)
+        else:
+            # Update existing handlers' level
+            for handler in logger.handlers:
+                handler.setLevel(log_level)
         logger.setLevel(log_level)
         logger.propagate = False
         self.script_path = script_path
@@ -207,6 +212,7 @@ class Orca:
                 self.multiplicity,
                 self.pre_optimize,  # Include pre_optimize in hash
             )
+        
         key = f"{smiles}_{params}"
         return hashlib.sha256(key.encode()).hexdigest()
     
@@ -682,38 +688,87 @@ class Orca:
     
     def _get_output(self, mol: Mol) -> dict[str, Any]:
         """Get parsed output from ORCA calculation."""
+        # Check if mol is XMolecule (for descriptor definition API)
+        try:
+            from orca_descriptors.batch_processing import XMolecule, DescriptorCall
+            if isinstance(mol, XMolecule):
+                # This should not happen in _get_output, but handle it gracefully
+                raise ValueError("XMolecule cannot be used in _get_output")
+        except ImportError:
+            pass
+        
         output_file = self._run_calculation(mol)
         return self.output_parser.parse(output_file, mol)
     
-    def ch_potential(self, mol: Mol) -> float:
+    def ch_potential(self, mol: Mol, *args, **kwargs) -> float:
         """Calculate chemical potential (mu = -electronegativity)."""
+        # Check if mol is XMolecule (for descriptor definition API)
+        try:
+            from orca_descriptors.batch_processing import XMolecule, DescriptorCall
+            if isinstance(mol, XMolecule):
+                return DescriptorCall('ch_potential', args, kwargs)
+        except ImportError:
+            pass
+        
         data = self._get_output(mol)
         homo = data.get("homo_energy", 0.0)
         lumo = data.get("lumo_energy", 0.0)
         return (homo + lumo) / 2.0  # in eV
     
-    def electronegativity(self, mol: Mol) -> float:
+    def electronegativity(self, mol: Mol, *args, **kwargs) -> float:
         """Calculate electronegativity (chi = -mu)."""
+        # Check if mol is XMolecule (for descriptor definition API)
+        try:
+            from orca_descriptors.batch_processing import XMolecule, DescriptorCall
+            if isinstance(mol, XMolecule):
+                return DescriptorCall('electronegativity', args, kwargs)
+        except ImportError:
+            pass
+        
         return -self.ch_potential(mol)
     
-    def abs_hardness(self, mol: Mol) -> float:
+    def abs_hardness(self, mol: Mol, *args, **kwargs) -> float:
         """Calculate absolute hardness (eta = (LUMO - HOMO) / 2)."""
+        # Check if mol is XMolecule (for descriptor definition API)
+        try:
+            from orca_descriptors.batch_processing import XMolecule, DescriptorCall
+            if isinstance(mol, XMolecule):
+                return DescriptorCall('abs_hardness', args, kwargs)
+        except ImportError:
+            pass
+        
         data = self._get_output(mol)
         homo = data.get("homo_energy", 0.0)
         lumo = data.get("lumo_energy", 0.0)
         return (lumo - homo) / 2.0  # in eV
     
-    def abs_softness(self, mol: Mol) -> float:
+    def abs_softness(self, mol: Mol, *args, **kwargs) -> float:
         """Calculate absolute softness (S = 1 / (2 * eta))."""
+        # Check if mol is XMolecule (for descriptor definition API)
+        try:
+            from orca_descriptors.batch_processing import XMolecule, DescriptorCall
+            if isinstance(mol, XMolecule):
+                return DescriptorCall('abs_softness', args, kwargs)
+        except ImportError:
+            pass
+        
         eta = self.abs_hardness(mol)
         return 1.0 / (2.0 * eta) if eta > 0 else 0.0
     
-    def frontier_electron_density(self, mol: Mol) -> list[tuple[Any, float]]:
+    def frontier_electron_density(self, mol: Mol, *args, **kwargs) -> list[tuple[Any, float]]:
         """Calculate frontier electron density for each atom.
         
         Returns list of tuples: (atom, density_value)
         For aromatic systems, typically returns only heavy atoms (C, N, O, etc.)
         """
+        # Check if mol is XMolecule (for descriptor definition API)
+        try:
+            from orca_descriptors.batch_processing import XMolecule, DescriptorCall
+            if isinstance(mol, XMolecule):
+                return DescriptorCall('frontier_electron_density', args, kwargs)
+        except ImportError:
+            pass
+        
         data = self._get_output(mol)
         atom_charges = data.get("atom_charges", {})
         result = []
@@ -1123,7 +1178,7 @@ class Orca:
                 return estimated_sasa
             return 0.0
     
-    def mo_energy(self, mol: Mol, index: int) -> float:
+    def mo_energy(self, mol: Mol, index: int, *args, **kwargs) -> float:
         """Get molecular orbital energy by index.
         
         Args:
@@ -1133,6 +1188,14 @@ class Orca:
         Returns:
             Orbital energy in eV
         """
+        # Check if mol is XMolecule (for descriptor definition API)
+        try:
+            from orca_descriptors.batch_processing import XMolecule, DescriptorCall
+            if isinstance(mol, XMolecule):
+                return DescriptorCall('mo_energy', (index,) + args, kwargs)
+        except ImportError:
+            pass
+        
         data = self._get_output(mol)
         orbital_energies = data.get("orbital_energies", [])
         
@@ -1260,7 +1323,7 @@ class Orca:
         
         return min(meric_values)
     
-    def topological_distance(self, mol: Mol, atom1: str, atom2: str) -> int:
+    def topological_distance(self, mol: Mol, atom1: str, atom2: str, *args, **kwargs) -> int:
         """Calculate sum of topological distances between all pairs of atoms of specified types.
         
         Args:
@@ -1271,6 +1334,14 @@ class Orca:
         Returns:
             Sum of topological distances (integer)
         """
+        # Check if mol is XMolecule (for descriptor definition API)
+        try:
+            from orca_descriptors.batch_processing import XMolecule, DescriptorCall
+            if isinstance(mol, XMolecule):
+                return DescriptorCall('topological_distance', (atom1, atom2) + args, kwargs)
+        except ImportError:
+            pass
+        
         from collections import deque
         
         atom1_indices = [i for i in range(mol.GetNumAtoms()) 

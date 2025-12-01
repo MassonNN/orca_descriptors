@@ -311,7 +311,7 @@ class ORCATimeEstimator:
         benchmark = self._load_benchmark()
         
         if not benchmark:
-            logger.warning("No benchmark data found. Run benchmark first.")
+            logger.debug("No benchmark data found. Run benchmark first.")
             return 0.0
         
         # Track which parameters differ
