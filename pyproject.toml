@@ -1,6 +1,6 @@
 [project]
 name = "orca-descriptors"
-version = "0.3.3"
+version = "0.3.3b"
 description = "A library of QSAR descriptors calculation using ORCA script"
 authors = [
     {name = "MassonNN",email = "me@ilyalyapin.ru"}
