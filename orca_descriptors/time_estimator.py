@@ -405,53 +405,58 @@ class ORCATimeEstimator:
                     f"(factor: {basis_scaling:.3f})"
                 )
         
-        # Estimate number of basis functions for target molecule
-        # Simple approximation: N ~ n_atoms * atoms_per_basis
-        # More accurate would require parsing from actual calculation
+        # Get target molecule size
         n_atoms_target = mol.GetNumAtoms()
         n_atoms_benchmark = benchmark["n_atoms"]
         n_basis_benchmark = benchmark["n_basis"]
         
-        # Estimate basis functions (rough approximation)
+        # Estimate basis functions for target molecule
         atoms_per_basis = n_basis_benchmark / n_atoms_benchmark if n_atoms_benchmark > 0 else 1
         n_basis_target = int(n_atoms_target * atoms_per_basis)
         
-        # Scaling factor: DFT typically scales as O(N^3) to O(N^4)
-        # Use O(N^3.5) as a compromise
-        scaling_exponent = 3.5
-        basis_ratio = (n_basis_target / n_basis_benchmark) ** scaling_exponent
+        # Use more realistic scaling: O(N^2.5) for basis functions
+        # This is more accurate for typical DFT calculations
+        # The exponent 2.5 accounts for:
+        # - O(N^2) for matrix operations
+        # - O(N^0.5) overhead for larger systems
+        scaling_exponent = 2.5
+        basis_ratio = (n_basis_target / n_basis_benchmark) ** scaling_exponent if n_basis_benchmark > 0 else 1.0
         
-        # Time per SCF cycle for target molecule
         # Apply scaling factor for different parameters (processors, functional, basis set)
-        scf_time_target = benchmark["scf_time"] * basis_ratio * scaling_factor
+        size_scaling = basis_ratio * scaling_factor
         
         # Estimate total time based on method type
+        # Use benchmark total_time as base, scaled by molecule size
         if method_type == "SP":
-            # Single point: just SCF cycles
-            n_cycles = benchmark.get("n_scf_cycles", 20)
-            estimated_time = scf_time_target * n_cycles
+            # Single point: scale benchmark total_time by size
+            estimated_time = benchmark["total_time"] * size_scaling
         elif method_type == "Opt":
-            # Optimization: SCF cycles per step * number of steps
-            n_cycles_per_step = benchmark.get("n_scf_cycles", 20)
-            if n_opt_steps is None:
-                # Estimate: typically 10-50 steps for optimization
-                n_opt_steps = min(50, max(10, n_atoms_target * 2))
-            # Each optimization step requires gradient calculation (~2x SCF time)
-            time_per_step = scf_time_target * n_cycles_per_step * 2
-            estimated_time = time_per_step * n_opt_steps
+            # Optimization: scale benchmark total_time, but account for optimization overhead
+            # Opt typically takes 2-3x longer than SP for the same molecule
+            # But benchmark is SP, so we need to account for Opt overhead
+            opt_overhead = 2.5  # Opt is typically 2-3x slower than SP
+            estimated_time = benchmark["total_time"] * size_scaling * opt_overhead
+            
+            # Optionally adjust for expected number of optimization steps
+            # But in practice, the size scaling already accounts for this
+            if n_opt_steps is not None:
+                # If user provides n_opt_steps, we can fine-tune
+                # But typically the size scaling is sufficient
+                pass
         elif method_type == "Freq":
-            # Frequency: 6N-6 normal modes
-            n_modes = 6 * n_atoms_target - 6
-            # Each frequency calculation is similar to gradient
-            time_per_mode = scf_time_target * benchmark.get("n_scf_cycles", 20) * 2
-            estimated_time = time_per_mode * n_modes
+            # Frequency calculation: much more expensive
+            # Typically 10-20x slower than SP due to Hessian calculation
+            freq_overhead = 15.0
+            estimated_time = benchmark["total_time"] * size_scaling * freq_overhead
         else:
             # Default: assume similar to Opt
-            estimated_time = scf_time_target * benchmark.get("n_scf_cycles", 20) * 20
+            opt_overhead = 2.5
+            estimated_time = benchmark["total_time"] * size_scaling * opt_overhead
         
         if params_differ:
             logger.info(
-                f"Estimated time with parameter scaling (total scaling factor: {scaling_factor:.3f})"
+                f"Estimated time with parameter scaling (total scaling factor: {scaling_factor:.3f}, "
+                f"size scaling: {basis_ratio:.3f})"
             )
         
         return estimated_time

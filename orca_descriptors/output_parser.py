@@ -140,7 +140,88 @@ class ORCAOutputParser:
         return homo, lumo
     
     def _parse_dipole_moment(self, content: str) -> float:
-        """Parse dipole moment magnitude in Debye."""
+        """Parse dipole moment magnitude in Debye.
+        
+        When solvation models (SMD/COSMO) are used, ORCA may output both
+        gas-phase and solvated dipole moments. This parser prioritizes
+        gas-phase values to match experimental data.
+        """
+        lines = content.split("\n")
+        
+        # First, try to find gas-phase dipole moment (before solvation section)
+        # Look for dipole moment before SMD/COSMO sections
+        gas_phase_dipole = None
+        solvated_dipole = None
+        
+        in_solvation_section = False
+        dipole_sections = []
+        
+        for i, line in enumerate(lines):
+            # Mark start of solvation section
+            if "SMD" in line.upper() or "COSMO" in line.upper() or "CPCM" in line.upper():
+                in_solvation_section = True
+            
+            # Look for dipole moment entries
+            if "dipole moment" in line.lower():
+                dipole_sections.append((i, in_solvation_section, line))
+        
+        # Try to find gas-phase dipole first (before any solvation)
+        for i, (line_idx, in_solv, line) in enumerate(dipole_sections):
+            if not in_solv:
+                # This is likely gas-phase dipole
+                # Try to extract value from this section
+                for j in range(max(0, line_idx - 2), min(len(lines), line_idx + 5)):
+                    check_line = lines[j]
+                    # Look for "Total Dipole Moment" or magnitude
+                    patterns = [
+                        r"Total Dipole Moment\s*:\s*(-?\d+\.\d+)\s*Debye",
+                        r"Dipole moment\s*:\s*(-?\d+\.\d+)\s*Debye",
+                        r"Magnitude\s+\(Debye\)\s*:\s*(-?\d+\.\d+)",
+                    ]
+                    for pattern in patterns:
+                        match = re.search(pattern, check_line, re.IGNORECASE)
+                        if match:
+                            gas_phase_dipole = abs(float(match.group(1)))
+                            break
+                    
+                    # Try component format
+                    dipole_pattern = r"Dipole moment\s+\(Debye\)\s*:\s*X=\s*(-?\d+\.\d+)\s*Y=\s*(-?\d+\.\d+)\s*Z=\s*(-?\d+\.\d+)"
+                    dipole_match = re.search(dipole_pattern, check_line, re.IGNORECASE)
+                    if dipole_match:
+                        dx = float(dipole_match.group(1))
+                        dy = float(dipole_match.group(2))
+                        dz = float(dipole_match.group(3))
+                        gas_phase_dipole = (dx**2 + dy**2 + dz**2)**0.5
+                        break
+                    
+                    # Try multi-line format
+                    if "Dipole moment" in check_line.lower() and j + 3 < len(lines):
+                        try:
+                            x_line = lines[j + 1] if j + 1 < len(lines) else ""
+                            y_line = lines[j + 2] if j + 2 < len(lines) else ""
+                            z_line = lines[j + 3] if j + 3 < len(lines) else ""
+                            
+                            x_match = re.search(r"(-?\d+\.\d+)", x_line)
+                            y_match = re.search(r"(-?\d+\.\d+)", y_line)
+                            z_match = re.search(r"(-?\d+\.\d+)", z_line)
+                            
+                            if x_match and y_match and z_match:
+                                dx = float(x_match.group(1))
+                                dy = float(y_match.group(1))
+                                dz = float(z_match.group(1))
+                                gas_phase_dipole = (dx**2 + dy**2 + dz**2)**0.5
+                                break
+                        except (ValueError, IndexError):
+                            pass
+                
+                if gas_phase_dipole is not None:
+                    break
+        
+        # If gas-phase dipole found, return it
+        if gas_phase_dipole is not None:
+            return gas_phase_dipole
+        
+        # Fallback to original parsing (any dipole moment)
         patterns = [
             r"Total Dipole Moment\s*:\s*(-?\d+\.\d+)\s*Debye",
             r"Dipole moment\s*:\s*(-?\d+\.\d+)\s*Debye",
@@ -160,7 +241,6 @@ class ORCAOutputParser:
             dz = float(dipole_match.group(3))
             return (dx**2 + dy**2 + dz**2)**0.5
         
-        lines = content.split("\n")
         for i, line in enumerate(lines):
             if "Dipole moment" in line.lower() and i + 3 < len(lines):
                 try:

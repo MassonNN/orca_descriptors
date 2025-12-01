@@ -57,22 +57,22 @@ jobs:
 
       - name: Build English documentation
         run: |
-          cd docs/en
-          poetry run sphinx-build -b html . _build/html
+          cd docs/source
+          poetry run sphinx-build -b html -D language=en . _build/html/en
 
       - name: Build Russian documentation
         run: |
-          cd docs/ru
-          poetry run sphinx-build -b html . _build/html
+          cd docs/source
+          poetry run sphinx-build -b html -D language=ru . _build/html/ru
 
       - name: Create combined documentation structure
         run: |
           mkdir -p docs/_build/html
           # Copy English docs to root
-          cp -r docs/en/_build/html/* docs/_build/html/
+          cp -r docs/source/_build/html/en/* docs/_build/html/
           # Copy Russian docs to /ru subdirectory
           mkdir -p docs/_build/html/ru
-          cp -r docs/ru/_build/html/* docs/_build/html/ru/
+          cp -r docs/source/_build/html/ru/* docs/_build/html/ru/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

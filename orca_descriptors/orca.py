@@ -656,6 +656,89 @@ class Orca:
         data = self._get_output(mol)
         return data.get("dipole_moment", 0.0)
     
+    def _get_available_descriptors(self) -> list[str]:
+        """Get list of all available descriptor method names.
+        
+        Returns:
+            List of descriptor method names
+        """
+        excluded = {
+            'run_benchmark', 'estimate_calculation_time', 'calculate_descriptors',
+            '_get_available_descriptors', 'get_atom_charges', 'get_bond_lengths',
+        }
+        
+        descriptor_methods = []
+        for name in dir(self):
+            if not name.startswith('_') and name not in excluded:
+                method = getattr(self, name, None)
+                if callable(method):
+                    descriptor_methods.append(name)
+        
+        return sorted(descriptor_methods)
+    
+    @staticmethod
+    def _format_time(seconds: float) -> str:
+        """Format time in seconds to human-readable string.
+        
+        Args:
+            seconds: Time in seconds
+            
+        Returns:
+            Formatted time string (e.g., "2h 30m 15s", "45m 30s", "30s")
+        """
+        if seconds <= 0:
+            return "0s"
+        
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = int(seconds % 60)
+        
+        if hours > 0:
+            return f"{hours}h {minutes}m {secs}s"
+        elif minutes > 0:
+            return f"{minutes}m {secs}s"
+        else:
+            return f"{secs}s"
+    
+    @staticmethod
+    def _update_time_estimates(actual_times: list[float], estimated_times: list[float], 
+                               current_idx: int, total: int) -> None:
+        """Update estimated times for remaining molecules based on actual performance.
+        
+        Args:
+            actual_times: List of actual execution times for processed molecules
+            estimated_times: List of estimated times (will be modified in place)
+            current_idx: Current molecule index
+            total: Total number of molecules
+        """
+        if not estimated_times or not actual_times:
+            return
+        
+        # Calculate average actual time per molecule
+        avg_actual_time = sum(actual_times) / len(actual_times)
+        
+        # Calculate average ratio of actual/estimated for processed molecules
+        ratios = [
+            actual_times[k] / estimated_times[k] 
+            for k in range(len(actual_times)) 
+            if k < len(estimated_times) and estimated_times[k] > 0
+        ]
+        
+        # Use average ratio to scale remaining estimates, or fallback to actual average
+        avg_ratio = sum(ratios) / len(ratios) if ratios else None
+        
+        # Update estimates for remaining molecules
+        for j in range(current_idx + 1, total):
+            if j < len(estimated_times):
+                original_estimate = estimated_times[j]
+                if original_estimate > 0 and avg_ratio is not None:
+                    estimated_times[j] = original_estimate * avg_ratio
+                else:
+                    estimated_times[j] = avg_actual_time
+            elif j >= len(estimated_times):
+                # Extend list if needed
+                estimated_times.append(avg_actual_time)
+    
     def polar_surface_area(self, mol: Mol) -> float:
         """Calculate polar surface area in Å²."""
         data = self._get_output(mol)
@@ -1319,13 +1402,7 @@ class Orca:
                           or a list of SMILES strings
             descriptors: Optional list of descriptor names to calculate.
                        If None, calculates all available descriptors.
-                       Available descriptors: 'homo_energy', 'lumo_energy', 'gap_energy',
-                       'ch_potential', 'electronegativity', 'abs_hardness', 'abs_softness',
-                       'frontier_electron_density', 'total_energy', 'dipole_moment',
-                       'polar_surface_area', 'gibbs_free_energy', 'entropy', 'enthalpy',
-                       'molecular_volume', 'num_rotatable_bonds', 'wiener_index',
-                       'solvent_accessible_surface_area', 'get_min_h_charge', 'xy_shadow',
-                       'meric', 'm_log_p', 'moran_autocorrelation', 'autocorrelation_hats'
+                       Descriptor names correspond to method names of the Orca class.
             progress: Whether to show progress (default: True)
             
         Returns:
@@ -1367,51 +1444,21 @@ class Orca:
                     "or pass a list of SMILES strings."
                 )
         
-        # Define all available descriptors
-        all_descriptors = [
-            'homo_energy',
-            'lumo_energy',
-            'gap_energy',
-            'ch_potential',
-            'electronegativity',
-            'abs_hardness',
-            'abs_softness',
-            'frontier_electron_density',
-            'total_energy',
-            'dipole_moment',
-            'polar_surface_area',
-            'gibbs_free_energy',
-            'entropy',
-            'enthalpy',
-            'molecular_volume',
-            'num_rotatable_bonds',
-            'wiener_index',
-            'solvent_accessible_surface_area',
-            'get_min_h_charge',
-            'xy_shadow',
-            'meric',
-            'm_log_p',
-            'moran_autocorrelation',
-            'autocorrelation_hats',
-        ]
-        
-        # Validate descriptor names if provided
         if descriptors is not None:
-            invalid_descriptors = [d for d in descriptors if d not in all_descriptors]
+            available = self._get_available_descriptors()
+            invalid_descriptors = [d for d in descriptors if d not in available]
             if invalid_descriptors:
                 raise ValueError(
                     f"Invalid descriptor names: {invalid_descriptors}. "
-                    f"Available descriptors: {', '.join(all_descriptors)}"
+                    f"Available descriptors: {', '.join(available)}"
                 )
             descriptors_to_calculate = descriptors
         else:
-            descriptors_to_calculate = all_descriptors
+            descriptors_to_calculate = self._get_available_descriptors()
         
         descriptors_list = []
         
         total = len(smiles_list)
-        
-        # Pre-calculate estimated times for all molecules if progress is enabled
         estimated_times = []
         if progress and total > 1:
             for smiles in smiles_list:
@@ -1431,103 +1478,89 @@ class Orca:
                 except Exception:
                     estimated_times.append(0.0)
         
+        actual_times = []
+        
         for idx, smiles in enumerate(smiles_list):
             if progress and total > 1:
                 remaining = total - idx
                 
-                # Calculate remaining estimated time
-                remaining_estimated = sum(estimated_times[idx:]) if estimated_times else 0.0
-                
-                # Format remaining time
-                if remaining_estimated > 0:
-                    hours = int(remaining_estimated // 3600)
-                    minutes = int((remaining_estimated % 3600) // 60)
-                    seconds = int(remaining_estimated % 60)
-                    if hours > 0:
-                        time_str = f"~{hours}h {minutes}m {seconds}s"
-                    elif minutes > 0:
-                        time_str = f"~{minutes}m {seconds}s"
+                if actual_times and len(actual_times) > 0:
+                    alpha = 0.3
+                    if len(actual_times) == 1:
+                        avg_time = actual_times[0]
                     else:
-                        time_str = f"~{seconds}s"
-                    logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, estimated time: {time_str})")
+                        avg_time = actual_times[0]
+                        for t in actual_times[1:]:
+                            avg_time = alpha * t + (1 - alpha) * avg_time
+                    remaining_estimated = avg_time * remaining
+                else:
+                    remaining_estimated = sum(estimated_times[idx:]) if estimated_times else 0.0
+                
+                if remaining_estimated > 0:
+                    time_str = f"~{self._format_time(remaining_estimated)}"
+                    
+                    if actual_times:
+                        avg_actual = sum(actual_times) / len(actual_times)
+                        logger.info(
+                            f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, "
+                            f"estimated time: {time_str}, avg: {avg_actual:.1f}s/molecule)"
+                        )
+                    else:
+                        logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, estimated time: {time_str})")
                 else:
                     logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining})")
+            
+            start_time = time.time()
             
             try:
                 mol = AddHs(MolFromSmiles(smiles))
                 if mol is None:
                     logger.warning(f"Failed to parse SMILES: {smiles}")
                     descriptors_list.append({})
+                    actual_times.append(time.time() - start_time)
                     continue
                 
                 result_descriptors = {}
+                special_descriptors = {
+                    'moran_autocorrelation': {'lag': 2, 'weight': 'vdw_volume'},
+                    'autocorrelation_hats': {'lag': 4, 'unweighted': True},
+                }
                 
-                # Calculate each requested descriptor
                 for desc_name in descriptors_to_calculate:
                     try:
-                        if desc_name == 'homo_energy':
-                            result_descriptors['homo_energy'] = self.homo_energy(mol)
-                        elif desc_name == 'lumo_energy':
-                            result_descriptors['lumo_energy'] = self.lumo_energy(mol)
-                        elif desc_name == 'gap_energy':
-                            result_descriptors['gap_energy'] = self.gap_energy(mol)
-                        elif desc_name == 'ch_potential':
-                            result_descriptors['ch_potential'] = self.ch_potential(mol)
-                        elif desc_name == 'electronegativity':
-                            result_descriptors['electronegativity'] = self.electronegativity(mol)
-                        elif desc_name == 'abs_hardness':
-                            result_descriptors['abs_hardness'] = self.abs_hardness(mol)
-                        elif desc_name == 'abs_softness':
-                            result_descriptors['abs_softness'] = self.abs_softness(mol)
+                        method = getattr(self, desc_name, None)
+                        
+                        if method is None or not callable(method):
+                            logger.warning(f"Method '{desc_name}' not found or not callable")
+                            result_descriptors[desc_name] = None
+                            continue
+                        
+                        if desc_name in special_descriptors:
+                            result = method(mol, **special_descriptors[desc_name])
                         elif desc_name == 'frontier_electron_density':
-                            frontier_density = self.frontier_electron_density(mol)
-                            if frontier_density:
-                                result_descriptors['frontier_electron_density'] = max(
-                                    charge for _, charge in frontier_density
-                                )
-                            else:
-                                result_descriptors['frontier_electron_density'] = 0.0
-                        elif desc_name == 'total_energy':
-                            result_descriptors['total_energy'] = self.total_energy(mol)
-                        elif desc_name == 'dipole_moment':
-                            result_descriptors['dipole_moment'] = self.dipole_moment(mol)
-                        elif desc_name == 'polar_surface_area':
-                            result_descriptors['polar_surface_area'] = self.polar_surface_area(mol)
-                        elif desc_name == 'gibbs_free_energy':
-                            result_descriptors['gibbs_free_energy'] = self.gibbs_free_energy(mol)
-                        elif desc_name == 'entropy':
-                            result_descriptors['entropy'] = self.entropy(mol)
-                        elif desc_name == 'enthalpy':
-                            result_descriptors['enthalpy'] = self.enthalpy(mol)
-                        elif desc_name == 'molecular_volume':
-                            result_descriptors['molecular_volume'] = self.molecular_volume(mol)
-                        elif desc_name == 'num_rotatable_bonds':
-                            result_descriptors['num_rotatable_bonds'] = self.num_rotatable_bonds(mol)
-                        elif desc_name == 'wiener_index':
-                            result_descriptors['wiener_index'] = self.wiener_index(mol)
-                        elif desc_name == 'solvent_accessible_surface_area':
-                            result_descriptors['solvent_accessible_surface_area'] = self.solvent_accessible_surface_area(mol)
-                        elif desc_name == 'get_min_h_charge':
-                            result_descriptors['get_min_h_charge'] = self.get_min_h_charge(mol)
-                        elif desc_name == 'xy_shadow':
-                            result_descriptors['xy_shadow'] = self.xy_shadow(mol)
-                        elif desc_name == 'meric':
-                            result_descriptors['meric'] = self.meric(mol)
-                        elif desc_name == 'm_log_p':
-                            result_descriptors['m_log_p'] = self.m_log_p(mol)
-                        elif desc_name == 'moran_autocorrelation':
-                            result_descriptors['moran_autocorrelation'] = self.moran_autocorrelation(mol, lag=2, weight='vdw_volume')
-                        elif desc_name == 'autocorrelation_hats':
-                            result_descriptors['autocorrelation_hats'] = self.autocorrelation_hats(mol, lag=4, unweighted=True)
+                            frontier_density = method(mol)
+                            result = max(charge for _, charge in frontier_density) if frontier_density else 0.0
+                        else:
+                            result = method(mol)
+                        
+                        result_descriptors[desc_name] = result
                     except Exception as e:
                         logger.warning(f"Failed to calculate descriptor '{desc_name}' for SMILES {smiles}: {e}")
                         result_descriptors[desc_name] = None
                 
                 descriptors_list.append(result_descriptors)
                 
+                actual_time = time.time() - start_time
+                actual_times.append(actual_time)
+                
+                if progress and total > 1 and len(actual_times) > 0 and idx < total - 1:
+                    self._update_time_estimates(actual_times, estimated_times, idx, total)
+                
             except Exception as e:
                 logger.error(f"Error processing SMILES {smiles}: {e}")
                 descriptors_list.append({})
+                actual_time = time.time() - start_time
+                actual_times.append(actual_time)
         
         if pandas_available and df is not None:
             descriptor_df = pd.DataFrame(descriptors_list)

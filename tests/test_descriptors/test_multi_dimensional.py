@@ -20,14 +20,16 @@ TEST_MOLECULES_DATA = [
     "smiles, name, expected_dipole, expected_psa, expected_nrot",
     TEST_MOLECULES_DATA
 )
-def test_dipole_moment(orca, smiles, name, expected_dipole, expected_psa, expected_nrot):
+def test_dipole_moment(orca_gas, smiles, name, expected_dipole, expected_psa, expected_nrot):
     """
     Dipole moment (mu_D) test for various molecules.
     Highly symmetric molecules (Benzene, Ethane) should have a near-zero dipole.
     Polar molecules (Acetone, Water) should have a significant dipole (> 1.0 D).
+    
+    Note: Uses gas-phase calculations (no solvation) to match experimental gas-phase values.
     """
     mol = AddHs(MolFromSmiles(smiles))
-    result = orca.dipole_moment(mol)
+    result = orca_gas.dipole_moment(mol)
     
     # Assert: Checks that the result is close to the expected value (0.5 D tolerance)
     tolerance = 0.5 

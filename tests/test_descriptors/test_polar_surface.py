@@ -1,14 +1,16 @@
 from rdkit.Chem import MolFromSmiles, AddHs
 
 
-def test_dipole_moment(orca):
+def test_dipole_moment(orca_gas):
     """
     Dipole moment (mu_D) for highly symmetric, non-polar molecules like benzene 
     should be zero or extremely close to zero.
+    
+    Note: Uses gas-phase calculations (no solvation) to match experimental gas-phase values.
     """
     mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Result is typically in Debye (D)
-    result = orca.dipole_moment(mol)
+    result = orca_gas.dipole_moment(mol)
     
     # Assert 1: The dipole moment should be close to zero (e.g., less than 0.1 D)
     assert abs(result) < 0.1 
