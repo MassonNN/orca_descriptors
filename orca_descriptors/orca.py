@@ -20,6 +20,12 @@ logger = logging.getLogger(__name__)
 
 
 class Orca:
+    """Main class for ORCA quantum chemical calculations.
+    
+    Supports both DFT methods (with basis sets) and semi-empirical methods
+    (AM1, PM3, PM6, PM7, etc.). For semi-empirical methods, basis_set and
+    dispersion_correction parameters are ignored.
+    """
     """Main class for ORCA quantum chemical calculations."""
     
     def __init__(
@@ -43,6 +49,7 @@ class Orca:
         use_mpirun: bool = False,
         mpirun_path: Optional[str] = None,
         extra_env: Optional[dict] = None,
+        pre_optimize: bool = True,
     ):
         """Initialize ORCA calculator.
         
@@ -50,10 +57,13 @@ class Orca:
             script_path: Path to ORCA executable
             working_dir: Working directory for calculations
             output_dir: Directory for output files
-            functional: DFT functional (e.g., "PBE0")
-            basis_set: Basis set (e.g., "def2-SVP")
+            functional: DFT functional (e.g., "PBE0") or semi-empirical method
+                       (e.g., "AM1", "PM3", "PM6", "PM7"). For semi-empirical methods,
+                       basis_set and dispersion_correction are ignored.
+            basis_set: Basis set (e.g., "def2-SVP"). Ignored for semi-empirical methods.
             method_type: Calculation type ("Opt", "SP", etc.)
-            dispersion_correction: Dispersion correction (e.g., "D3BJ")
+            dispersion_correction: Dispersion correction (e.g., "D3BJ").
+                                 Ignored for semi-empirical methods.
             solvation_model: Solvation model (e.g., "COSMO(Water)")
             n_processors: Number of processors
             max_scf_cycles: Maximum SCF cycles
@@ -66,6 +76,7 @@ class Orca:
             use_mpirun: Whether to use mpirun for parallel execution (default: False)
             mpirun_path: Path to mpirun executable (default: None, will search in PATH)
             extra_env: Additional environment variables to pass to ORCA process (default: None)
+            pre_optimize: Whether to pre-optimize geometry with MMFF94 before ORCA calculation (default: True)
         """
         if not logger.handlers:
             handler = logging.StreamHandler()
@@ -91,6 +102,7 @@ class Orca:
         self.use_mpirun = use_mpirun
         self.mpirun_path = mpirun_path
         self.extra_env = extra_env or {}
+        self.pre_optimize = pre_optimize
         
         self.working_dir.mkdir(parents=True, exist_ok=True)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -101,20 +113,100 @@ class Orca:
         self.output_parser = ORCAOutputParser()
         self.time_estimator = ORCATimeEstimator(working_dir=self.working_dir)
     
+    def _is_semi_empirical(self) -> bool:
+        """Check if the current method is semi-empirical.
+        
+        Returns:
+            True if semi-empirical, False otherwise
+        """
+        return self.input_generator._is_semi_empirical(self.functional)
+    
+    def _pre_optimize_geometry(self, mol: Mol) -> Mol:
+        """Pre-optimize molecule geometry using MMFF94 force field.
+        
+        Args:
+            mol: RDKit molecule object
+            
+        Returns:
+            Molecule with optimized geometry (new conformer)
+        """
+        from rdkit.Chem import AllChem
+        
+        # Create a copy to avoid modifying the original
+        mol_copy = Mol(mol)
+        
+        # Ensure molecule has a conformer
+        if mol_copy.GetNumConformers() == 0:
+            # Try to embed molecule with better settings first
+            status = AllChem.EmbedMolecule(
+                mol_copy,
+                useExpTorsionAnglePrefs=True,
+                useBasicKnowledge=True
+            )
+            if status != 0:
+                # Fallback to basic embedding
+                status = AllChem.EmbedMolecule(mol_copy)
+                if status != 0:
+                    logger.warning("Failed to embed molecule for MMFF94 optimization")
+                    return mol_copy
+        
+        # Optimize with MMFF94
+        try:
+            mmff_props = AllChem.MMFFGetMoleculeProperties(mol_copy)
+            if mmff_props is None:
+                logger.warning("MMFF94 properties could not be initialized, skipping pre-optimization")
+                return mol_copy
+            
+            conf = mol_copy.GetConformer()
+            optimizer = AllChem.MMFFGetMoleculeForceField(mol_copy, mmff_props, confId=conf.GetId())
+            
+            if optimizer is None:
+                logger.warning("MMFF94 force field could not be initialized, skipping pre-optimization")
+                return mol_copy
+            
+            # Optimize geometry
+            result = optimizer.Minimize(maxIts=1000)
+            if result != 0:
+                logger.debug(f"MMFF94 optimization converged with status: {result}")
+            else:
+                logger.debug("MMFF94 optimization completed successfully")
+        except Exception as e:
+            logger.warning(f"MMFF94 optimization failed: {e}, using original geometry")
+        
+        return mol_copy
+    
     def _get_molecule_hash(self, mol: Mol) -> str:
-        """Generate hash for molecule based on SMILES and calculation parameters."""
+        """Generate hash for molecule based on SMILES and calculation parameters.
+        
+        For semi-empirical methods, basis_set and dispersion_correction are
+        not included in the hash since they are not used.
+        """
         from rdkit.Chem import MolToSmiles
         
         smiles = MolToSmiles(mol, canonical=True)
-        params = (
-            self.functional,
-            self.basis_set,
-            self.method_type,
-            self.dispersion_correction,
-            self.solvation_model,
-            self.charge,
-            self.multiplicity,
-        )
+        
+        if self._is_semi_empirical():
+            # For semi-empirical methods, don't include basis_set and dispersion_correction
+            params = (
+                self.functional,
+                self.method_type,
+                self.solvation_model,
+                self.charge,
+                self.multiplicity,
+                self.pre_optimize,  # Include pre_optimize in hash
+            )
+        else:
+            # For DFT methods, include all parameters
+            params = (
+                self.functional,
+                self.basis_set,
+                self.method_type,
+                self.dispersion_correction,
+                self.solvation_model,
+                self.charge,
+                self.multiplicity,
+                self.pre_optimize,  # Include pre_optimize in hash
+            )
         key = f"{smiles}_{params}"
         return hashlib.sha256(key.encode()).hexdigest()
     
@@ -225,6 +317,10 @@ class Orca:
     
     def _run_calculation(self, mol: Mol) -> Path:
         """Run ORCA calculation and return path to output file."""
+        # Pre-optimize geometry if requested
+        if self.pre_optimize:
+            mol = self._pre_optimize_geometry(mol)
+        
         mol_hash = self._get_molecule_hash(mol)
         
         cached_output = self.cache.get(mol_hash)
@@ -511,29 +607,36 @@ class Orca:
                 f"Last log output:\n{log_content}"
             )
         
+        # Store in cache and get cached file path
         self.cache.store(mol_hash, output_file)
+        cached_file = self.cache.get(mol_hash)
+        
+        # Cleanup temporary files
         self._cleanup_temp_files(base_name, output_file)
         
-        return output_file
+        # Return cached file path (which persists after cleanup)
+        if cached_file and cached_file.exists():
+            return cached_file
+        else:
+            # Fallback to original file if cache failed (shouldn't happen)
+            return output_file
     
     def _cleanup_temp_files(self, base_name: str, output_file: Path):
-        """Remove temporary ORCA files after successful calculation.
+        """Remove all ORCA files after successful calculation.
+        
+        All files are removed since results are cached. This includes input files,
+        output files, and all temporary files created by ORCA.
         
         Args:
             base_name: Base name for ORCA files (without extension)
-            output_file: Path to the main output file to keep
+            output_file: Path to the main output file (will be removed)
         """
-        files_to_keep = {
-            output_file.name,
-            f"{base_name}.inp",
-        }
-        
-        for ext in ['.out', '.log', '.smd.out']:
-            alt_file = self.working_dir / f"{base_name}{ext}"
-            if alt_file.exists():
-                files_to_keep.add(alt_file.name)
-        
-        temp_extensions = [
+        # All ORCA file extensions to remove
+        orca_extensions = [
+            '.inp',      # Input file
+            '.out',      # Output file
+            '.log',      # Log file
+            '.smd.out',  # SMD output file
             '.gbw',      # Wavefunction file
             '.densities', # Density files
             '.densitiesinfo',
@@ -544,38 +647,38 @@ class Orca:
             '.cpcm_corr',
             '.engrad',   # Energy gradient
             '.opt',      # Optimization file
-            '.xyz',      # XYZ trajectory (if not needed)
+            '.xyz',      # XYZ trajectory
             '_trj.xyz',  # Trajectory file
             '.molden',  # Molden file
             '.mkl',     # MKL file
             '.tmp',     # Temporary files
-            '.int.tmp',
+            '.int.tmp', # Integral temporary files
         ]
         
         removed_count = 0
         removed_size = 0
         
-        for ext in temp_extensions:
+        for ext in orca_extensions:
             patterns = [
                 f"{base_name}{ext}",
                 f"{base_name}*{ext}",
             ]
             
             for pattern in patterns:
-                for temp_file in self.working_dir.glob(pattern):
-                    if temp_file.name not in files_to_keep and temp_file.is_file():
+                for orca_file in self.working_dir.glob(pattern):
+                    if orca_file.is_file():
                         try:
-                            file_size = temp_file.stat().st_size
-                            temp_file.unlink()
+                            file_size = orca_file.stat().st_size
+                            orca_file.unlink()
                             removed_count += 1
                             removed_size += file_size
-                            logger.debug(f"Removed temporary file: {temp_file.name}")
+                            logger.debug(f"Removed ORCA file: {orca_file.name}")
                         except Exception as e:
-                            logger.warning(f"Failed to remove temporary file {temp_file.name}: {e}")
+                            logger.debug(f"Failed to remove ORCA file {orca_file.name}: {e}")
         
         if removed_count > 0:
             size_mb = removed_size / (1024 * 1024)
-            logger.info(f"Cleaned up {removed_count} temporary files ({size_mb:.2f} MB)")
+            logger.debug(f"Cleaned up {removed_count} ORCA files ({size_mb:.2f} MB)")
     
     def _get_output(self, mol: Mol) -> dict[str, Any]:
         """Get parsed output from ORCA calculation."""
@@ -1397,6 +1500,9 @@ class Orca:
         By default, calculates all available descriptors. Use the `descriptors`
         parameter to specify a subset of descriptors to calculate.
         
+        Note: This method is a wrapper around ORCABatchProcessing for backward compatibility.
+        For advanced features like multiprocessing, use ORCABatchProcessing directly.
+        
         Args:
             smiles_column: pandas Series/DataFrame column with SMILES strings,
                           or a list of SMILES strings
@@ -1413,159 +1519,17 @@ class Orca:
             ImportError: If pandas is not installed and a pandas object is passed
             ValueError: If an invalid descriptor name is provided
         """
-        try:
-            import pandas as pd
-            pandas_available = True
-        except ImportError:
-            pandas_available = False
+        from orca_descriptors.batch_processing import ORCABatchProcessing
         
-        if pandas_available:
-            if isinstance(smiles_column, pd.Series):
-                df = pd.DataFrame({'smiles': smiles_column})
-                smiles_list = smiles_column.tolist()
-            elif isinstance(smiles_column, pd.DataFrame):
-                if 'smiles' not in smiles_column.columns:
-                    raise ValueError("DataFrame must contain a 'smiles' column")
-                df = smiles_column.copy()
-                smiles_list = smiles_column['smiles'].tolist()
-            else:
-                raise TypeError(
-                    "smiles_column must be a pandas Series or DataFrame. "
-                    "For plain lists, install pandas or use individual descriptor methods."
-                )
-        else:
-            if isinstance(smiles_column, list):
-                df = None
-                smiles_list = smiles_column
-            else:
-                raise ImportError(
-                    "pandas is required for DataFrame/Series input. "
-                    "Install pandas with: pip install 'orca-descriptors[pandas]' "
-                    "or pass a list of SMILES strings."
-                )
+        # Create batch processor with this Orca instance
+        batch_processor = ORCABatchProcessing(orca=self, parallel_mode="sequential")
         
-        if descriptors is not None:
-            available = self._get_available_descriptors()
-            invalid_descriptors = [d for d in descriptors if d not in available]
-            if invalid_descriptors:
-                raise ValueError(
-                    f"Invalid descriptor names: {invalid_descriptors}. "
-                    f"Available descriptors: {', '.join(available)}"
-                )
-            descriptors_to_calculate = descriptors
-        else:
-            descriptors_to_calculate = self._get_available_descriptors()
+        # Calculate descriptors (preserves smiles column from original DataFrame)
+        result = batch_processor.calculate_descriptors(
+            smiles_column=smiles_column,
+            descriptors=descriptors,
+            progress=progress,
+        )
         
-        descriptors_list = []
-        
-        total = len(smiles_list)
-        estimated_times = []
-        if progress and total > 1:
-            for smiles in smiles_list:
-                try:
-                    mol = AddHs(MolFromSmiles(smiles))
-                    if mol is not None:
-                        estimated_time = self.time_estimator.estimate_time(
-                            mol=mol,
-                            method_type=self.method_type,
-                            functional=self.functional,
-                            basis_set=self.basis_set,
-                            n_processors=self.n_processors,
-                        )
-                        estimated_times.append(estimated_time)
-                    else:
-                        estimated_times.append(0.0)
-                except Exception:
-                    estimated_times.append(0.0)
-        
-        actual_times = []
-        
-        for idx, smiles in enumerate(smiles_list):
-            if progress and total > 1:
-                remaining = total - idx
-                
-                if actual_times and len(actual_times) > 0:
-                    alpha = 0.3
-                    if len(actual_times) == 1:
-                        avg_time = actual_times[0]
-                    else:
-                        avg_time = actual_times[0]
-                        for t in actual_times[1:]:
-                            avg_time = alpha * t + (1 - alpha) * avg_time
-                    remaining_estimated = avg_time * remaining
-                else:
-                    remaining_estimated = sum(estimated_times[idx:]) if estimated_times else 0.0
-                
-                if remaining_estimated > 0:
-                    time_str = f"~{self._format_time(remaining_estimated)}"
-                    
-                    if actual_times:
-                        avg_actual = sum(actual_times) / len(actual_times)
-                        logger.info(
-                            f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, "
-                            f"estimated time: {time_str}, avg: {avg_actual:.1f}s/molecule)"
-                        )
-                    else:
-                        logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, estimated time: {time_str})")
-                else:
-                    logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining})")
-            
-            start_time = time.time()
-            
-            try:
-                mol = AddHs(MolFromSmiles(smiles))
-                if mol is None:
-                    logger.warning(f"Failed to parse SMILES: {smiles}")
-                    descriptors_list.append({})
-                    actual_times.append(time.time() - start_time)
-                    continue
-                
-                result_descriptors = {}
-                special_descriptors = {
-                    'moran_autocorrelation': {'lag': 2, 'weight': 'vdw_volume'},
-                    'autocorrelation_hats': {'lag': 4, 'unweighted': True},
-                }
-                
-                for desc_name in descriptors_to_calculate:
-                    try:
-                        method = getattr(self, desc_name, None)
-                        
-                        if method is None or not callable(method):
-                            logger.warning(f"Method '{desc_name}' not found or not callable")
-                            result_descriptors[desc_name] = None
-                            continue
-                        
-                        if desc_name in special_descriptors:
-                            result = method(mol, **special_descriptors[desc_name])
-                        elif desc_name == 'frontier_electron_density':
-                            frontier_density = method(mol)
-                            result = max(charge for _, charge in frontier_density) if frontier_density else 0.0
-                        else:
-                            result = method(mol)
-                        
-                        result_descriptors[desc_name] = result
-                    except Exception as e:
-                        logger.warning(f"Failed to calculate descriptor '{desc_name}' for SMILES {smiles}: {e}")
-                        result_descriptors[desc_name] = None
-                
-                descriptors_list.append(result_descriptors)
-                
-                actual_time = time.time() - start_time
-                actual_times.append(actual_time)
-                
-                if progress and total > 1 and len(actual_times) > 0 and idx < total - 1:
-                    self._update_time_estimates(actual_times, estimated_times, idx, total)
-                
-            except Exception as e:
-                logger.error(f"Error processing SMILES {smiles}: {e}")
-                descriptors_list.append({})
-                actual_time = time.time() - start_time
-                actual_times.append(actual_time)
-        
-        if pandas_available and df is not None:
-            descriptor_df = pd.DataFrame(descriptors_list)
-            result_df = pd.concat([df.reset_index(drop=True), descriptor_df.reset_index(drop=True)], axis=1)
-            return result_df
-        else:
-            return descriptors_list
+        return result
 

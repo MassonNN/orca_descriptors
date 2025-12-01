@@ -9,6 +9,22 @@ from rdkit.Chem import AllChem, Mol, MolToXYZBlock
 class ORCAInputGenerator:
     """Generate ORCA input files for version 6.0.1."""
     
+    # List of supported semi-empirical methods
+    SEMI_EMPIRICAL_METHODS = {
+        "AM1", "PM3", "PM6", "PM7", "RM1", "MNDO", "MNDOD", "OM1", "OM2", "OM3"
+    }
+    
+    def _is_semi_empirical(self, functional: str) -> bool:
+        """Check if the functional is a semi-empirical method.
+        
+        Args:
+            functional: Method name
+            
+        Returns:
+            True if semi-empirical, False otherwise
+        """
+        return functional.upper() in self.SEMI_EMPIRICAL_METHODS
+    
     def generate(
         self,
         mol: Mol,
@@ -27,10 +43,10 @@ class ORCAInputGenerator:
         
         Args:
             mol: RDKit molecule object
-            functional: DFT functional
-            basis_set: Basis set
+            functional: DFT functional or semi-empirical method (e.g., "PBE0", "AM1", "PM3", "PM6", "PM7")
+            basis_set: Basis set (ignored for semi-empirical methods)
             method_type: Calculation type (Opt, SP, etc.)
-            dispersion_correction: Dispersion correction (e.g., "D3BJ")
+            dispersion_correction: Dispersion correction (e.g., "D3BJ", ignored for semi-empirical)
             solvation_model: Solvation model (e.g., "COSMO(Water)")
             n_processors: Number of processors
             max_scf_cycles: Maximum SCF cycles
@@ -44,6 +60,7 @@ class ORCAInputGenerator:
         lines = []
         
         calc_line_parts = []
+        is_semi_empirical = self._is_semi_empirical(functional)
         
         if method_type == "Opt":
             calc_line_parts.append("! Opt")
@@ -52,17 +69,23 @@ class ORCAInputGenerator:
         else:
             calc_line_parts.append(f"! {method_type}")
         
-        calc_line_parts.append(f"{functional}")
-        calc_line_parts.append(f"{basis_set}")
-        
-        if dispersion_correction:
-            if dispersion_correction == "D3BJ":
-                calc_line_parts.append("D3BJ")
-            else:
-                calc_line_parts.append(dispersion_correction)
-        
-        calc_line_parts.append("SlowConv")
-        calc_line_parts.append("TightSCF")
+        if is_semi_empirical:
+            # For semi-empirical methods, just add the method name
+            # Format: ! Opt AM1 or ! SP PM3
+            calc_line_parts.append(functional.upper())
+        else:
+            # For DFT methods, add functional and basis set
+            calc_line_parts.append(f"{functional}")
+            calc_line_parts.append(f"{basis_set}")
+            
+            if dispersion_correction:
+                if dispersion_correction == "D3BJ":
+                    calc_line_parts.append("D3BJ")
+                else:
+                    calc_line_parts.append(dispersion_correction)
+            
+            calc_line_parts.append("SlowConv")
+            calc_line_parts.append("TightSCF")
         
         lines.append(" ".join(calc_line_parts))
         lines.append("")

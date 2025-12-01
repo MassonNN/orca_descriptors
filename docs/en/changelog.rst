@@ -2,6 +2,48 @@ Changelog
 =========
 
 
+Version 0.3.0
+-------------
+
+Added
+~~~~~
+
+* Added new ``ORCABatchProcessing`` class for efficient batch processing of molecular descriptors with pandas compatibility
+* Added support for semi-empirical methods (AM1, PM3, PM6, PM7, RM1, MNDO, MNDOD, OM1, OM2, OM3)
+* Added ``pre_optimize`` parameter (default: ``True``) for pre-optimizing molecular geometry using MMFF94 force field before ORCA calculations
+* Added multiprocessing support for parallel batch processing via ``parallel_mode="multiprocessing"`` parameter
+* Added automatic cleanup of all ORCA temporary files (input, output, and all temporary files) after calculations since results are cached
+* Added improved error parsing with brief summaries in ``logging.INFO`` and detailed information in ``logging.DEBUG``
+* Added ``_pre_optimize_geometry()`` method for MMFF94 geometry optimization
+* Added ``_is_semi_empirical()`` method to detect semi-empirical methods
+
+Changed
+~~~~~~~
+
+* Refactored batch processing functionality from ``Orca.calculate_descriptors()`` into dedicated ``ORCABatchProcessing`` class
+* ``Orca.calculate_descriptors()`` now uses ``ORCABatchProcessing`` internally for backward compatibility
+* ``calculate_descriptors()`` now preserves original DataFrame columns (including 'smiles') instead of removing and re-adding them
+* Improved molecule hash calculation to include ``pre_optimize`` parameter for proper caching
+* Updated molecule hash calculation to exclude ``basis_set`` and ``dispersion_correction`` for semi-empirical methods
+* Enhanced input file generation to support semi-empirical methods (no basis set or dispersion correction needed)
+* Improved file cleanup to remove all ORCA files (including input and output files) since results are cached
+
+Fixed
+~~~~~
+
+* Fixed DataFrame handling in batch processing to preserve all original columns
+* Fixed error handling to provide concise error messages in INFO level and detailed information in DEBUG level
+
+Technical Details
+~~~~~~~~~~~~~~~~~
+
+* ``ORCABatchProcessing`` supports three parallelization modes: "sequential", "multiprocessing", and "mpirun"
+* Pre-optimization uses RDKit's MMFF94 force field for fast geometry optimization before quantum chemical calculations
+* All ORCA files are automatically cleaned up after successful calculations, with results stored in cache
+* Semi-empirical methods are automatically detected and handled differently from DFT methods
+* Batch processing now includes time estimation based on benchmark machine performance
+
+
 Version 0.2.2
 --------------
 
