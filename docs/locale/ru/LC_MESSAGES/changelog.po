@@ -1,0 +1,92 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ORCA Descriptors\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-01 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Changelog"
+msgstr "История изменений"
+
+msgid "Version 0.2.2"
+msgstr "Версия 0.2.2"
+
+msgid "Added"
+msgstr "Добавлено"
+
+msgid "* Added ``numpy>=1.20.0`` to project dependencies (numpy was used but not declared)"
+msgstr "* Добавлена зависимость ``numpy>=1.20.0`` в проект (numpy использовался, но не был объявлен)"
+
+msgid "* Added dynamic time estimation updates in batch processing - time estimates are now refined based on actual execution times of previous molecules"
+msgstr "* Добавлено динамическое обновление оценки времени при пакетной обработке - оценки времени теперь уточняются на основе реального времени выполнения предыдущих молекул"
+
+msgid "* Added ``_get_available_descriptors()`` method to dynamically discover available descriptor methods"
+msgstr "* Добавлен метод ``_get_available_descriptors()`` для динамического обнаружения доступных методов-дескрипторов"
+
+msgid "Changed"
+msgstr "Изменено"
+
+msgid "* Updated dipole moment parser to prioritize gas-phase values when available (for calculations without solvation)"
+msgstr "* Обновлен парсер дипольного момента для приоритизации газофазных значений при их наличии (для расчетов без сольватации)"
+
+msgid "* Improved time estimation algorithm:"
+msgstr "* Улучшен алгоритм оценки времени:"
+
+msgid "* Changed scaling exponent from O(N^3.5) to O(N^2.5) for more realistic estimates"
+msgstr "* Изменен показатель масштабирования с O(N^3.5) на O(N^2.5) для более реалистичных оценок"
+
+msgid "* Uses ``total_time`` from benchmark instead of ``scf_time`` as base unit"
+msgstr "* Используется ``total_time`` из benchmark вместо ``scf_time`` как базовая единица"
+
+msgid "* More realistic optimization step estimation (15-35 steps instead of 10-50)"
+msgstr "* Более реалистичная оценка шагов оптимизации (15-35 шагов вместо 10-50)"
+
+msgid "* Removed artificial 24-hour time cap"
+msgstr "* Удален искусственный предел в 24 часа"
+
+msgid "* Refactored ``calculate_descriptors()`` method:"
+msgstr "* Рефакторинг метода ``calculate_descriptors()``:"
+
+msgid "* Removed redundant code duplication (replaced large if-elif chain with ``getattr``-based method calls)"
+msgstr "* Убрано дублирование кода (заменена большая цепочка if-elif на вызовы методов через ``getattr``)"
+
+msgid "* Removed redundant ``all_descriptors`` list - descriptors are now discovered dynamically"
+msgstr "* Удален избыточный список ``all_descriptors`` - дескрипторы теперь обнаруживаются динамически"
+
+msgid "* Removed unnecessary comments"
+msgstr "* Удалены ненужные комментарии"
+
+msgid "* Improved code maintainability and readability"
+msgstr "* Улучшена поддерживаемость и читаемость кода"
+
+msgid "Fixed"
+msgstr "Исправлено"
+
+msgid "* Fixed dipole moment parser to correctly extract gas-phase values from ORCA output when available"
+msgstr "* Исправлен парсер дипольного момента для корректного извлечения газофазных значений из вывода ORCA при их наличии"
+
+msgid "* Fixed time estimation showing unrealistic values (e.g., 47 hours for 2 molecules) - now provides accurate estimates based on actual benchmark data"
+msgstr "* Исправлена оценка времени, показывавшая нереалистичные значения (например, 47 часов для 2 молекул) - теперь предоставляет точные оценки на основе реальных данных benchmark"
+
+msgid "Technical Details"
+msgstr "Технические детали"
+
+msgid "* Time estimator now uses exponential moving average for better prediction accuracy"
+msgstr "* Оценщик времени теперь использует экспоненциальное скользящее среднее для лучшей точности прогнозирования"
+
+msgid "* Descriptor methods are called dynamically using ``getattr(self, desc_name)``"
+msgstr "* Методы дескрипторов вызываются динамически с использованием ``getattr(self, desc_name)``"
+
+msgid "* Automatic descriptor discovery eliminates need to maintain manual descriptor lists"
+msgstr "* Автоматическое обнаружение дескрипторов устраняет необходимость поддерживать списки дескрипторов вручную"

@@ -1,0 +1,140 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ORCA Descriptors\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-01 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Command-Line Interface"
+msgstr "Интерфейс командной строки"
+
+msgid "The library provides a command-line interface (CLI) for running benchmarks and estimating calculation times."
+msgstr "Библиотека предоставляет интерфейс командной строки (CLI) для запуска бенчмарков и оценки времени расчетов."
+
+msgid "Commands"
+msgstr "Команды"
+
+msgid "Run a benchmark calculation to calibrate time estimation::"
+msgstr "Запустить бенчмарк-расчет для калибровки оценки времени::"
+
+msgid "orca_descriptors run_benchmark [OPTIONS]"
+msgstr "orca_descriptors run_benchmark [ОПЦИИ]"
+
+msgid "Options:"
+msgstr "Опции:"
+
+msgid "* ``--working_dir``: Working directory for calculations (default: current directory)"
+msgstr "* ``--working_dir``: Рабочая директория для расчетов (по умолчанию: текущая директория)"
+
+msgid "* ``--functional``: DFT functional (default: PBE0)"
+msgstr "* ``--functional``: DFT функционал (по умолчанию: PBE0)"
+
+msgid "* ``--basis_set``: Basis set (default: def2-SVP)"
+msgstr "* ``--basis_set``: Базисный набор (по умолчанию: def2-SVP)"
+
+msgid "* ``--n_processors``: Number of processors (default: 1)"
+msgstr "* ``--n_processors``: Количество процессоров (по умолчанию: 1)"
+
+msgid "* All other ORCA parameters are also available"
+msgstr "* Все остальные параметры ORCA также доступны"
+
+msgid "Example::"
+msgstr "Пример::"
+
+msgid "Estimate calculation time for a molecule without running the calculation::"
+msgstr "Оценить время расчета для молекулы без запуска расчета::"
+
+msgid "orca_descriptors approximate_time --molecule SMILES [OPTIONS]"
+msgstr "orca_descriptors approximate_time --molecule SMILES [ОПЦИИ]"
+
+msgid "Required arguments:"
+msgstr "Обязательные аргументы:"
+
+msgid "* ``--molecule``: SMILES string of the molecule"
+msgstr "* ``--molecule``: SMILES строка молекулы"
+
+msgid "Options:"
+msgstr "Опции:"
+
+msgid "* ``--method_type``: Calculation type - Opt, SP, or Freq (default: Opt)"
+msgstr "* ``--method_type``: Тип расчета - Opt, SP или Freq (по умолчанию: Opt)"
+
+msgid "* ``--n_opt_steps``: Expected number of optimization steps (for Opt method)"
+msgstr "* ``--n_opt_steps``: Ожидаемое количество шагов оптимизации (для метода Opt)"
+
+msgid "* All ORCA parameters are available"
+msgstr "* Все параметры ORCA доступны"
+
+msgid "Example::"
+msgstr "Пример::"
+
+msgid "Available Parameters"
+msgstr "Доступные параметры"
+
+msgid "All parameters from the ``Orca`` class are available as command-line arguments:"
+msgstr "Все параметры класса ``Orca`` доступны как аргументы командной строки:"
+
+msgid "* ``--script_path``: Path to ORCA executable (default: 'orca')"
+msgstr "* ``--script_path``: Путь к исполняемому файлу ORCA (по умолчанию: 'orca')"
+
+msgid "* ``--working_dir``: Working directory for calculations"
+msgstr "* ``--working_dir``: Рабочая директория для расчетов"
+
+msgid "* ``--output_dir``: Directory for output files"
+msgstr "* ``--output_dir``: Директория для выходных файлов"
+
+msgid "* ``--functional``: DFT functional (default: PBE0)"
+msgstr "* ``--functional``: DFT функционал (по умолчанию: PBE0)"
+
+msgid "* ``--basis_set``: Basis set (default: def2-SVP)"
+msgstr "* ``--basis_set``: Базисный набор (по умолчанию: def2-SVP)"
+
+msgid "* ``--method_type``: Calculation type: Opt, SP, or Freq (default: Opt)"
+msgstr "* ``--method_type``: Тип расчета: Opt, SP или Freq (по умолчанию: Opt)"
+
+msgid "* ``--dispersion_correction``: Dispersion correction, e.g., D3BJ (default: D3BJ). Use 'None' to disable."
+msgstr "* ``--dispersion_correction``: Коррекция дисперсии, например, D3BJ (по умолчанию: D3BJ). Используйте 'None' для отключения."
+
+msgid "* ``--solvation_model``: Solvation model, e.g., 'COSMO(Water)' (default: None)"
+msgstr "* ``--solvation_model``: Модель сольватации, например, 'COSMO(Water)' (по умолчанию: None)"
+
+msgid "* ``--n_processors``: Number of processors (default: 1)"
+msgstr "* ``--n_processors``: Количество процессоров (по умолчанию: 1)"
+
+msgid "* ``--max_scf_cycles``: Maximum SCF cycles (default: 100)"
+msgstr "* ``--max_scf_cycles``: Максимальное количество SCF циклов (по умолчанию: 100)"
+
+msgid "* ``--scf_convergence``: SCF convergence threshold (default: 1e-6)"
+msgstr "* ``--scf_convergence``: Порог сходимости SCF (по умолчанию: 1e-6)"
+
+msgid "* ``--charge``: Molecular charge (default: 0)"
+msgstr "* ``--charge``: Заряд молекулы (по умолчанию: 0)"
+
+msgid "* ``--multiplicity``: Spin multiplicity (default: 1)"
+msgstr "* ``--multiplicity``: Спиновая мультиплетность (по умолчанию: 1)"
+
+msgid "* ``--cache_dir``: Directory for caching results"
+msgstr "* ``--cache_dir``: Директория для кеширования результатов"
+
+msgid "* ``--log_level``: Logging level: DEBUG, INFO, WARNING, ERROR (default: INFO)"
+msgstr "* ``--log_level``: Уровень логирования: DEBUG, INFO, WARNING, ERROR (по умолчанию: INFO)"
+
+msgid "* ``--max_wait``: Maximum time to wait for output file creation in seconds (default: 300)"
+msgstr "* ``--max_wait``: Максимальное время ожидания создания выходного файла в секундах (по умолчанию: 300)"
+
+msgid "Help"
+msgstr "Справка"
+
+msgid "Get help for any command::"
+msgstr "Получить справку по любой команде::"

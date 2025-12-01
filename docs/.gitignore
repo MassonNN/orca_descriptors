@@ -1,0 +1,4 @@
+# Build outputs
+source/_build/
+locale/*/LC_MESSAGES/*.mo
+*.pot

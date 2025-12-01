@@ -1,0 +1,161 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ORCA Descriptors\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-01 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Benchmark and Time Estimation"
+msgstr "Бенчмарк и оценка времени"
+
+msgid "Overview"
+msgstr "Обзор"
+
+msgid "The library includes a time estimation system that helps predict how long ORCA calculations will take. This is essential for planning large-scale QSAR descriptor calculations."
+msgstr "Библиотека включает систему оценки времени, которая помогает предсказать, сколько времени займут расчеты ORCA. Это необходимо для планирования крупномасштабных расчетов дескрипторов QSAR."
+
+msgid "How It Works"
+msgstr "Как это работает"
+
+msgid "The time estimation system uses a benchmark calculation to calibrate performance on your machine:"
+msgstr "Система оценки времени использует бенчмарк-расчет для калибровки производительности на вашей машине:"
+
+msgid "1. **Benchmark Calculation**: A single-point calculation is run on benzene (C₁H₆) to measure:"
+msgstr "1. **Бенчмарк-расчет**: Выполняется одноточечный расчет на бензоле (C₆H₆) для измерения:"
+
+msgid "- Number of basis functions"
+msgstr "- Количества базисных функций"
+
+msgid "- Time per SCF cycle"
+msgstr "- Времени одного SCF-цикла"
+
+msgid "- Total calculation time"
+msgstr "- Общего времени расчета"
+
+msgid "2. **Scaling Formula**: For new molecules, the system estimates time using:"
+msgstr "2. **Формула масштабирования**: Для новых молекул система оценивает время, используя:"
+
+msgid "- Molecular size scaling (O(N².⁵) for DFT calculations)"
+msgstr "- Масштабирование по размеру молекулы (O(N³.⁵) для DFT расчетов)"
+
+msgid "- Method type (SP, Opt, Freq)"
+msgstr "- Тип метода (SP, Opt, Freq)"
+
+msgid "- Number of processors"
+msgstr "- Количество процессоров"
+
+msgid "3. **Parameter Scaling**: The system automatically adjusts for different:"
+msgstr "3. **Масштабирование параметров**: Система автоматически корректирует для разных:"
+
+msgid "- Number of processors (accounts for parallel efficiency)"
+msgstr "- Количества процессоров (учитывает эффективность параллелизации)"
+
+msgid "- Basis sets (scales with size)"
+msgstr "- Базисных наборов (масштабирует по размеру)"
+
+msgid "- Functionals (accounts for computational cost)"
+msgstr "- Функционалов (учитывает вычислительную стоимость)"
+
+msgid "Why It's Needed"
+msgstr "Зачем это нужно"
+
+msgid "* **Planning**: Estimate total time for large datasets"
+msgstr "* **Планирование**: Оценка общего времени для больших наборов данных"
+
+msgid "* **Resource Management**: Allocate computational resources efficiently"
+msgstr "* **Управление ресурсами**: Эффективное распределение вычислительных ресурсов"
+
+msgid "* **Progress Tracking**: Monitor calculation progress"
+msgstr "* **Отслеживание прогресса**: Мониторинг прогресса расчетов"
+
+msgid "* **Optimization**: Choose optimal parameters for your hardware"
+msgstr "* **Оптимизация**: Выбор оптимальных параметров для вашего оборудования"
+
+msgid "Running a Benchmark"
+msgstr "Запуск бенчмарка"
+
+msgid "Using CLI"
+msgstr "Через CLI"
+
+msgid "The benchmark uses benzene as a standard test molecule and saves results to ``.orca_benchmark.json``."
+msgstr "Бенчмарк использует бензол в качестве стандартной тестовой молекулы и сохраняет результаты в ``.orca_benchmark.json``."
+
+msgid "Using Python"
+msgstr "Через Python"
+
+msgid "print(f\"SCF cycle time: {benchmark_data['scf_time']:.2f} seconds\")"
+msgstr "print(f\"Время SCF-цикла: {benchmark_data['scf_time']:.2f} секунд\")"
+
+msgid "print(f\"Number of basis functions: {benchmark_data['n_basis']}\")"
+msgstr "print(f\"Количество базисных функций: {benchmark_data['n_basis']}\")"
+
+msgid "Estimating Calculation Time"
+msgstr "Оценка времени расчета"
+
+msgid "Using CLI"
+msgstr "Через CLI"
+
+msgid "This estimates time without running the actual calculation."
+msgstr "Это оценивает время без запуска реального расчета."
+
+msgid "Using Python"
+msgstr "Через Python"
+
+msgid "print(f\"Estimated time: {estimated_time:.2f} seconds\")"
+msgstr "print(f\"Оценка времени: {estimated_time:.2f} секунд\")"
+
+msgid "Automatic Parameter Scaling"
+msgstr "Автоматическое масштабирование параметров"
+
+msgid "The system automatically scales benchmark data for different parameters. You don't need to re-run the benchmark if you change:"
+msgstr "Система автоматически масштабирует данные бенчмарка для разных параметров. Вам не нужно перезапускать бенчмарк, если вы меняете:"
+
+msgid "* **Number of processors**: Automatically accounts for parallel efficiency"
+msgstr "* **Количество процессоров**: Автоматически учитывает эффективность параллелизации"
+
+msgid "* **Basis set**: Scales based on basis set size (O(N³.⁵))"
+msgstr "* **Базисный набор**: Масштабирует на основе размера базисного набора (O(N³.⁵))"
+
+msgid "* **Functional**: Adjusts for relative computational cost"
+msgstr "* **Функционал**: Корректирует для относительной вычислительной стоимости"
+
+msgid "Example: If your benchmark was run with 1 processor and def2-SVP, you can estimate time for 4 processors and def2-TZVP without re-running the benchmark."
+msgstr "Пример: Если ваш бенчмарк был запущен с 1 процессором и def2-SVP, вы можете оценить время для 4 процессоров и def2-TZVP без перезапуска бенчмарка."
+
+msgid "Benchmark File Location"
+msgstr "Расположение файла бенчмарка"
+
+msgid "The benchmark data is saved to::"
+msgstr "Данные бенчмарка сохраняются в::"
+
+msgid "This file contains:"
+msgstr "Этот файл содержит:"
+
+msgid "* Functional and basis set used"
+msgstr "* Использованные функционал и базисный набор"
+
+msgid "* Number of processors"
+msgstr "* Количество процессоров"
+
+msgid "* Number of basis functions"
+msgstr "* Количество базисных функций"
+
+msgid "* SCF cycle time"
+msgstr "* Время SCF-цикла"
+
+msgid "* Total calculation time"
+msgstr "* Общее время расчета"
+
+msgid "You can share this file between different working directories if using the same hardware and ORCA version."
+msgstr "Вы можете использовать этот файл в разных рабочих директориях, если используете то же оборудование и версию ORCA."
