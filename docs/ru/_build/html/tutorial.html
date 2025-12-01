@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/logo.png" as="image">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>Туториал - документация ORCA Descriptors 0.2.2</title>
+        <title>Туториал - документация ORCA Descriptors 0.3.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">документация ORCA Descriptors 0.2.2</div></a>
+      <a href="index.html"><div class="brand">документация ORCA Descriptors 0.3.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">документация ORCA Descriptors 0.2.2</span>
+  <span class="sidebar-brand-text">документация ORCA Descriptors 0.3.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Поиск" name="q" aria-label="Поиск">
@@ -215,6 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Установка</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Туториал</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pandas_tutorial.html">Туториал по интеграции с Pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="descriptors.html">Справочник дескрипторов</a></li>
 <li class="toctree-l1"><a class="reference internal" href="benchmark.html">Бенчмарк и оценка времени</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/orca.html">Orca Class</a></li>
@@ -281,6 +282,7 @@
     <span class="n">dispersion_correction</span><span class="o">=</span><span class="s2">&quot;D3BJ&quot;</span><span class="p">,</span>
     <span class="n">solvation_model</span><span class="o">=</span><span class="s2">&quot;COSMO(Water)&quot;</span><span class="p">,</span>
     <span class="n">n_processors</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">pre_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Включить предоптимизацию геометрии с MMFF94</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -341,19 +343,108 @@
 </pre></div>
 </div>
 </section>
-</section>
 <section id="id4">
-<h2>Использование как консольная утилита<a class="headerlink" href="#id4" title="Ссылка на этот заголовок">¶</a></h2>
-<p>Библиотеку также можно использовать как консольную утилиту после установки.</p>
+<h3>Выбор функционалов и методов<a class="headerlink" href="#id4" title="Ссылка на этот заголовок">¶</a></h3>
+<p>Библиотека поддерживает как DFT методы, так и полуэмпирические методы:</p>
+<section id="dft">
+<h4>DFT методы<a class="headerlink" href="#dft" title="Ссылка на этот заголовок">¶</a></h4>
+<p>Для расчетов с высокой точностью используйте DFT функционалы с базисными наборами:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Высокоточный DFT расчет</span>
+<span class="n">orca_dft</span> <span class="o">=</span> <span class="n">Orca</span><span class="p">(</span>
+    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;PBE0&quot;</span><span class="p">,</span>           <span class="c1"># Гибридный функционал</span>
+    <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;def2-TZVP&quot;</span><span class="p">,</span>      <span class="c1"># Тройной дзета базисный набор</span>
+    <span class="n">method_type</span><span class="o">=</span><span class="s2">&quot;Opt&quot;</span><span class="p">,</span>           <span class="c1"># Оптимизация геометрии</span>
+    <span class="n">dispersion_correction</span><span class="o">=</span><span class="s2">&quot;D3BJ&quot;</span><span class="p">,</span> <span class="c1"># Дисперсионная коррекция</span>
+    <span class="n">n_processors</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Распространенные DFT функционалы:
+- <code class="docutils literal notranslate"><span class="pre">PBE0</span></code> - Гибридный GGA функционал, хороший баланс точности и скорости
+- <code class="docutils literal notranslate"><span class="pre">B3LYP</span></code> - Популярный гибридный функционал
+- <code class="docutils literal notranslate"><span class="pre">M06-2X</span></code> - Meta-GGA функционал, хорош для термохимии
+- <code class="docutils literal notranslate"><span class="pre">ωB97X-D</span></code> - Range-separated гибрид с дисперсией</p>
+<p>Распространенные базисные наборы:
+- <code class="docutils literal notranslate"><span class="pre">def2-SVP</span></code> - Маленький, быстрый (по умолчанию)
+- <code class="docutils literal notranslate"><span class="pre">def2-TZVP</span></code> - Тройной дзета, более точный
+- <code class="docutils literal notranslate"><span class="pre">def2-QZVP</span></code> - Четверной дзета, очень точный, но медленный</p>
+</section>
 <section id="id5">
-<h3>Запуск бенчмарка<a class="headerlink" href="#id5" title="Ссылка на этот заголовок">¶</a></h3>
+<h4>Полуэмпирические методы<a class="headerlink" href="#id5" title="Ссылка на этот заголовок">¶</a></h4>
+<p>Для быстрых расчетов больших молекул используйте полуэмпирические методы:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Быстрый полуэмпирический расчет</span>
+<span class="n">orca_semi</span> <span class="o">=</span> <span class="n">Orca</span><span class="p">(</span>
+    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;AM1&quot;</span><span class="p">,</span>            <span class="c1"># Полуэмпирический метод</span>
+    <span class="n">method_type</span><span class="o">=</span><span class="s2">&quot;SP&quot;</span><span class="p">,</span>            <span class="c1"># Одноточечный расчет (без оптимизации)</span>
+    <span class="n">n_processors</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">pre_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>           <span class="c1"># Предоптимизировать с MMFF94</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Поддерживаемые полуэмпирические методы:
+- <code class="docutils literal notranslate"><span class="pre">AM1</span></code> - Austin Model 1, хорош для органических молекул
+- <code class="docutils literal notranslate"><span class="pre">PM3</span></code> - Parametric Method 3, улучшенная версия AM1
+- <code class="docutils literal notranslate"><span class="pre">PM6</span></code> - Parametric Method 6, лучше для переходных металлов
+- <code class="docutils literal notranslate"><span class="pre">PM7</span></code> - Parametric Method 7, улучшенная точность
+- <code class="docutils literal notranslate"><span class="pre">RM1</span></code> - Recife Model 1, оптимизирован для органических соединений</p>
+<p>Примечание: Для полуэмпирических методов параметры <code class="docutils literal notranslate"><span class="pre">basis_set</span></code> и <code class="docutils literal notranslate"><span class="pre">dispersion_correction</span></code> автоматически игнорируются.</p>
+</section>
+</section>
+<section id="id6">
+<h3>Предоптимизация геометрии<a class="headerlink" href="#id6" title="Ссылка на этот заголовок">¶</a></h3>
+<p>По умолчанию библиотека выполняет предоптимизацию геометрии с использованием силового поля MMFF94 из RDKit перед отправкой молекулы в ORCA. Это может значительно ускорить расчеты ORCA, особенно для оптимизации геометрии:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># С предоптимизацией (по умолчанию)</span>
+<span class="n">orca</span> <span class="o">=</span> <span class="n">Orca</span><span class="p">(</span>
+    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;PBE0&quot;</span><span class="p">,</span>
+    <span class="n">method_type</span><span class="o">=</span><span class="s2">&quot;Opt&quot;</span><span class="p">,</span>
+    <span class="n">pre_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># По умолчанию: True</span>
+<span class="p">)</span>
+
+<span class="c1"># Без предоптимизации</span>
+<span class="n">orca</span> <span class="o">=</span> <span class="n">Orca</span><span class="p">(</span>
+    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;PBE0&quot;</span><span class="p">,</span>
+    <span class="n">method_type</span><span class="o">=</span><span class="s2">&quot;Opt&quot;</span><span class="p">,</span>
+    <span class="n">pre_optimize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Преимущества предоптимизации:
+- Быстрее сходимость ORCA (требуется меньше шагов оптимизации)
+- Более стабильные расчеты (лучшая стартовая геометрия)
+- Снижение вычислительных затрат</p>
+<p>Предоптимизация использует MMFF94, который требует явных атомов водорода. Библиотека автоматически добавляет водород, если необходимо, и генерирует 3D координаты, если они отсутствуют.</p>
+</section>
+<section id="id7">
+<h3>Типы расчетов<a class="headerlink" href="#id7" title="Ссылка на этот заголовок">¶</a></h3>
+<p>Выберите подходящий тип расчета в зависимости от ваших потребностей:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Одноточечный расчет энергии (самый быстрый)</span>
+<span class="n">orca_sp</span> <span class="o">=</span> <span class="n">Orca</span><span class="p">(</span>
+    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;PBE0&quot;</span><span class="p">,</span>
+    <span class="n">method_type</span><span class="o">=</span><span class="s2">&quot;SP&quot;</span><span class="p">,</span>  <span class="c1"># Одноточечный расчет</span>
+<span class="p">)</span>
+
+<span class="c1"># Оптимизация геометрии (медленнее, но дает оптимизированную геометрию)</span>
+<span class="n">orca_opt</span> <span class="o">=</span> <span class="n">Orca</span><span class="p">(</span>
+    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;PBE0&quot;</span><span class="p">,</span>
+    <span class="n">method_type</span><span class="o">=</span><span class="s2">&quot;Opt&quot;</span><span class="p">,</span>  <span class="c1"># Оптимизация</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Примечание: Некоторые дескрипторы (например, <code class="docutils literal notranslate"><span class="pre">molecular_volume</span></code>, <code class="docutils literal notranslate"><span class="pre">polar_surface_area</span></code>, <code class="docutils literal notranslate"><span class="pre">solvent_accessible_surface_area</span></code>) требуют оптимизированной геометрии и могут работать некорректно с <code class="docutils literal notranslate"><span class="pre">method_type=&quot;SP&quot;</span></code>.</p>
+</section>
+</section>
+<section id="id8">
+<h2>Использование как консольная утилита<a class="headerlink" href="#id8" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Библиотеку также можно использовать как консольную утилиту после установки.</p>
+<section id="id9">
+<h3>Запуск бенчмарка<a class="headerlink" href="#id9" title="Ссылка на этот заголовок">¶</a></h3>
 <p>Перед оценкой времени расчетов запустите бенчмарк:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">orca_descriptors</span> <span class="n">run_benchmark</span> <span class="o">--</span><span class="n">working_dir</span> <span class="o">./</span><span class="n">calculations</span>
 </pre></div>
 </div>
 </section>
-<section id="id6">
-<h3>Оценка времени расчета<a class="headerlink" href="#id6" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id10">
+<h3>Оценка времени расчета<a class="headerlink" href="#id10" title="Ссылка на этот заголовок">¶</a></h3>
 <p>Оцените, сколько времени займет расчет:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">orca_descriptors</span> <span class="n">approximate_time</span> <span class="o">--</span><span class="n">molecule</span> <span class="n">CCO</span> <span class="o">--</span><span class="n">method_type</span> <span class="n">Opt</span>
 </pre></div>
@@ -369,8 +460,8 @@
 </div>
 </section>
 </section>
-<section id="id7">
-<h2>Пример рабочего процесса<a class="headerlink" href="#id7" title="Ссылка на этот заголовок">¶</a></h2>
+<section id="id11">
+<h2>Пример рабочего процесса<a class="headerlink" href="#id11" title="Ссылка на этот заголовок">¶</a></h2>
 <p>Вот полный пример расчета дескрипторов для нескольких молекул:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">orca_descriptors</span><span class="w"> </span><span class="kn">import</span> <span class="n">Orca</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem</span><span class="w"> </span><span class="kn">import</span> <span class="n">MolFromSmiles</span><span class="p">,</span> <span class="n">AddHs</span>
@@ -408,11 +499,11 @@
 </pre></div>
 </div>
 </section>
-<section id="id8">
-<h2>Доступные дескрипторы<a class="headerlink" href="#id8" title="Ссылка на этот заголовок">¶</a></h2>
+<section id="id12">
+<h2>Доступные дескрипторы<a class="headerlink" href="#id12" title="Ссылка на этот заголовок">¶</a></h2>
 <p>Библиотека предоставляет комплексный набор дескрипторов для QSAR анализа:</p>
-<section id="id9">
-<h3>Энергетические дескрипторы<a class="headerlink" href="#id9" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id13">
+<h3>Энергетические дескрипторы<a class="headerlink" href="#id13" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">homo_energy(mol)</span></code> - Энергия HOMO (эВ)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">lumo_energy(mol)</span></code> - Энергия LUMO (эВ)</p></li>
@@ -421,8 +512,8 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">total_energy(mol)</span></code> - Полная энергия (Хартри)</p></li>
 </ul>
 </section>
-<section id="dft">
-<h3>DFT дескрипторы<a class="headerlink" href="#dft" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id14">
+<h3>DFT дескрипторы<a class="headerlink" href="#id14" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ch_potential(mol)</span></code> - Химический потенциал (эВ)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">electronegativity(mol)</span></code> - Электроотрицательность (эВ)</p></li>
@@ -431,54 +522,54 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">frontier_electron_density(mol)</span></code> - Плотность фронтирных электронов</p></li>
 </ul>
 </section>
-<section id="id10">
-<h3>Дескрипторы зарядов<a class="headerlink" href="#id10" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id15">
+<h3>Дескрипторы зарядов<a class="headerlink" href="#id15" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">get_atom_charges(mol)</span></code> - Атомные заряды Малликена</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">get_min_h_charge(mol,</span> <span class="pre">method=&quot;ESP&quot;)</span></code> - Минимальный заряд водорода</p></li>
 </ul>
 </section>
-<section id="id11">
-<h3>Геометрические дескрипторы<a class="headerlink" href="#id11" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id16">
+<h3>Геометрические дескрипторы<a class="headerlink" href="#id16" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">xy_shadow(mol)</span></code> - Площадь проекции на плоскость XY (Å²)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">molecular_volume(mol)</span></code> - Молекулярный объем (Å³)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">get_bond_lengths(mol,</span> <span class="pre">atom1,</span> <span class="pre">atom2)</span></code> - Длины связей (Å)</p></li>
 </ul>
 </section>
-<section id="id12">
-<h3>Дескрипторы реакционной способности<a class="headerlink" href="#id12" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id17">
+<h3>Дескрипторы реакционной способности<a class="headerlink" href="#id17" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">meric(mol)</span></code> - Минимальный индекс электрофильности для углерода (эВ)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">dipole_moment(mol)</span></code> - Дипольный момент (Дебай)</p></li>
 </ul>
 </section>
-<section id="id13">
-<h3>Топологические дескрипторы<a class="headerlink" href="#id13" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id18">
+<h3>Топологические дескрипторы<a class="headerlink" href="#id18" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">topological_distance(mol,</span> <span class="pre">atom1,</span> <span class="pre">atom2)</span></code> - Сумма топологических расстояний</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_rotatable_bonds(mol)</span></code> - Количество вращающихся связей</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">wiener_index(mol)</span></code> - Индекс Винера</p></li>
 </ul>
 </section>
-<section id="id14">
-<h3>Физико-химические дескрипторы<a class="headerlink" href="#id14" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id19">
+<h3>Физико-химические дескрипторы<a class="headerlink" href="#id19" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">m_log_p(mol)</span></code> - Коэффициент распределения Моригучи (октанол/вода)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">polar_surface_area(mol)</span></code> - Полярная площадь поверхности (Å²)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">solvent_accessible_surface_area(mol)</span></code> - Доступная площадь поверхности растворителя (Å²)</p></li>
 </ul>
 </section>
-<section id="id15">
-<h3>Термодинамические дескрипторы<a class="headerlink" href="#id15" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id20">
+<h3>Термодинамические дескрипторы<a class="headerlink" href="#id20" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">gibbs_free_energy(mol)</span></code> - Энергия Гиббса (Хартри)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">entropy(mol)</span></code> - Энтропия (Дж/(моль·К))</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">enthalpy(mol)</span></code> - Энтальпия (Хартри)</p></li>
 </ul>
 </section>
-<section id="id16">
-<h3>Дескрипторы автокорреляции<a class="headerlink" href="#id16" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id21">
+<h3>Дескрипторы автокорреляции<a class="headerlink" href="#id21" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">moran_autocorrelation(mol,</span> <span class="pre">lag,</span> <span class="pre">weight)</span></code> - Автокорреляция Моран</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">autocorrelation_hats(mol,</span> <span class="pre">lag,</span> <span class="pre">unweighted)</span></code> - Автокорреляция HATS</p></li>
@@ -546,24 +637,31 @@
 <li><a class="reference internal" href="#python">Использование как Python библиотека</a><ul>
 <li><a class="reference internal" href="#id2">Базовое использование</a></li>
 <li><a class="reference internal" href="#id3">Кеширование</a></li>
+<li><a class="reference internal" href="#id4">Выбор функционалов и методов</a><ul>
+<li><a class="reference internal" href="#dft">DFT методы</a></li>
+<li><a class="reference internal" href="#id5">Полуэмпирические методы</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id4">Использование как консольная утилита</a><ul>
-<li><a class="reference internal" href="#id5">Запуск бенчмарка</a></li>
-<li><a class="reference internal" href="#id6">Оценка времени расчета</a></li>
+<li><a class="reference internal" href="#id6">Предоптимизация геометрии</a></li>
+<li><a class="reference internal" href="#id7">Типы расчетов</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id7">Пример рабочего процесса</a></li>
-<li><a class="reference internal" href="#id8">Доступные дескрипторы</a><ul>
-<li><a class="reference internal" href="#id9">Энергетические дескрипторы</a></li>
-<li><a class="reference internal" href="#dft">DFT дескрипторы</a></li>
-<li><a class="reference internal" href="#id10">Дескрипторы зарядов</a></li>
-<li><a class="reference internal" href="#id11">Геометрические дескрипторы</a></li>
-<li><a class="reference internal" href="#id12">Дескрипторы реакционной способности</a></li>
-<li><a class="reference internal" href="#id13">Топологические дескрипторы</a></li>
-<li><a class="reference internal" href="#id14">Физико-химические дескрипторы</a></li>
-<li><a class="reference internal" href="#id15">Термодинамические дескрипторы</a></li>
-<li><a class="reference internal" href="#id16">Дескрипторы автокорреляции</a></li>
+<li><a class="reference internal" href="#id8">Использование как консольная утилита</a><ul>
+<li><a class="reference internal" href="#id9">Запуск бенчмарка</a></li>
+<li><a class="reference internal" href="#id10">Оценка времени расчета</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id11">Пример рабочего процесса</a></li>
+<li><a class="reference internal" href="#id12">Доступные дескрипторы</a><ul>
+<li><a class="reference internal" href="#id13">Энергетические дескрипторы</a></li>
+<li><a class="reference internal" href="#id14">DFT дескрипторы</a></li>
+<li><a class="reference internal" href="#id15">Дескрипторы зарядов</a></li>
+<li><a class="reference internal" href="#id16">Геометрические дескрипторы</a></li>
+<li><a class="reference internal" href="#id17">Дескрипторы реакционной способности</a></li>
+<li><a class="reference internal" href="#id18">Топологические дескрипторы</a></li>
+<li><a class="reference internal" href="#id19">Физико-химические дескрипторы</a></li>
+<li><a class="reference internal" href="#id20">Термодинамические дескрипторы</a></li>
+<li><a class="reference internal" href="#id21">Дескрипторы автокорреляции</a></li>
 </ul>
 </li>
 </ul>
@@ -577,7 +675,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=7133dbae"></script>
+</div><script src="_static/documentation_options.js?v=9c0de567"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

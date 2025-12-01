@@ -1524,12 +1524,28 @@ class Orca:
         # Create batch processor with this Orca instance
         batch_processor = ORCABatchProcessing(orca=self, parallel_mode="sequential")
         
-        # Calculate descriptors (preserves smiles column from original DataFrame)
+        # Calculate descriptors (ORCABatchProcessing adds only descriptor columns, no new 'smiles')
         result = batch_processor.calculate_descriptors(
             smiles_column=smiles_column,
             descriptors=descriptors,
             progress=progress,
         )
+        
+        # For backward compatibility, add smiles column back if it was in the input
+        # (ORCABatchProcessing doesn't add it, but Orca.calculate_descriptors should include it)
+        try:
+            import pandas as pd
+            if isinstance(result, pd.DataFrame):
+                # Check if original input had smiles column
+                if isinstance(smiles_column, pd.Series):
+                    # If input was Series, add it as 'smiles' column for backward compatibility
+                    result.insert(0, 'smiles', smiles_column.values)
+                elif isinstance(smiles_column, pd.DataFrame):
+                    # If input was DataFrame, 'smiles' is already preserved in result
+                    # (ORCABatchProcessing keeps all original columns)
+                    pass
+        except ImportError:
+            pass  # pandas not available, return as-is
         
         return result
 

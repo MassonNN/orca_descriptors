@@ -24,6 +24,7 @@ Initialize the ORCA calculator with your preferred settings::
        dispersion_correction="D3BJ",
        solvation_model="COSMO(Water)",
        n_processors=8,
+       pre_optimize=True,  # Enable geometry pre-optimization with MMFF94
    )
 
 Create a molecule from a SMILES string::
@@ -81,6 +82,103 @@ The library automatically caches calculation results. If you calculate descripto
    
    # Second calculation - uses cache
    homo2 = orca.homo_energy(mol)  # Instant
+
+Choosing Functionals and Methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The library supports both DFT methods and semi-empirical methods:
+
+DFT Methods
+^^^^^^^^^^^
+
+For high-accuracy calculations, use DFT functionals with basis sets::
+
+   # High-accuracy DFT calculation
+   orca_dft = Orca(
+       functional="PBE0",           # Hybrid functional
+       basis_set="def2-TZVP",      # Triple-zeta basis set
+       method_type="Opt",           # Geometry optimization
+       dispersion_correction="D3BJ", # Dispersion correction
+       n_processors=8,
+   )
+
+Common DFT functionals:
+- ``PBE0`` - Hybrid GGA functional, good balance of accuracy and speed
+- ``B3LYP`` - Popular hybrid functional
+- ``M06-2X`` - Meta-GGA functional, good for thermochemistry
+- ``ωB97X-D`` - Range-separated hybrid with dispersion
+
+Common basis sets:
+- ``def2-SVP`` - Small, fast (default)
+- ``def2-TZVP`` - Triple-zeta, more accurate
+- ``def2-QZVP`` - Quadruple-zeta, very accurate but slow
+
+Semi-Empirical Methods
+^^^^^^^^^^^^^^^^^^^^^^
+
+For faster calculations on large molecules, use semi-empirical methods::
+
+   # Fast semi-empirical calculation
+   orca_semi = Orca(
+       functional="AM1",            # Semi-empirical method
+       method_type="SP",            # Single point (no optimization)
+       n_processors=1,
+       pre_optimize=True,           # Pre-optimize with MMFF94
+   )
+
+Supported semi-empirical methods:
+- ``AM1`` - Austin Model 1, good for organic molecules
+- ``PM3`` - Parametric Method 3, improved over AM1
+- ``PM6`` - Parametric Method 6, better for transition metals
+- ``PM7`` - Parametric Method 7, improved accuracy
+- ``RM1`` - Recife Model 1, optimized for organic compounds
+
+Note: For semi-empirical methods, ``basis_set`` and ``dispersion_correction`` parameters are automatically ignored.
+
+Geometry Pre-Optimization
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, the library performs geometry pre-optimization using RDKit's MMFF94 force field before sending the molecule to ORCA. This can significantly speed up ORCA calculations, especially for geometry optimizations::
+
+   # With pre-optimization (default)
+   orca = Orca(
+       functional="PBE0",
+       method_type="Opt",
+       pre_optimize=True,  # Default: True
+   )
+   
+   # Without pre-optimization
+   orca = Orca(
+       functional="PBE0",
+       method_type="Opt",
+       pre_optimize=False,
+   )
+
+Benefits of pre-optimization:
+- Faster ORCA convergence (fewer optimization steps needed)
+- More stable calculations (better starting geometry)
+- Reduced computational cost
+
+The pre-optimization uses MMFF94, which requires explicit hydrogens. The library automatically adds hydrogens if needed and generates 3D coordinates if not present.
+
+Method Types
+~~~~~~~~~~~~
+
+Choose the appropriate calculation type based on your needs::
+
+   # Single point energy calculation (fastest)
+   orca_sp = Orca(
+       functional="PBE0",
+       method_type="SP",  # Single point
+   )
+   
+   # Geometry optimization (slower, but provides optimized geometry)
+   orca_opt = Orca(
+       functional="PBE0",
+       method_type="Opt",  # Optimization
+   )
+
+Note: Some descriptors (like ``molecular_volume``, ``polar_surface_area``, ``solvent_accessible_surface_area``) require optimized geometries and may not work correctly with ``method_type="SP"``.
 
 Using as a Command-Line Tool
 -----------------------------

@@ -66,3 +66,52 @@ def orca_gas():
         log_level=logging.INFO,
     )
 
+
+@pytest.fixture
+def orca_am1():
+    """ORCA instance with AM1 semi-empirical method."""
+    return Orca(
+        script_path="orca",
+        working_dir="tests/test_data",
+        output_dir="tests/test_data",
+        functional="AM1",
+        method_type="SP",  # Single point for faster calculations
+        n_processors=1,
+        pre_optimize=True,
+        log_level=logging.INFO,
+    )
+
+
+@pytest.fixture(params=["dft", "am1"])
+def orca_parametrized(request):
+    """Parametrized ORCA fixture for testing with different methods.
+    
+    Parameters:
+        - "dft": PBE0/def2-SVP with D3BJ dispersion
+        - "am1": AM1 semi-empirical method
+    """
+    if request.param == "dft":
+        return Orca(
+            script_path="orca",
+            working_dir="tests/test_data",
+            output_dir="tests/test_data",
+            functional="PBE0",
+            basis_set="def2-SVP",
+            method_type="SP",  # Single point for faster tests
+            dispersion_correction="D3BJ",
+            n_processors=1,
+            pre_optimize=True,
+            log_level=logging.INFO,
+        )
+    elif request.param == "am1":
+        return Orca(
+            script_path="orca",
+            working_dir="tests/test_data",
+            output_dir="tests/test_data",
+            functional="AM1",
+            method_type="SP",  # Single point for faster calculations
+            n_processors=1,
+            pre_optimize=True,
+            log_level=logging.INFO,
+        )
+

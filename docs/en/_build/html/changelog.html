@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/logo.png" as="image">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>Changelog - ORCA Descriptors 0.2.2 documentation</title>
+        <title>Changelog - ORCA Descriptors 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">ORCA Descriptors 0.2.2 documentation</div></a>
+      <a href="index.html"><div class="brand">ORCA Descriptors 0.3.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">ORCA Descriptors 0.2.2 documentation</span>
+  <span class="sidebar-brand-text">ORCA Descriptors 0.3.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -215,6 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pandas_tutorial.html">Pandas Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="descriptors.html">Descriptors Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="benchmark.html">Benchmark and Time Estimation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/orca.html">Orca Class</a></li>
@@ -262,18 +263,63 @@
         <article role="main" id="furo-main-content">
           <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
-<section id="version-0-2-2">
-<h2>Version 0.2.2<a class="headerlink" href="#version-0-2-2" title="Link to this heading">¶</a></h2>
+<section id="version-0-3-0">
+<h2>Version 0.3.0<a class="headerlink" href="#version-0-3-0" title="Link to this heading">¶</a></h2>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Added new <code class="docutils literal notranslate"><span class="pre">ORCABatchProcessing</span></code> class for efficient batch processing of molecular descriptors with pandas compatibility</p></li>
+<li><p>Added support for semi-empirical methods (AM1, PM3, PM6, PM7, RM1, MNDO, MNDOD, OM1, OM2, OM3)</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">pre_optimize</span></code> parameter (default: <code class="docutils literal notranslate"><span class="pre">True</span></code>) for pre-optimizing molecular geometry using MMFF94 force field before ORCA calculations</p></li>
+<li><p>Added multiprocessing support for parallel batch processing via <code class="docutils literal notranslate"><span class="pre">parallel_mode=&quot;multiprocessing&quot;</span></code> parameter</p></li>
+<li><p>Added automatic cleanup of all ORCA temporary files (input, output, and all temporary files) after calculations since results are cached</p></li>
+<li><p>Added improved error parsing with brief summaries in <code class="docutils literal notranslate"><span class="pre">logging.INFO</span></code> and detailed information in <code class="docutils literal notranslate"><span class="pre">logging.DEBUG</span></code></p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">_pre_optimize_geometry()</span></code> method for MMFF94 geometry optimization</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">_is_semi_empirical()</span></code> method to detect semi-empirical methods</p></li>
+</ul>
+</section>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Refactored batch processing functionality from <code class="docutils literal notranslate"><span class="pre">Orca.calculate_descriptors()</span></code> into dedicated <code class="docutils literal notranslate"><span class="pre">ORCABatchProcessing</span></code> class</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Orca.calculate_descriptors()</span></code> now uses <code class="docutils literal notranslate"><span class="pre">ORCABatchProcessing</span></code> internally for backward compatibility</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">calculate_descriptors()</span></code> now preserves original DataFrame columns (including ‘smiles’) instead of removing and re-adding them</p></li>
+<li><p>Improved molecule hash calculation to include <code class="docutils literal notranslate"><span class="pre">pre_optimize</span></code> parameter for proper caching</p></li>
+<li><p>Updated molecule hash calculation to exclude <code class="docutils literal notranslate"><span class="pre">basis_set</span></code> and <code class="docutils literal notranslate"><span class="pre">dispersion_correction</span></code> for semi-empirical methods</p></li>
+<li><p>Enhanced input file generation to support semi-empirical methods (no basis set or dispersion correction needed)</p></li>
+<li><p>Improved file cleanup to remove all ORCA files (including input and output files) since results are cached</p></li>
+</ul>
+</section>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed DataFrame handling in batch processing to preserve all original columns</p></li>
+<li><p>Fixed error handling to provide concise error messages in INFO level and detailed information in DEBUG level</p></li>
+</ul>
+</section>
+<section id="technical-details">
+<h3>Technical Details<a class="headerlink" href="#technical-details" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ORCABatchProcessing</span></code> supports three parallelization modes: “sequential”, “multiprocessing”, and “mpirun”</p></li>
+<li><p>Pre-optimization uses RDKit’s MMFF94 force field for fast geometry optimization before quantum chemical calculations</p></li>
+<li><p>All ORCA files are automatically cleaned up after successful calculations, with results stored in cache</p></li>
+<li><p>Semi-empirical methods are automatically detected and handled differently from DFT methods</p></li>
+<li><p>Batch processing now includes time estimation based on benchmark machine performance</p></li>
+</ul>
+</section>
+</section>
+<section id="version-0-2-2">
+<h2>Version 0.2.2<a class="headerlink" href="#version-0-2-2" title="Link to this heading">¶</a></h2>
+<section id="id1">
+<h3>Added<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">numpy&gt;=1.20.0</span></code> to project dependencies (numpy was used but not declared)</p></li>
 <li><p>Added dynamic time estimation updates in batch processing - time estimates are now refined based on actual execution times of previous molecules</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">_get_available_descriptors()</span></code> method to dynamically discover available descriptor methods</p></li>
 </ul>
 </section>
-<section id="changed">
-<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">¶</a></h3>
+<section id="id2">
+<h3>Changed<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Updated dipole moment parser to prioritize gas-phase values when available (for calculations without solvation)</p></li>
 <li><p>Improved time estimation algorithm:
@@ -288,15 +334,15 @@
 * Improved code maintainability and readability</p></li>
 </ul>
 </section>
-<section id="fixed">
-<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
+<section id="id3">
+<h3>Fixed<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed dipole moment parser to correctly extract gas-phase values from ORCA output when available</p></li>
 <li><p>Fixed time estimation showing unrealistic values (e.g., 47 hours for 2 molecules) - now provides accurate estimates based on actual benchmark data</p></li>
 </ul>
 </section>
-<section id="technical-details">
-<h3>Technical Details<a class="headerlink" href="#technical-details" title="Link to this heading">¶</a></h3>
+<section id="id4">
+<h3>Technical Details<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Time estimator now uses exponential moving average for better prediction accuracy</p></li>
 <li><p>Descriptor methods are called dynamically using <code class="docutils literal notranslate"><span class="pre">getattr(self,</span> <span class="pre">desc_name)</span></code></p></li>
@@ -354,11 +400,18 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#version-0-2-2">Version 0.2.2</a><ul>
+<li><a class="reference internal" href="#version-0-3-0">Version 0.3.0</a><ul>
 <li><a class="reference internal" href="#added">Added</a></li>
 <li><a class="reference internal" href="#changed">Changed</a></li>
 <li><a class="reference internal" href="#fixed">Fixed</a></li>
 <li><a class="reference internal" href="#technical-details">Technical Details</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#version-0-2-2">Version 0.2.2</a><ul>
+<li><a class="reference internal" href="#id1">Added</a></li>
+<li><a class="reference internal" href="#id2">Changed</a></li>
+<li><a class="reference internal" href="#id3">Fixed</a></li>
+<li><a class="reference internal" href="#id4">Technical Details</a></li>
 </ul>
 </li>
 </ul>
@@ -372,7 +425,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=1c17f339"></script>
+</div><script src="_static/documentation_options.js?v=f129cdf0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

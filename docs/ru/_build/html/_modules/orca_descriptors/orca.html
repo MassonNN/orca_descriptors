@@ -6,7 +6,7 @@
         <link rel="prefetch" href="../../_static/logo.png" as="image">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>orca_descriptors.orca - документация ORCA Descriptors 0.2.2</title>
+        <title>orca_descriptors.orca - документация ORCA Descriptors 0.3.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -177,7 +177,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">документация ORCA Descriptors 0.2.2</div></a>
+      <a href="../../index.html"><div class="brand">документация ORCA Descriptors 0.3.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -201,7 +201,7 @@
     <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">документация ORCA Descriptors 0.2.2</span>
+  <span class="sidebar-brand-text">документация ORCA Descriptors 0.3.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Поиск" name="q" aria-label="Поиск">
@@ -214,6 +214,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Установка</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Туториал</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../pandas_tutorial.html">Туториал по интеграции с Pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../descriptors.html">Справочник дескрипторов</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../benchmark.html">Бенчмарк и оценка времени</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api/orca.html">Orca Class</a></li>
@@ -278,6 +279,12 @@
 <div class="viewcode-block" id="Orca">
 <a class="viewcode-back" href="../../api/orca.html#orca_descriptors.orca.Orca">[документация]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Orca</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main class for ORCA quantum chemical calculations.</span>
+<span class="sd">    </span>
+<span class="sd">    Supports both DFT methods (with basis sets) and semi-empirical methods</span>
+<span class="sd">    (AM1, PM3, PM6, PM7, etc.). For semi-empirical methods, basis_set and</span>
+<span class="sd">    dispersion_correction parameters are ignored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Main class for ORCA quantum chemical calculations.&quot;&quot;&quot;</span>
     
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -301,6 +308,7 @@
         <span class="n">use_mpirun</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mpirun_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">extra_env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pre_optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize ORCA calculator.</span>
 <span class="sd">        </span>
@@ -308,10 +316,13 @@
 <span class="sd">            script_path: Path to ORCA executable</span>
 <span class="sd">            working_dir: Working directory for calculations</span>
 <span class="sd">            output_dir: Directory for output files</span>
-<span class="sd">            functional: DFT functional (e.g., &quot;PBE0&quot;)</span>
-<span class="sd">            basis_set: Basis set (e.g., &quot;def2-SVP&quot;)</span>
+<span class="sd">            functional: DFT functional (e.g., &quot;PBE0&quot;) or semi-empirical method</span>
+<span class="sd">                       (e.g., &quot;AM1&quot;, &quot;PM3&quot;, &quot;PM6&quot;, &quot;PM7&quot;). For semi-empirical methods,</span>
+<span class="sd">                       basis_set and dispersion_correction are ignored.</span>
+<span class="sd">            basis_set: Basis set (e.g., &quot;def2-SVP&quot;). Ignored for semi-empirical methods.</span>
 <span class="sd">            method_type: Calculation type (&quot;Opt&quot;, &quot;SP&quot;, etc.)</span>
-<span class="sd">            dispersion_correction: Dispersion correction (e.g., &quot;D3BJ&quot;)</span>
+<span class="sd">            dispersion_correction: Dispersion correction (e.g., &quot;D3BJ&quot;).</span>
+<span class="sd">                                 Ignored for semi-empirical methods.</span>
 <span class="sd">            solvation_model: Solvation model (e.g., &quot;COSMO(Water)&quot;)</span>
 <span class="sd">            n_processors: Number of processors</span>
 <span class="sd">            max_scf_cycles: Maximum SCF cycles</span>
@@ -324,6 +335,7 @@
 <span class="sd">            use_mpirun: Whether to use mpirun for parallel execution (default: False)</span>
 <span class="sd">            mpirun_path: Path to mpirun executable (default: None, will search in PATH)</span>
 <span class="sd">            extra_env: Additional environment variables to pass to ORCA process (default: None)</span>
+<span class="sd">            pre_optimize: Whether to pre-optimize geometry with MMFF94 before ORCA calculation (default: True)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
             <span class="n">handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
@@ -349,6 +361,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">use_mpirun</span> <span class="o">=</span> <span class="n">use_mpirun</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mpirun_path</span> <span class="o">=</span> <span class="n">mpirun_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extra_env</span> <span class="o">=</span> <span class="n">extra_env</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_optimize</span> <span class="o">=</span> <span class="n">pre_optimize</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -359,20 +372,100 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">output_parser</span> <span class="o">=</span> <span class="n">ORCAOutputParser</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_estimator</span> <span class="o">=</span> <span class="n">ORCATimeEstimator</span><span class="p">(</span><span class="n">working_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span><span class="p">)</span>
     
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_semi_empirical</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the current method is semi-empirical.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            True if semi-empirical, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_generator</span><span class="o">.</span><span class="n">_is_semi_empirical</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">functional</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pre_optimize_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mol</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pre-optimize molecule geometry using MMFF94 force field.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol: RDKit molecule object</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Molecule with optimized geometry (new conformer)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem</span><span class="w"> </span><span class="kn">import</span> <span class="n">AllChem</span>
+        
+        <span class="c1"># Create a copy to avoid modifying the original</span>
+        <span class="n">mol_copy</span> <span class="o">=</span> <span class="n">Mol</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+        
+        <span class="c1"># Ensure molecule has a conformer</span>
+        <span class="k">if</span> <span class="n">mol_copy</span><span class="o">.</span><span class="n">GetNumConformers</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Try to embed molecule with better settings first</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">EmbedMolecule</span><span class="p">(</span>
+                <span class="n">mol_copy</span><span class="p">,</span>
+                <span class="n">useExpTorsionAnglePrefs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">useBasicKnowledge</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Fallback to basic embedding</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">EmbedMolecule</span><span class="p">(</span><span class="n">mol_copy</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to embed molecule for MMFF94 optimization&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">mol_copy</span>
+        
+        <span class="c1"># Optimize with MMFF94</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">mmff_props</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">MMFFGetMoleculeProperties</span><span class="p">(</span><span class="n">mol_copy</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mmff_props</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;MMFF94 properties could not be initialized, skipping pre-optimization&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">mol_copy</span>
+            
+            <span class="n">conf</span> <span class="o">=</span> <span class="n">mol_copy</span><span class="o">.</span><span class="n">GetConformer</span><span class="p">()</span>
+            <span class="n">optimizer</span> <span class="o">=</span> <span class="n">AllChem</span><span class="o">.</span><span class="n">MMFFGetMoleculeForceField</span><span class="p">(</span><span class="n">mol_copy</span><span class="p">,</span> <span class="n">mmff_props</span><span class="p">,</span> <span class="n">confId</span><span class="o">=</span><span class="n">conf</span><span class="o">.</span><span class="n">GetId</span><span class="p">())</span>
+            
+            <span class="k">if</span> <span class="n">optimizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;MMFF94 force field could not be initialized, skipping pre-optimization&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">mol_copy</span>
+            
+            <span class="c1"># Optimize geometry</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">Minimize</span><span class="p">(</span><span class="n">maxIts</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">result</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MMFF94 optimization converged with status: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;MMFF94 optimization completed successfully&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MMFF94 optimization failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">, using original geometry&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">mol_copy</span>
+    
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_molecule_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate hash for molecule based on SMILES and calculation parameters.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate hash for molecule based on SMILES and calculation parameters.</span>
+<span class="sd">        </span>
+<span class="sd">        For semi-empirical methods, basis_set and dispersion_correction are</span>
+<span class="sd">        not included in the hash since they are not used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem</span><span class="w"> </span><span class="kn">import</span> <span class="n">MolToSmiles</span>
         
         <span class="n">smiles</span> <span class="o">=</span> <span class="n">MolToSmiles</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">canonical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">functional</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">method_type</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dispersion_correction</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">solvation_model</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">,</span>
-        <span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_semi_empirical</span><span class="p">():</span>
+            <span class="c1"># For semi-empirical methods, don&#39;t include basis_set and dispersion_correction</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">functional</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">method_type</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">solvation_model</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pre_optimize</span><span class="p">,</span>  <span class="c1"># Include pre_optimize in hash</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># For DFT methods, include all parameters</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">functional</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">method_type</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dispersion_correction</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">solvation_model</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pre_optimize</span><span class="p">,</span>  <span class="c1"># Include pre_optimize in hash</span>
+            <span class="p">)</span>
         <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">smiles</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">params</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
     
@@ -483,6 +576,10 @@
     
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run ORCA calculation and return path to output file.&quot;&quot;&quot;</span>
+        <span class="c1"># Pre-optimize geometry if requested</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_optimize</span><span class="p">:</span>
+            <span class="n">mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_optimize_geometry</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+        
         <span class="n">mol_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_molecule_hash</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
         
         <span class="n">cached_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mol_hash</span><span class="p">)</span>
@@ -769,29 +866,36 @@
                 <span class="sa">f</span><span class="s2">&quot;Last log output:</span><span class="se">\n</span><span class="si">{</span><span class="n">log_content</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
         
+        <span class="c1"># Store in cache and get cached file path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">mol_hash</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+        <span class="n">cached_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mol_hash</span><span class="p">)</span>
+        
+        <span class="c1"># Cleanup temporary files</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cleanup_temp_files</span><span class="p">(</span><span class="n">base_name</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
         
-        <span class="k">return</span> <span class="n">output_file</span>
+        <span class="c1"># Return cached file path (which persists after cleanup)</span>
+        <span class="k">if</span> <span class="n">cached_file</span> <span class="ow">and</span> <span class="n">cached_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">cached_file</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Fallback to original file if cache failed (shouldn&#39;t happen)</span>
+            <span class="k">return</span> <span class="n">output_file</span>
     
     <span class="k">def</span><span class="w"> </span><span class="nf">_cleanup_temp_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove temporary ORCA files after successful calculation.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove all ORCA files after successful calculation.</span>
+<span class="sd">        </span>
+<span class="sd">        All files are removed since results are cached. This includes input files,</span>
+<span class="sd">        output files, and all temporary files created by ORCA.</span>
 <span class="sd">        </span>
 <span class="sd">        Args:</span>
 <span class="sd">            base_name: Base name for ORCA files (without extension)</span>
-<span class="sd">            output_file: Path to the main output file to keep</span>
+<span class="sd">            output_file: Path to the main output file (will be removed)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">files_to_keep</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">output_file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">.inp&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-        
-        <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.out&#39;</span><span class="p">,</span> <span class="s1">&#39;.log&#39;</span><span class="p">,</span> <span class="s1">&#39;.smd.out&#39;</span><span class="p">]:</span>
-            <span class="n">alt_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">if</span> <span class="n">alt_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="n">files_to_keep</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">alt_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        
-        <span class="n">temp_extensions</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># All ORCA file extensions to remove</span>
+        <span class="n">orca_extensions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;.inp&#39;</span><span class="p">,</span>      <span class="c1"># Input file</span>
+            <span class="s1">&#39;.out&#39;</span><span class="p">,</span>      <span class="c1"># Output file</span>
+            <span class="s1">&#39;.log&#39;</span><span class="p">,</span>      <span class="c1"># Log file</span>
+            <span class="s1">&#39;.smd.out&#39;</span><span class="p">,</span>  <span class="c1"># SMD output file</span>
             <span class="s1">&#39;.gbw&#39;</span><span class="p">,</span>      <span class="c1"># Wavefunction file</span>
             <span class="s1">&#39;.densities&#39;</span><span class="p">,</span> <span class="c1"># Density files</span>
             <span class="s1">&#39;.densitiesinfo&#39;</span><span class="p">,</span>
@@ -802,38 +906,38 @@
             <span class="s1">&#39;.cpcm_corr&#39;</span><span class="p">,</span>
             <span class="s1">&#39;.engrad&#39;</span><span class="p">,</span>   <span class="c1"># Energy gradient</span>
             <span class="s1">&#39;.opt&#39;</span><span class="p">,</span>      <span class="c1"># Optimization file</span>
-            <span class="s1">&#39;.xyz&#39;</span><span class="p">,</span>      <span class="c1"># XYZ trajectory (if not needed)</span>
+            <span class="s1">&#39;.xyz&#39;</span><span class="p">,</span>      <span class="c1"># XYZ trajectory</span>
             <span class="s1">&#39;_trj.xyz&#39;</span><span class="p">,</span>  <span class="c1"># Trajectory file</span>
             <span class="s1">&#39;.molden&#39;</span><span class="p">,</span>  <span class="c1"># Molden file</span>
             <span class="s1">&#39;.mkl&#39;</span><span class="p">,</span>     <span class="c1"># MKL file</span>
             <span class="s1">&#39;.tmp&#39;</span><span class="p">,</span>     <span class="c1"># Temporary files</span>
-            <span class="s1">&#39;.int.tmp&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;.int.tmp&#39;</span><span class="p">,</span> <span class="c1"># Integral temporary files</span>
         <span class="p">]</span>
         
         <span class="n">removed_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">removed_size</span> <span class="o">=</span> <span class="mi">0</span>
         
-        <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">temp_extensions</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">orca_extensions</span><span class="p">:</span>
             <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="p">]</span>
             
             <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">temp_file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">temp_file</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">files_to_keep</span> <span class="ow">and</span> <span class="n">temp_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">orca_file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">orca_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
                         <span class="k">try</span><span class="p">:</span>
-                            <span class="n">file_size</span> <span class="o">=</span> <span class="n">temp_file</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
-                            <span class="n">temp_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+                            <span class="n">file_size</span> <span class="o">=</span> <span class="n">orca_file</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
+                            <span class="n">orca_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
                             <span class="n">removed_count</span> <span class="o">+=</span> <span class="mi">1</span>
                             <span class="n">removed_size</span> <span class="o">+=</span> <span class="n">file_size</span>
-                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removed temporary file: </span><span class="si">{</span><span class="n">temp_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removed ORCA file: </span><span class="si">{</span><span class="n">orca_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to remove temporary file </span><span class="si">{</span><span class="n">temp_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to remove ORCA file </span><span class="si">{</span><span class="n">orca_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="n">removed_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">size_mb</span> <span class="o">=</span> <span class="n">removed_size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cleaned up </span><span class="si">{</span><span class="n">removed_count</span><span class="si">}</span><span class="s2"> temporary files (</span><span class="si">{</span><span class="n">size_mb</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> MB)&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cleaned up </span><span class="si">{</span><span class="n">removed_count</span><span class="si">}</span><span class="s2"> ORCA files (</span><span class="si">{</span><span class="n">size_mb</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> MB)&quot;</span><span class="p">)</span>
     
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get parsed output from ORCA calculation.&quot;&quot;&quot;</span>
@@ -1747,6 +1851,9 @@
 <span class="sd">        By default, calculates all available descriptors. Use the `descriptors`</span>
 <span class="sd">        parameter to specify a subset of descriptors to calculate.</span>
 <span class="sd">        </span>
+<span class="sd">        Note: This method is a wrapper around ORCABatchProcessing for backward compatibility.</span>
+<span class="sd">        For advanced features like multiprocessing, use ORCABatchProcessing directly.</span>
+<span class="sd">        </span>
 <span class="sd">        Args:</span>
 <span class="sd">            smiles_column: pandas Series/DataFrame column with SMILES strings,</span>
 <span class="sd">                          or a list of SMILES strings</span>
@@ -1763,161 +1870,35 @@
 <span class="sd">            ImportError: If pandas is not installed and a pandas object is passed</span>
 <span class="sd">            ValueError: If an invalid descriptor name is provided</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">orca_descriptors.batch_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ORCABatchProcessing</span>
+        
+        <span class="c1"># Create batch processor with this Orca instance</span>
+        <span class="n">batch_processor</span> <span class="o">=</span> <span class="n">ORCABatchProcessing</span><span class="p">(</span><span class="n">orca</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">parallel_mode</span><span class="o">=</span><span class="s2">&quot;sequential&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Calculate descriptors (ORCABatchProcessing adds only descriptor columns, no new &#39;smiles&#39;)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">batch_processor</span><span class="o">.</span><span class="n">calculate_descriptors</span><span class="p">(</span>
+            <span class="n">smiles_column</span><span class="o">=</span><span class="n">smiles_column</span><span class="p">,</span>
+            <span class="n">descriptors</span><span class="o">=</span><span class="n">descriptors</span><span class="p">,</span>
+            <span class="n">progress</span><span class="o">=</span><span class="n">progress</span><span class="p">,</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># For backward compatibility, add smiles column back if it was in the input</span>
+        <span class="c1"># (ORCABatchProcessing doesn&#39;t add it, but Orca.calculate_descriptors should include it)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-            <span class="n">pandas_available</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="c1"># Check if original input had smiles column</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smiles_column</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+                    <span class="c1"># If input was Series, add it as &#39;smiles&#39; column for backward compatibility</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;smiles&#39;</span><span class="p">,</span> <span class="n">smiles_column</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smiles_column</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                    <span class="c1"># If input was DataFrame, &#39;smiles&#39; is already preserved in result</span>
+                    <span class="c1"># (ORCABatchProcessing keeps all original columns)</span>
+                    <span class="k">pass</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-            <span class="n">pandas_available</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">pass</span>  <span class="c1"># pandas not available, return as-is</span>
         
-        <span class="k">if</span> <span class="n">pandas_available</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smiles_column</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
-                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;smiles&#39;</span><span class="p">:</span> <span class="n">smiles_column</span><span class="p">})</span>
-                <span class="n">smiles_list</span> <span class="o">=</span> <span class="n">smiles_column</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smiles_column</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-                <span class="k">if</span> <span class="s1">&#39;smiles&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">smiles_column</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;DataFrame must contain a &#39;smiles&#39; column&quot;</span><span class="p">)</span>
-                <span class="n">df</span> <span class="o">=</span> <span class="n">smiles_column</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                <span class="n">smiles_list</span> <span class="o">=</span> <span class="n">smiles_column</span><span class="p">[</span><span class="s1">&#39;smiles&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                    <span class="s2">&quot;smiles_column must be a pandas Series or DataFrame. &quot;</span>
-                    <span class="s2">&quot;For plain lists, install pandas or use individual descriptor methods.&quot;</span>
-                <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smiles_column</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                <span class="n">df</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">smiles_list</span> <span class="o">=</span> <span class="n">smiles_column</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-                    <span class="s2">&quot;pandas is required for DataFrame/Series input. &quot;</span>
-                    <span class="s2">&quot;Install pandas with: pip install &#39;orca-descriptors[pandas]&#39; &quot;</span>
-                    <span class="s2">&quot;or pass a list of SMILES strings.&quot;</span>
-                <span class="p">)</span>
-        
-        <span class="k">if</span> <span class="n">descriptors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">available</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_available_descriptors</span><span class="p">()</span>
-            <span class="n">invalid_descriptors</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">descriptors</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">invalid_descriptors</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Invalid descriptor names: </span><span class="si">{</span><span class="n">invalid_descriptors</span><span class="si">}</span><span class="s2">. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Available descriptors: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">available</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-            <span class="n">descriptors_to_calculate</span> <span class="o">=</span> <span class="n">descriptors</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">descriptors_to_calculate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_available_descriptors</span><span class="p">()</span>
-        
-        <span class="n">descriptors_list</span> <span class="o">=</span> <span class="p">[]</span>
-        
-        <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">smiles_list</span><span class="p">)</span>
-        <span class="n">estimated_times</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">progress</span> <span class="ow">and</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">smiles</span> <span class="ow">in</span> <span class="n">smiles_list</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">mol</span> <span class="o">=</span> <span class="n">AddHs</span><span class="p">(</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">))</span>
-                    <span class="k">if</span> <span class="n">mol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">estimated_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_estimator</span><span class="o">.</span><span class="n">estimate_time</span><span class="p">(</span>
-                            <span class="n">mol</span><span class="o">=</span><span class="n">mol</span><span class="p">,</span>
-                            <span class="n">method_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">method_type</span><span class="p">,</span>
-                            <span class="n">functional</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">functional</span><span class="p">,</span>
-                            <span class="n">basis_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span>
-                            <span class="n">n_processors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_processors</span><span class="p">,</span>
-                        <span class="p">)</span>
-                        <span class="n">estimated_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">estimated_time</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">estimated_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                    <span class="n">estimated_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-        
-        <span class="n">actual_times</span> <span class="o">=</span> <span class="p">[]</span>
-        
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">smiles</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">smiles_list</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">progress</span> <span class="ow">and</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">remaining</span> <span class="o">=</span> <span class="n">total</span> <span class="o">-</span> <span class="n">idx</span>
-                
-                <span class="k">if</span> <span class="n">actual_times</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">actual_times</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.3</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">actual_times</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                        <span class="n">avg_time</span> <span class="o">=</span> <span class="n">actual_times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">avg_time</span> <span class="o">=</span> <span class="n">actual_times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">actual_times</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                            <span class="n">avg_time</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">t</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">avg_time</span>
-                    <span class="n">remaining_estimated</span> <span class="o">=</span> <span class="n">avg_time</span> <span class="o">*</span> <span class="n">remaining</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">remaining_estimated</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">estimated_times</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span> <span class="k">if</span> <span class="n">estimated_times</span> <span class="k">else</span> <span class="mf">0.0</span>
-                
-                <span class="k">if</span> <span class="n">remaining_estimated</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;~</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_time</span><span class="p">(</span><span class="n">remaining_estimated</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                    
-                    <span class="k">if</span> <span class="n">actual_times</span><span class="p">:</span>
-                        <span class="n">avg_actual</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">actual_times</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">actual_times</span><span class="p">)</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Processing molecule </span><span class="si">{</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> (remaining: </span><span class="si">{</span><span class="n">remaining</span><span class="si">}</span><span class="s2">, &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;estimated time: </span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">, avg: </span><span class="si">{</span><span class="n">avg_actual</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s/molecule)&quot;</span>
-                        <span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing molecule </span><span class="si">{</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> (remaining: </span><span class="si">{</span><span class="n">remaining</span><span class="si">}</span><span class="s2">, estimated time: </span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing molecule </span><span class="si">{</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> (remaining: </span><span class="si">{</span><span class="n">remaining</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-            
-            <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">mol</span> <span class="o">=</span> <span class="n">AddHs</span><span class="p">(</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">))</span>
-                <span class="k">if</span> <span class="n">mol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to parse SMILES: </span><span class="si">{</span><span class="n">smiles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="n">descriptors_list</span><span class="o">.</span><span class="n">append</span><span class="p">({})</span>
-                    <span class="n">actual_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
-                    <span class="k">continue</span>
-                
-                <span class="n">result_descriptors</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="n">special_descriptors</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s1">&#39;moran_autocorrelation&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;lag&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="s1">&#39;vdw_volume&#39;</span><span class="p">},</span>
-                    <span class="s1">&#39;autocorrelation_hats&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;lag&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;unweighted&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-                <span class="p">}</span>
-                
-                <span class="k">for</span> <span class="n">desc_name</span> <span class="ow">in</span> <span class="n">descriptors_to_calculate</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">desc_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                        
-                        <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
-                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Method &#39;</span><span class="si">{</span><span class="n">desc_name</span><span class="si">}</span><span class="s2">&#39; not found or not callable&quot;</span><span class="p">)</span>
-                            <span class="n">result_descriptors</span><span class="p">[</span><span class="n">desc_name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-                            <span class="k">continue</span>
-                        
-                        <span class="k">if</span> <span class="n">desc_name</span> <span class="ow">in</span> <span class="n">special_descriptors</span><span class="p">:</span>
-                            <span class="n">result</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="o">**</span><span class="n">special_descriptors</span><span class="p">[</span><span class="n">desc_name</span><span class="p">])</span>
-                        <span class="k">elif</span> <span class="n">desc_name</span> <span class="o">==</span> <span class="s1">&#39;frontier_electron_density&#39;</span><span class="p">:</span>
-                            <span class="n">frontier_density</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-                            <span class="n">result</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">charge</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">charge</span> <span class="ow">in</span> <span class="n">frontier_density</span><span class="p">)</span> <span class="k">if</span> <span class="n">frontier_density</span> <span class="k">else</span> <span class="mf">0.0</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">result</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-                        
-                        <span class="n">result_descriptors</span><span class="p">[</span><span class="n">desc_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
-                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to calculate descriptor &#39;</span><span class="si">{</span><span class="n">desc_name</span><span class="si">}</span><span class="s2">&#39; for SMILES </span><span class="si">{</span><span class="n">smiles</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                        <span class="n">result_descriptors</span><span class="p">[</span><span class="n">desc_name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-                
-                <span class="n">descriptors_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result_descriptors</span><span class="p">)</span>
-                
-                <span class="n">actual_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-                <span class="n">actual_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">actual_time</span><span class="p">)</span>
-                
-                <span class="k">if</span> <span class="n">progress</span> <span class="ow">and</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">actual_times</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="n">total</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_time_estimates</span><span class="p">(</span><span class="n">actual_times</span><span class="p">,</span> <span class="n">estimated_times</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span>
-                
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error processing SMILES </span><span class="si">{</span><span class="n">smiles</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">descriptors_list</span><span class="o">.</span><span class="n">append</span><span class="p">({})</span>
-                <span class="n">actual_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-                <span class="n">actual_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">actual_time</span><span class="p">)</span>
-        
-        <span class="k">if</span> <span class="n">pandas_available</span> <span class="ow">and</span> <span class="n">df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">descriptor_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">descriptors_list</span><span class="p">)</span>
-            <span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">descriptor_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">result_df</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">descriptors_list</span></div>
+        <span class="k">return</span> <span class="n">result</span></div>
 </div>
 
 
@@ -1953,7 +1934,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=7133dbae"></script>
+</div><script src="../../_static/documentation_options.js?v=9c0de567"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

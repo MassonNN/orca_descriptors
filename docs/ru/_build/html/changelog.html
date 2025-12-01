@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/logo.png" as="image">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>История изменений - документация ORCA Descriptors 0.2.2</title>
+        <title>История изменений - документация ORCA Descriptors 0.3.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">документация ORCA Descriptors 0.2.2</div></a>
+      <a href="index.html"><div class="brand">документация ORCA Descriptors 0.3.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">документация ORCA Descriptors 0.2.2</span>
+  <span class="sidebar-brand-text">документация ORCA Descriptors 0.3.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Поиск" name="q" aria-label="Поиск">
@@ -215,6 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Установка</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Туториал</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pandas_tutorial.html">Туториал по интеграции с Pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="descriptors.html">Справочник дескрипторов</a></li>
 <li class="toctree-l1"><a class="reference internal" href="benchmark.html">Бенчмарк и оценка времени</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/orca.html">Orca Class</a></li>
@@ -263,17 +264,62 @@
           <section id="id1">
 <h1>История изменений<a class="headerlink" href="#id1" title="Ссылка на этот заголовок">¶</a></h1>
 <section id="id2">
-<h2>Версия 0.2.2<a class="headerlink" href="#id2" title="Ссылка на этот заголовок">¶</a></h2>
+<h2>Версия 0.3.0<a class="headerlink" href="#id2" title="Ссылка на этот заголовок">¶</a></h2>
 <section id="id3">
 <h3>Добавлено<a class="headerlink" href="#id3" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p>Добавлен новый класс <code class="docutils literal notranslate"><span class="pre">ORCABatchProcessing</span></code> для эффективной пакетной обработки молекулярных дескрипторов с поддержкой pandas</p></li>
+<li><p>Добавлена поддержка полуэмпирических методов (AM1, PM3, PM6, PM7, RM1, MNDO, MNDOD, OM1, OM2, OM3)</p></li>
+<li><p>Добавлен параметр <code class="docutils literal notranslate"><span class="pre">pre_optimize</span></code> (по умолчанию: <code class="docutils literal notranslate"><span class="pre">True</span></code>) для предварительной оптимизации геометрии молекулы с помощью силового поля MMFF94 перед расчетами ORCA</p></li>
+<li><p>Добавлена поддержка multiprocessing для параллельной пакетной обработки через параметр <code class="docutils literal notranslate"><span class="pre">parallel_mode=&quot;multiprocessing&quot;</span></code></p></li>
+<li><p>Добавлена автоматическая очистка всех временных файлов ORCA (входные, выходные и все временные файлы) после расчетов, так как результаты кешируются</p></li>
+<li><p>Добавлен улучшенный парсинг ошибок с краткими сообщениями в <code class="docutils literal notranslate"><span class="pre">logging.INFO</span></code> и детальной информацией в <code class="docutils literal notranslate"><span class="pre">logging.DEBUG</span></code></p></li>
+<li><p>Добавлен метод <code class="docutils literal notranslate"><span class="pre">_pre_optimize_geometry()</span></code> для оптимизации геометрии с помощью MMFF94</p></li>
+<li><p>Добавлен метод <code class="docutils literal notranslate"><span class="pre">_is_semi_empirical()</span></code> для определения полуэмпирических методов</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>Изменено<a class="headerlink" href="#id4" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p>Рефакторинг функциональности пакетной обработки из <code class="docutils literal notranslate"><span class="pre">Orca.calculate_descriptors()</span></code> в отдельный класс <code class="docutils literal notranslate"><span class="pre">ORCABatchProcessing</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Orca.calculate_descriptors()</span></code> теперь использует <code class="docutils literal notranslate"><span class="pre">ORCABatchProcessing</span></code> внутри для обратной совместимости</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">calculate_descriptors()</span></code> теперь сохраняет исходные колонки DataFrame (включая „smiles“) вместо их удаления и повторного добавления</p></li>
+<li><p>Улучшен расчет хеша молекулы для включения параметра <code class="docutils literal notranslate"><span class="pre">pre_optimize</span></code> для правильного кеширования</p></li>
+<li><p>Обновлен расчет хеша молекулы для исключения <code class="docutils literal notranslate"><span class="pre">basis_set</span></code> и <code class="docutils literal notranslate"><span class="pre">dispersion_correction</span></code> для полуэмпирических методов</p></li>
+<li><p>Улучшена генерация входных файлов для поддержки полуэмпирических методов (не требуется базисный набор или дисперсионная коррекция)</p></li>
+<li><p>Улучшена очистка файлов для удаления всех файлов ORCA (включая входные и выходные файлы), так как результаты кешируются</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>Исправлено<a class="headerlink" href="#id5" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p>Исправлена обработка DataFrame в пакетной обработке для сохранения всех исходных колонок</p></li>
+<li><p>Исправлена обработка ошибок для предоставления кратких сообщений об ошибках на уровне INFO и детальной информации на уровне DEBUG</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3>Технические детали<a class="headerlink" href="#id6" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ORCABatchProcessing</span></code> поддерживает три режима распараллеливания: «sequential», «multiprocessing» и «mpirun»</p></li>
+<li><p>Предоптимизация использует силовое поле MMFF94 из RDKit для быстрой оптимизации геометрии перед квантово-химическими расчетами</p></li>
+<li><p>Все файлы ORCA автоматически очищаются после успешных расчетов, результаты сохраняются в кеше</p></li>
+<li><p>Полуэмпирические методы автоматически определяются и обрабатываются иначе, чем методы DFT</p></li>
+<li><p>Пакетная обработка теперь включает оценку времени на основе производительности benchmark-машины</p></li>
+</ul>
+</section>
+</section>
+<section id="id7">
+<h2>Версия 0.2.2<a class="headerlink" href="#id7" title="Ссылка на этот заголовок">¶</a></h2>
+<section id="id8">
+<h3>Добавлено<a class="headerlink" href="#id8" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p>Добавлено <code class="docutils literal notranslate"><span class="pre">numpy&gt;=1.20.0</span></code> to project dependencies (numpy was used but not declared)</p></li>
 <li><p>Добавлено dynamic time estimation updates in batch processing - time estimates are now refined based on actual execution times of previous molecules</p></li>
 <li><p>Добавлено <code class="docutils literal notranslate"><span class="pre">_get_available_descriptors()</span></code> method to dynamically discover available descriptor methods</p></li>
 </ul>
 </section>
-<section id="id4">
-<h3>Изменено<a class="headerlink" href="#id4" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id9">
+<h3>Изменено<a class="headerlink" href="#id9" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p>Обновлен парсер дипольного момента для приоритизации газофазных значений при их наличии (для расчетов без сольватации)</p></li>
 <li><p>Улучшен алгоритм оценки времени:
@@ -288,15 +334,15 @@
 * Улучшена поддерживаемость и читаемость кода</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>Исправлено<a class="headerlink" href="#id5" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id10">
+<h3>Исправлено<a class="headerlink" href="#id10" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p>Исправлено dipole moment parser to correctly extract gas-phase values from ORCA output when available</p></li>
 <li><p>Исправлено time estimation showing unrealistic values (e.g., 47 hours for 2 molecules) - now provides accurate estimates based on actual benchmark data</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3>Технические детали<a class="headerlink" href="#id6" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id11">
+<h3>Технические детали<a class="headerlink" href="#id11" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
 <li><p>Оценщик времени теперь использует экспоненциальное скользящее среднее для лучшей точности прогнозирования</p></li>
 <li><p>Методы дескрипторов вызываются динамически с использованием <code class="docutils literal notranslate"><span class="pre">getattr(self,</span> <span class="pre">desc_name)</span></code></p></li>
@@ -354,11 +400,18 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">История изменений</a><ul>
-<li><a class="reference internal" href="#id2">Версия 0.2.2</a><ul>
+<li><a class="reference internal" href="#id2">Версия 0.3.0</a><ul>
 <li><a class="reference internal" href="#id3">Добавлено</a></li>
 <li><a class="reference internal" href="#id4">Изменено</a></li>
 <li><a class="reference internal" href="#id5">Исправлено</a></li>
 <li><a class="reference internal" href="#id6">Технические детали</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id7">Версия 0.2.2</a><ul>
+<li><a class="reference internal" href="#id8">Добавлено</a></li>
+<li><a class="reference internal" href="#id9">Изменено</a></li>
+<li><a class="reference internal" href="#id10">Исправлено</a></li>
+<li><a class="reference internal" href="#id11">Технические детали</a></li>
 </ul>
 </li>
 </ul>
@@ -372,7 +425,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=7133dbae"></script>
+</div><script src="_static/documentation_options.js?v=9c0de567"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

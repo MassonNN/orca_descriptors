@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/logo.png" as="image">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>Tutorial - ORCA Descriptors 0.2.2 documentation</title>
+        <title>Tutorial - ORCA Descriptors 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">ORCA Descriptors 0.2.2 documentation</div></a>
+      <a href="index.html"><div class="brand">ORCA Descriptors 0.3.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">ORCA Descriptors 0.2.2 documentation</span>
+  <span class="sidebar-brand-text">ORCA Descriptors 0.3.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -215,6 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pandas_tutorial.html">Pandas Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="descriptors.html">Descriptors Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="benchmark.html">Benchmark and Time Estimation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/orca.html">Orca Class</a></li>
@@ -281,6 +282,7 @@
     <span class="n">dispersion_correction</span><span class="o">=</span><span class="s2">&quot;D3BJ&quot;</span><span class="p">,</span>
     <span class="n">solvation_model</span><span class="o">=</span><span class="s2">&quot;COSMO(Water)&quot;</span><span class="p">,</span>
     <span class="n">n_processors</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">pre_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable geometry pre-optimization with MMFF94</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -340,6 +342,95 @@
 <span class="n">homo2</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">homo_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>  <span class="c1"># Instant</span>
 </pre></div>
 </div>
+</section>
+<section id="choosing-functionals-and-methods">
+<h3>Choosing Functionals and Methods<a class="headerlink" href="#choosing-functionals-and-methods" title="Link to this heading">¶</a></h3>
+<p>The library supports both DFT methods and semi-empirical methods:</p>
+<section id="dft-methods">
+<h4>DFT Methods<a class="headerlink" href="#dft-methods" title="Link to this heading">¶</a></h4>
+<p>For high-accuracy calculations, use DFT functionals with basis sets:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># High-accuracy DFT calculation</span>
+<span class="n">orca_dft</span> <span class="o">=</span> <span class="n">Orca</span><span class="p">(</span>
+    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;PBE0&quot;</span><span class="p">,</span>           <span class="c1"># Hybrid functional</span>
+    <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;def2-TZVP&quot;</span><span class="p">,</span>      <span class="c1"># Triple-zeta basis set</span>
+    <span class="n">method_type</span><span class="o">=</span><span class="s2">&quot;Opt&quot;</span><span class="p">,</span>           <span class="c1"># Geometry optimization</span>
+    <span class="n">dispersion_correction</span><span class="o">=</span><span class="s2">&quot;D3BJ&quot;</span><span class="p">,</span> <span class="c1"># Dispersion correction</span>
+    <span class="n">n_processors</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Common DFT functionals:
+- <code class="docutils literal notranslate"><span class="pre">PBE0</span></code> - Hybrid GGA functional, good balance of accuracy and speed
+- <code class="docutils literal notranslate"><span class="pre">B3LYP</span></code> - Popular hybrid functional
+- <code class="docutils literal notranslate"><span class="pre">M06-2X</span></code> - Meta-GGA functional, good for thermochemistry
+- <code class="docutils literal notranslate"><span class="pre">ωB97X-D</span></code> - Range-separated hybrid with dispersion</p>
+<p>Common basis sets:
+- <code class="docutils literal notranslate"><span class="pre">def2-SVP</span></code> - Small, fast (default)
+- <code class="docutils literal notranslate"><span class="pre">def2-TZVP</span></code> - Triple-zeta, more accurate
+- <code class="docutils literal notranslate"><span class="pre">def2-QZVP</span></code> - Quadruple-zeta, very accurate but slow</p>
+</section>
+<section id="semi-empirical-methods">
+<h4>Semi-Empirical Methods<a class="headerlink" href="#semi-empirical-methods" title="Link to this heading">¶</a></h4>
+<p>For faster calculations on large molecules, use semi-empirical methods:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fast semi-empirical calculation</span>
+<span class="n">orca_semi</span> <span class="o">=</span> <span class="n">Orca</span><span class="p">(</span>
+    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;AM1&quot;</span><span class="p">,</span>            <span class="c1"># Semi-empirical method</span>
+    <span class="n">method_type</span><span class="o">=</span><span class="s2">&quot;SP&quot;</span><span class="p">,</span>            <span class="c1"># Single point (no optimization)</span>
+    <span class="n">n_processors</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">pre_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>           <span class="c1"># Pre-optimize with MMFF94</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Supported semi-empirical methods:
+- <code class="docutils literal notranslate"><span class="pre">AM1</span></code> - Austin Model 1, good for organic molecules
+- <code class="docutils literal notranslate"><span class="pre">PM3</span></code> - Parametric Method 3, improved over AM1
+- <code class="docutils literal notranslate"><span class="pre">PM6</span></code> - Parametric Method 6, better for transition metals
+- <code class="docutils literal notranslate"><span class="pre">PM7</span></code> - Parametric Method 7, improved accuracy
+- <code class="docutils literal notranslate"><span class="pre">RM1</span></code> - Recife Model 1, optimized for organic compounds</p>
+<p>Note: For semi-empirical methods, <code class="docutils literal notranslate"><span class="pre">basis_set</span></code> and <code class="docutils literal notranslate"><span class="pre">dispersion_correction</span></code> parameters are automatically ignored.</p>
+</section>
+</section>
+<section id="geometry-pre-optimization">
+<h3>Geometry Pre-Optimization<a class="headerlink" href="#geometry-pre-optimization" title="Link to this heading">¶</a></h3>
+<p>By default, the library performs geometry pre-optimization using RDKit’s MMFF94 force field before sending the molecule to ORCA. This can significantly speed up ORCA calculations, especially for geometry optimizations:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># With pre-optimization (default)</span>
+<span class="n">orca</span> <span class="o">=</span> <span class="n">Orca</span><span class="p">(</span>
+    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;PBE0&quot;</span><span class="p">,</span>
+    <span class="n">method_type</span><span class="o">=</span><span class="s2">&quot;Opt&quot;</span><span class="p">,</span>
+    <span class="n">pre_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Default: True</span>
+<span class="p">)</span>
+
+<span class="c1"># Without pre-optimization</span>
+<span class="n">orca</span> <span class="o">=</span> <span class="n">Orca</span><span class="p">(</span>
+    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;PBE0&quot;</span><span class="p">,</span>
+    <span class="n">method_type</span><span class="o">=</span><span class="s2">&quot;Opt&quot;</span><span class="p">,</span>
+    <span class="n">pre_optimize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Benefits of pre-optimization:
+- Faster ORCA convergence (fewer optimization steps needed)
+- More stable calculations (better starting geometry)
+- Reduced computational cost</p>
+<p>The pre-optimization uses MMFF94, which requires explicit hydrogens. The library automatically adds hydrogens if needed and generates 3D coordinates if not present.</p>
+</section>
+<section id="method-types">
+<h3>Method Types<a class="headerlink" href="#method-types" title="Link to this heading">¶</a></h3>
+<p>Choose the appropriate calculation type based on your needs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Single point energy calculation (fastest)</span>
+<span class="n">orca_sp</span> <span class="o">=</span> <span class="n">Orca</span><span class="p">(</span>
+    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;PBE0&quot;</span><span class="p">,</span>
+    <span class="n">method_type</span><span class="o">=</span><span class="s2">&quot;SP&quot;</span><span class="p">,</span>  <span class="c1"># Single point</span>
+<span class="p">)</span>
+
+<span class="c1"># Geometry optimization (slower, but provides optimized geometry)</span>
+<span class="n">orca_opt</span> <span class="o">=</span> <span class="n">Orca</span><span class="p">(</span>
+    <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;PBE0&quot;</span><span class="p">,</span>
+    <span class="n">method_type</span><span class="o">=</span><span class="s2">&quot;Opt&quot;</span><span class="p">,</span>  <span class="c1"># Optimization</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Note: Some descriptors (like <code class="docutils literal notranslate"><span class="pre">molecular_volume</span></code>, <code class="docutils literal notranslate"><span class="pre">polar_surface_area</span></code>, <code class="docutils literal notranslate"><span class="pre">solvent_accessible_surface_area</span></code>) require optimized geometries and may not work correctly with <code class="docutils literal notranslate"><span class="pre">method_type=&quot;SP&quot;</span></code>.</p>
 </section>
 </section>
 <section id="using-as-a-command-line-tool">
@@ -546,6 +637,13 @@
 <li><a class="reference internal" href="#using-as-a-python-library">Using as a Python Library</a><ul>
 <li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
 <li><a class="reference internal" href="#caching">Caching</a></li>
+<li><a class="reference internal" href="#choosing-functionals-and-methods">Choosing Functionals and Methods</a><ul>
+<li><a class="reference internal" href="#dft-methods">DFT Methods</a></li>
+<li><a class="reference internal" href="#semi-empirical-methods">Semi-Empirical Methods</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#geometry-pre-optimization">Geometry Pre-Optimization</a></li>
+<li><a class="reference internal" href="#method-types">Method Types</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#using-as-a-command-line-tool">Using as a Command-Line Tool</a><ul>
@@ -577,7 +675,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=1c17f339"></script>
+</div><script src="_static/documentation_options.js?v=f129cdf0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

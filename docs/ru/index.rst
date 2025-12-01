@@ -21,6 +21,7 @@
    installation
    tutorial
    pandas_tutorial
+   descriptors
    benchmark
    api/index
    cli

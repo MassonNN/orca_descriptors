@@ -1,14 +1,16 @@
+import pytest
 from rdkit.Chem import Atom, MolFromSmiles, AddHs
 
 
-def test_chem_potential(orca):
+@pytest.mark.parametrize("orca_parametrized", ["dft", "am1"], indirect=True)
+def test_chem_potential(orca_parametrized):
     """
     The chemical potential (mu) for benzene (a stable molecule) 
     should be negative, as it is defined as: mu = -electronegativity.
     """
     mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Call the function to perform the calculation and store the result
-    result = orca.ch_potential(mol)
+    result = orca_parametrized.ch_potential(mol)
     
     # Assert 1: Chemical potential must be negative
     assert result < 0 
@@ -17,13 +19,14 @@ def test_chem_potential(orca):
     assert result > -10.0 
 
 
-def test_electronegativity(orca):
+@pytest.mark.parametrize("orca_parametrized", ["dft", "am1"], indirect=True)
+def test_electronegativity(orca_parametrized):
     """
     Electronegativity (chi) is defined as: chi = -mu. 
     Therefore, it must be positive.
     """
     mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
-    result = orca.electronegativity(mol)
+    result = orca_parametrized.electronegativity(mol)
     
     # Assert 1: Electronegativity must be positive
     assert result > 0 
@@ -32,13 +35,14 @@ def test_electronegativity(orca):
     assert result > 1.0 
 
 
-def test_abs_hardness(orca):
+@pytest.mark.parametrize("orca_parametrized", ["dft", "am1"], indirect=True)
+def test_abs_hardness(orca_parametrized):
     """
     Absolute hardness (eta) is always positive. 
     For a stable molecule like benzene, it should be substantial.
     """
     mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
-    result = orca.abs_hardness(mol)
+    result = orca_parametrized.abs_hardness(mol)
     
     # Assert 1: Hardness is always positive
     assert result > 0 
@@ -47,13 +51,14 @@ def test_abs_hardness(orca):
     assert result > 1.0
 
 
-def test_abs_softness(orca):
+@pytest.mark.parametrize("orca_parametrized", ["dft", "am1"], indirect=True)
+def test_abs_softness(orca_parametrized):
     """
     Absolute softness (S) is the reciprocal of hardness (S = 1/(2*eta)) 
     and is also always positive.
     """
     mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
-    result = orca.abs_softness(mol)
+    result = orca_parametrized.abs_softness(mol)
     
     # Assert 1: Softness is always positive
     assert result > 0 
@@ -62,14 +67,15 @@ def test_abs_softness(orca):
     assert result < 1.0 
 
 
-def test_frontier_electron_density(orca):
+@pytest.mark.parametrize("orca_parametrized", ["dft", "am1"], indirect=True)
+def test_frontier_electron_density(orca_parametrized):
     """
     Frontier electron density (HOMO/LUMO) indicates reaction centers.
     In benzene, the frontier orbitals are delocalized across all carbon atoms.
     """
     mol = AddHs(MolFromSmiles("C1=CC=CC=C1"))
     # Assumes the function returns a list of tuples: (Atom, significant_frontier_electron_density)
-    result: list[tuple[Atom, float]] = orca.frontier_electron_density(mol)  
+    result: list[tuple[Atom, float]] = orca_parametrized.frontier_electron_density(mol)  
     
     # Assert 1: A non-empty list of atoms should be returned (all carbon atoms participate)
     assert len(result) > 0

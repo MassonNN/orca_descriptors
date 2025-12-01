@@ -250,6 +250,24 @@ class ORCABatchProcessing:
                 estimated_times.append(0.0)
         return estimated_times
     
+    def _get_parallel_efficiency(self, n_workers: int) -> float:
+        """Get parallel efficiency factor based on number of workers.
+        
+        Args:
+            n_workers: Number of parallel workers
+            
+        Returns:
+            Efficiency factor (0.0-1.0), typically 0.7-0.9
+        """
+        if n_workers <= 4:
+            return 0.85
+        elif n_workers <= 8:
+            return 0.80
+        elif n_workers <= 16:
+            return 0.75
+        else:
+            return 0.70
+    
     def _format_time(self, seconds: float) -> str:
         """Format time in seconds to human-readable string.
         
@@ -544,8 +562,11 @@ class ORCABatchProcessing:
         
         This method provides pandas compatibility. It accepts a pandas Series or
         DataFrame column with SMILES strings and returns a DataFrame with added
-        descriptor columns. The original 'smiles' column from the input DataFrame
-        is preserved in the result.
+        descriptor columns. Only descriptor columns are added - no new 'smiles'
+        column is created.
+        
+        - If input is a Series: returns DataFrame with only descriptor columns
+        - If input is a DataFrame: returns DataFrame with original columns + descriptor columns
         
         By default, calculates all available descriptors. Use the `descriptors`
         parameter to specify a subset of descriptors to calculate.
@@ -559,9 +580,10 @@ class ORCABatchProcessing:
             progress: Whether to show progress (default: True)
             
         Returns:
-            DataFrame with descriptor columns added, preserving original columns
-            including 'smiles' (if pandas available),
-            or list of dictionaries (if pandas not available)
+            DataFrame with descriptor columns added (if pandas available).
+            For Series input: only descriptor columns.
+            For DataFrame input: original columns + descriptor columns.
+            For list input: list of dictionaries (if pandas not available)
             
         Raises:
             ImportError: If pandas is not installed and a pandas object is passed
@@ -575,12 +597,14 @@ class ORCABatchProcessing:
         
         if pandas_available:
             if isinstance(smiles_column, pd.Series):
-                df = smiles_column.to_frame(name='smiles')
+                # For Series, we don't create a DataFrame with 'smiles' column
+                # We'll only return descriptors
+                df = None
                 smiles_list = smiles_column.tolist()
             elif isinstance(smiles_column, pd.DataFrame):
                 if 'smiles' not in smiles_column.columns:
                     raise ValueError("DataFrame must contain a 'smiles' column")
-                # Keep all original columns (will remove 'smiles' later)
+                # Keep all original columns (including 'smiles' if it exists)
                 df = smiles_column.copy()
                 smiles_list = smiles_column['smiles'].tolist()
             else:
@@ -614,7 +638,8 @@ class ORCABatchProcessing:
         total = len(smiles_list)
         if total == 0:
             if pandas_available and df is not None:
-                return df.drop(columns=['smiles'], errors='ignore')
+                # Return original DataFrame without adding anything
+                return df
             else:
                 return []
         
@@ -624,13 +649,32 @@ class ORCABatchProcessing:
             logger.info("Estimating calculation times...")
             estimated_times = self._estimate_times(smiles_list)
             total_estimated = sum(estimated_times)
-            if total_estimated > 0:
+            
+            # Adjust time estimate for multiprocessing
+            if self.parallel_mode == "multiprocessing" and total > 1 and self.n_workers > 1:
+                efficiency = self._get_parallel_efficiency(self.n_workers)
+                
+                # Parallel time = sequential time / (workers * efficiency)
+                parallel_estimated = total_estimated / (self.n_workers * efficiency)
+                logger.info(
+                    f"Total estimated time (sequential): {self._format_time(total_estimated)}"
+                )
+                logger.info(
+                    f"Total estimated time (parallel, {self.n_workers} workers, "
+                    f"efficiency {efficiency:.0%}): {self._format_time(parallel_estimated)}"
+                )
+                total_estimated = parallel_estimated
+            elif total_estimated > 0:
                 logger.info(f"Total estimated time: {self._format_time(total_estimated)}")
         
         # Process molecules based on parallel mode
         if self.parallel_mode == "multiprocessing" and total > 1:
             # Use multiprocessing
-            logger.info(f"Processing {total} molecules using multiprocessing with {self.n_workers} workers")
+            efficiency = self._get_parallel_efficiency(self.n_workers)
+            logger.info(
+                f"Processing {total} molecules using multiprocessing with {self.n_workers} workers "
+                f"(parallel efficiency: {efficiency:.0%})"
+            )
             
             # Prepare Orca parameters for worker processes
             orca_params = {
@@ -706,13 +750,17 @@ class ORCABatchProcessing:
                 descriptors_list.append(result)
                 actual_times.append(time.time() - start_time)
         
-        # Combine results with original DataFrame (preserving all original columns including smiles)
-        if pandas_available and df is not None:
+        # Combine results: add only descriptor columns (no new 'smiles' column)
+        if pandas_available:
             descriptor_df = pd.DataFrame(descriptors_list)
-            # Concatenate original DataFrame with descriptors
-            # Original DataFrame already contains 'smiles' column, so it will be preserved
-            result_df = pd.concat([df.reset_index(drop=True), descriptor_df.reset_index(drop=True)], axis=1)
-            return result_df
+            
+            if df is not None:
+                # If input was DataFrame, add descriptors to it (preserving all original columns)
+                result_df = pd.concat([df.reset_index(drop=True), descriptor_df.reset_index(drop=True)], axis=1)
+                return result_df
+            else:
+                # If input was Series, return only descriptors DataFrame (no 'smiles' column)
+                return descriptor_df
         else:
             return descriptors_list
 
