@@ -11,6 +11,13 @@ from orca_descriptors.output_parser import ORCAOutputParser
 
 logger = logging.getLogger(__name__)
 
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+logger.propagate = False
+
 
 class ORCATimeEstimator:
     """Estimate ORCA calculation time based on benchmark data."""
@@ -28,7 +35,7 @@ class ORCATimeEstimator:
     def run_benchmark(
         self,
         mol: Mol,
-        functional: str = "PBE0",
+        functional: str = "AM1",
         basis_set: str = "def2-SVP",
         script_path: str = "orca",
         n_processors: int = 1,
@@ -61,17 +68,13 @@ class ORCATimeEstimator:
         logger.info("Running ORCA benchmark calculation...")
         logger.info("=" * 70)
         
-        # Generate 3D coordinates if needed
         if mol.GetNumConformers() == 0:
             AllChem.EmbedMolecule(mol, useExpTorsionAnglePrefs=True, useBasicKnowledge=True)
             if mol.GetNumConformers() == 0:
                 AllChem.EmbedMolecule(mol)
         
-        # Generate input file for SP calculation
         mol_hash = hashlib.sha256(MolToXYZBlock(mol).encode()).hexdigest()
         input_file = self.working_dir / f"benchmark_{mol_hash}.inp"
-        
-        # Create SP input (single point, no optimization)
         input_lines = [
             f"! SP {functional} {basis_set}",
             "",
@@ -91,7 +94,6 @@ class ORCATimeEstimator:
             "* xyz 0 1",
         ]
         
-        # Add coordinates
         xyz_block = MolToXYZBlock(mol)
         xyz_lines = xyz_block.strip().split("\n")
         if len(xyz_lines) > 2:
@@ -101,7 +103,6 @@ class ORCATimeEstimator:
         input_lines.append("*")
         input_file.write_text("\n".join(input_lines))
         
-        # Run ORCA
         if not os.path.isabs(script_path):
             import shutil
             orca_path = shutil.which(script_path)
@@ -110,7 +111,6 @@ class ORCATimeEstimator:
         else:
             orca_path = script_path
         
-        # Build command with optional mpirun
         if use_mpirun:
             import shutil
             if mpirun_path:
@@ -125,18 +125,15 @@ class ORCATimeEstimator:
         else:
             cmd = [orca_path, input_file.name]
         
-        # Build environment
         env = os.environ.copy()
         env["OMP_NUM_THREADS"] = str(n_processors)
         if extra_env:
             env.update(extra_env)
         
-        # Define base_name before using it
         base_name = f"benchmark_{mol_hash}"
         
         start_time = time.time()
         
-        # Save stdout to log file (ORCA may not create .out file for SP calculations)
         log_file_path = self.working_dir / f"{base_name}.log"
         
         with open(log_file_path, "w") as log_file:
@@ -151,15 +148,12 @@ class ORCATimeEstimator:
         
         total_time = time.time() - start_time
         
-        # Use the log file we created, or find ORCA's output file
         output_file = None
         
-        # First, check if our log file exists and has content
         log_file_path = self.working_dir / f"{base_name}.log"
         if log_file_path.exists() and log_file_path.stat().st_size > 0:
             output_file = log_file_path
         else:
-            # Try to find ORCA's output files
             possible_outputs = [
                 self.working_dir / f"{base_name}.out",
                 self.working_dir / f"{base_name}.log",
@@ -287,7 +281,7 @@ class ORCATimeEstimator:
         self,
         mol: Mol,
         method_type: str = "Opt",
-        functional: str = "PBE0",
+        functional: str = "AM1",
         basis_set: str = "def2-SVP",
         n_processors: int = 1,
         n_opt_steps: Optional[int] = None,
@@ -327,10 +321,6 @@ class ORCATimeEstimator:
         scaling_factor = 1.0
         
         if params_differ:
-            logger.info(
-                f"Benchmark parameters differ. Scaling estimation: {', '.join(params_differ)}"
-            )
-            
             # Scale for different number of processors
             # Parallel efficiency: typically 0.7-0.9 for good scaling
             # Time scales approximately as 1/n_proc with efficiency factor
@@ -349,10 +339,6 @@ class ORCATimeEstimator:
                 
                 proc_scaling = (n_proc_old / n_proc_new) * efficiency
                 scaling_factor *= proc_scaling
-                logger.info(
-                    f"Processor scaling: {n_proc_old} -> {n_proc_new} processors "
-                    f"(efficiency: {efficiency:.2f}, factor: {proc_scaling:.3f})"
-                )
             
             # Scale for different functional (rough estimates)
             # Different functionals have different computational costs
@@ -372,10 +358,6 @@ class ORCATimeEstimator:
                 cost_new = functional_costs.get(functional, 1.0)
                 func_scaling = cost_new / cost_old
                 scaling_factor *= func_scaling
-                logger.info(
-                    f"Functional scaling: {benchmark['functional']} -> {functional} "
-                    f"(factor: {func_scaling:.3f})"
-                )
             
             # Scale for different basis set
             # Larger basis sets are more expensive (roughly O(N^3.5) scaling)
@@ -400,10 +382,6 @@ class ORCATimeEstimator:
                 # Use power law scaling for basis set size
                 basis_scaling = (size_new / size_old) ** 3.5
                 scaling_factor *= basis_scaling
-                logger.info(
-                    f"Basis set scaling: {benchmark['basis_set']} -> {basis_set} "
-                    f"(factor: {basis_scaling:.3f})"
-                )
         
         # Get target molecule size
         n_atoms_target = mol.GetNumAtoms()
@@ -452,12 +430,6 @@ class ORCATimeEstimator:
             # Default: assume similar to Opt
             opt_overhead = 2.5
             estimated_time = benchmark["total_time"] * size_scaling * opt_overhead
-        
-        if params_differ:
-            logger.info(
-                f"Estimated time with parameter scaling (total scaling factor: {scaling_factor:.3f}, "
-                f"size scaling: {basis_ratio:.3f})"
-            )
         
         return estimated_time
     

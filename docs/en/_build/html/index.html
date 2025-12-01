@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/logo.png" as="image">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>ORCA Descriptors 0.3.1 documentation</title>
+        <title>ORCA Descriptors 0.3.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">ORCA Descriptors 0.3.1 documentation</div></a>
+      <a href="#"><div class="brand">ORCA Descriptors 0.3.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">ORCA Descriptors 0.3.1 documentation</span>
+  <span class="sidebar-brand-text">ORCA Descriptors 0.3.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -214,7 +214,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pandas_tutorial.html">Pandas Integration Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_processing.html">Batch Processing Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="descriptors.html">Descriptors Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="benchmark.html">Benchmark and Time Estimation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -289,16 +289,19 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#available-descriptors">Available Descriptors</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="pandas_tutorial.html">Pandas Integration Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pandas_tutorial.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pandas_tutorial.html#basic-usage">Basic Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pandas_tutorial.html#working-with-series">Working with Series</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pandas_tutorial.html#progress-tracking">Progress Tracking</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pandas_tutorial.html#example-qsar-dataset-preparation">Example: QSAR Dataset Preparation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pandas_tutorial.html#example-custom-descriptor-selection">Example: Custom Descriptor Selection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pandas_tutorial.html#error-handling">Error Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pandas_tutorial.html#available-descriptors">Available Descriptors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pandas_tutorial.html#tips-and-best-practices">Tips and Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_processing.html">Batch Processing Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="batch_processing.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batch_processing.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batch_processing.html#working-with-pandas">Working with Pandas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batch_processing.html#defining-descriptors-with-xmolecule-api">Defining Descriptors with XMolecule API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batch_processing.html#selecting-descriptors">Selecting Descriptors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batch_processing.html#parallelization">Parallelization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batch_processing.html#progress-tracking">Progress Tracking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batch_processing.html#error-handling">Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batch_processing.html#example-qsar-dataset-preparation">Example: QSAR Dataset Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batch_processing.html#example-batch-processing-with-custom-parameters">Example: Batch Processing with Custom Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batch_processing.html#tips-and-best-practices">Tips and Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="batch_processing.html#available-descriptors">Available Descriptors</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="descriptors.html">Descriptors Reference</a><ul>
@@ -335,6 +338,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-3-4">Version 0.3.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-3-3">Version 0.3.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-3-0">Version 0.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-2-2">Version 0.2.2</a></li>
 </ul>
@@ -411,7 +416,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=5869b996"></script>
+</div><script src="_static/documentation_options.js?v=d198571b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

@@ -3,11 +3,11 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Алфавитный указатель" href="genindex.html"><link rel="search" title="Поиск" href="search.html"><link rel="next" title="Бенчмарк и оценка времени" href="benchmark.html"><link rel="prev" title="Туториал по интеграции с Pandas" href="pandas_tutorial.html">
+<link rel="index" title="Алфавитный указатель" href="genindex.html"><link rel="search" title="Поиск" href="search.html"><link rel="next" title="Бенчмарк и оценка времени" href="benchmark.html"><link rel="prev" title="Туториал по пакетной обработке" href="batch_processing.html">
         <link rel="prefetch" href="_static/logo.png" as="image">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>Справочник дескрипторов - документация ORCA Descriptors 0.3.1</title>
+        <title>Справочник дескрипторов - документация ORCA Descriptors 0.3.3</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">документация ORCA Descriptors 0.3.1</div></a>
+      <a href="index.html"><div class="brand">документация ORCA Descriptors 0.3.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">документация ORCA Descriptors 0.3.1</span>
+  <span class="sidebar-brand-text">документация ORCA Descriptors 0.3.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Поиск" name="q" aria-label="Поиск">
@@ -214,7 +214,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Установка</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Туториал</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pandas_tutorial.html">Туториал по интеграции с Pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_processing.html">Туториал по пакетной обработке</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Справочник дескрипторов</a></li>
 <li class="toctree-l1"><a class="reference internal" href="benchmark.html">Бенчмарк и оценка времени</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -270,86 +270,119 @@
 <h3>homo_energy<a class="headerlink" href="#homo-energy" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">homo_energy(mol)</span></code></p>
 <p><strong>Описание:</strong> Возвращает энергию высшей занятой молекулярной орбитали (HOMO) в электронвольтах (эВ).</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Энергия HOMO в эВ (float, обычно отрицательное значение)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Требует успешной сходимости SCF
-- Работает с типами расчетов <code class="docutils literal notranslate"><span class="pre">SP</span></code> и <code class="docutils literal notranslate"><span class="pre">Opt</span></code></p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0.0, если энергию HOMO невозможно извлечь из вывода ORCA
-- Для открытооболочечных систем возвращает энергию альфа-HOMO</p>
-<p><strong>Примечания по реализации:</strong>
-- Извлекается напрямую из вывода ORCA
-- Использует кешированные результаты, если доступны</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует успешной сходимости SCF</p></li>
+<li><p>Работает с типами расчетов <code class="docutils literal notranslate"><span class="pre">SP</span></code> и <code class="docutils literal notranslate"><span class="pre">Opt</span></code></p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0.0, если энергию HOMO невозможно извлечь из вывода ORCA</p></li>
+<li><p>Для открытооболочечных систем возвращает энергию альфа-HOMO</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Извлекается напрямую из вывода ORCA</p></li>
+<li><p>Использует кешированные результаты, если доступны</p></li>
+</ul>
 </section>
 <section id="lumo-energy">
 <h3>lumo_energy<a class="headerlink" href="#lumo-energy" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">lumo_energy(mol)</span></code></p>
 <p><strong>Описание:</strong> Возвращает энергию низшей незанятой молекулярной орбитали (LUMO) в электронвольтах (эВ).</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Энергия LUMO в эВ (float, обычно положительное или небольшое отрицательное значение)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Требует успешной сходимости SCF
-- Работает с типами расчетов <code class="docutils literal notranslate"><span class="pre">SP</span></code> и <code class="docutils literal notranslate"><span class="pre">Opt</span></code></p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0.0, если энергию LUMO невозможно извлечь из вывода ORCA
-- Для открытооболочечных систем возвращает энергию альфа-LUMO</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует успешной сходимости SCF</p></li>
+<li><p>Работает с типами расчетов <code class="docutils literal notranslate"><span class="pre">SP</span></code> и <code class="docutils literal notranslate"><span class="pre">Opt</span></code></p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0.0, если энергию LUMO невозможно извлечь из вывода ORCA</p></li>
+<li><p>Для открытооболочечных систем возвращает энергию альфа-LUMO</p></li>
+</ul>
 </section>
 <section id="gap-energy">
 <h3>gap_energy<a class="headerlink" href="#gap-energy" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">gap_energy(mol)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет разрыв энергии HOMO-LUMO (ширина запрещенной зоны) в электронвольтах (эВ).</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Разрыв HOMO-LUMO в эВ (float, всегда положительное значение)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Требует обе энергии: HOMO и LUMO</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует обе энергии: HOMO и LUMO</p></li>
+</ul>
 <p><strong>Расчет:</strong> <code class="docutils literal notranslate"><span class="pre">gap</span> <span class="pre">=</span> <span class="pre">LUMO</span> <span class="pre">-</span> <span class="pre">HOMO</span></code></p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0.0, если отсутствует энергия HOMO или LUMO</p>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0.0, если отсутствует энергия HOMO или LUMO</p></li>
+</ul>
 </section>
 <section id="total-energy">
 <h3>total_energy<a class="headerlink" href="#total-energy" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">total_energy(mol)</span></code></p>
 <p><strong>Описание:</strong> Возвращает полную электронную энергию в Хартри (атомные единицы).</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Полная энергия в Хартри (float, обычно большое отрицательное значение)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Работает с типами расчетов <code class="docutils literal notranslate"><span class="pre">SP</span></code> и <code class="docutils literal notranslate"><span class="pre">Opt</span></code></p>
-<p><strong>Ограничения:</strong>
-- Для полуэмпирических методов (AM1, PM3 и т.д.) энергии менее отрицательны, чем для DFT
-- Возвращает 0.0, если энергию невозможно извлечь</p>
-<p><strong>Примечания по реализации:</strong>
-- Для DFT: обычно от -100 до -1000 Хартри для малых молекул
-- Для AM1: обычно от -5 до -50 Хартри для малых молекул</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Работает с типами расчетов <code class="docutils literal notranslate"><span class="pre">SP</span></code> и <code class="docutils literal notranslate"><span class="pre">Opt</span></code></p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Для полуэмпирических методов (AM1, PM3 и т.д.) энергии менее отрицательны, чем для DFT</p></li>
+<li><p>Возвращает 0.0, если энергию невозможно извлечь</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Для DFT: обычно от -100 до -1000 Хартри для малых молекул</p></li>
+<li><p>Для AM1: обычно от -5 до -50 Хартри для малых молекул</p></li>
+</ul>
 </section>
 <section id="mo-energy">
 <h3>mo_energy<a class="headerlink" href="#mo-energy" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">mo_energy(mol,</span> <span class="pre">index)</span></code></p>
 <p><strong>Описание:</strong> Возвращает энергию конкретной молекулярной орбитали по индексу.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit
-- <code class="docutils literal notranslate"><span class="pre">index</span></code>: Индекс орбитали (int)</p>
-<blockquote>
-<div><ul class="simple">
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">index</span></code>: Индекс орбитали (int)</p>
+<ul>
 <li><p>Отрицательные индексы: -1 = HOMO, -2 = HOMO-1 и т.д.</p></li>
 <li><p>Положительные индексы: 0 = первая орбиталь, 1 = вторая орбиталь и т.д.</p></li>
 </ul>
-</div></blockquote>
+</li>
+</ul>
 <p><strong>Возвращает:</strong> Энергия орбитали в эВ (float)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Требует энергии орбиталей в выводе ORCA</p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0.0, если индекс вне диапазона
-- Может не работать со всеми форматами вывода ORCA</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует энергии орбиталей в выводе ORCA</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0.0, если индекс вне диапазона</p></li>
+<li><p>Может не работать со всеми форматами вывода ORCA</p></li>
+</ul>
 <p><strong>Пример:</strong></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">homo_minus_1</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">mo_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">index</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Энергия HOMO-1</span>
 </pre></div>
@@ -362,85 +395,231 @@
 <h3>ch_potential<a class="headerlink" href="#ch-potential" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">ch_potential(mol)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет химический потенциал (μ) в электронвольтах (эВ). Химический потенциал определяется как μ = (HOMO + LUMO) / 2.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Химический потенциал в эВ (float, обычно отрицательное значение для стабильных молекул)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Требует обе энергии: HOMO и LUMO</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует обе энергии: HOMO и LUMO</p></li>
+</ul>
 <p><strong>Расчет:</strong> <code class="docutils literal notranslate"><span class="pre">μ</span> <span class="pre">=</span> <span class="pre">(HOMO</span> <span class="pre">+</span> <span class="pre">LUMO)</span> <span class="pre">/</span> <span class="pre">2</span></code></p>
-<p><strong>Ограничения:</strong>
-- Основан на приближении теоремы Купманса
-- Может быть неточным для систем с сильной электронной корреляцией</p>
-<p><strong>Физический смысл:</strong>
-- Отрицательные значения указывают на стабильные молекулы
-- Связан с электроотрицательностью: χ = -μ</p>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Основан на приближении теоремы Купманса</p></li>
+<li><p>Может быть неточным для систем с сильной электронной корреляцией</p></li>
+</ul>
+<p><strong>Физический смысл:</strong></p>
+<ul class="simple">
+<li><p>Отрицательные значения указывают на стабильные молекулы</p></li>
+<li><p>Связан с электроотрицательностью: χ = -μ</p></li>
+</ul>
 </section>
 <section id="electronegativity">
 <h3>electronegativity<a class="headerlink" href="#electronegativity" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">electronegativity(mol)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет электроотрицательность (χ) в электронвольтах (эВ). Определяется как χ = -μ = -(HOMO + LUMO) / 2.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Электроотрицательность в эВ (float, всегда положительное значение)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Требует обе энергии: HOMO и LUMO</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует обе энергии: HOMO и LUMO</p></li>
+</ul>
 <p><strong>Расчет:</strong> <code class="docutils literal notranslate"><span class="pre">χ</span> <span class="pre">=</span> <span class="pre">-ch_potential(mol)</span></code></p>
 </section>
 <section id="abs-hardness">
 <h3>abs_hardness<a class="headerlink" href="#abs-hardness" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">abs_hardness(mol)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет абсолютную жесткость (η) в электронвольтах (эВ). Жесткость измеряет сопротивление переносу электронов.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Жесткость в эВ (float, всегда положительное значение)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Требует обе энергии: HOMO и LUMO</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует обе энергии: HOMO и LUMO</p></li>
+</ul>
 <p><strong>Расчет:</strong> <code class="docutils literal notranslate"><span class="pre">η</span> <span class="pre">=</span> <span class="pre">(LUMO</span> <span class="pre">-</span> <span class="pre">HOMO)</span> <span class="pre">/</span> <span class="pre">2</span></code></p>
-<p><strong>Физический смысл:</strong>
-- Большие значения указывают на жесткие молекулы (трудно поляризуемые)
-- Малые значения указывают на мягкие молекулы (легко поляризуемые)
-- Связан с химической реакционной способностью: жесткие молекулы предпочитают жесткие реагенты</p>
+<p><strong>Физический смысл:</strong></p>
+<ul class="simple">
+<li><p>Большие значения указывают на жесткие молекулы (трудно поляризуемые)</p></li>
+<li><p>Малые значения указывают на мягкие молекулы (легко поляризуемые)</p></li>
+<li><p>Связан с химической реакционной способностью: жесткие молекулы предпочитают жесткие реагенты</p></li>
+</ul>
 </section>
 <section id="abs-softness">
 <h3>abs_softness<a class="headerlink" href="#abs-softness" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">abs_softness(mol)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет абсолютную мягкость (S) в 1/эВ. Мягкость является обратной величиной жесткости.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Мягкость в 1/эВ (float, всегда положительное значение)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Требует расчета жесткости</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует расчета жесткости</p></li>
+</ul>
 <p><strong>Расчет:</strong> <code class="docutils literal notranslate"><span class="pre">S</span> <span class="pre">=</span> <span class="pre">1</span> <span class="pre">/</span> <span class="pre">(2</span> <span class="pre">*</span> <span class="pre">η)</span></code></p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0.0, если жесткость равна нулю или отрицательна</p>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0.0, если жесткость равна нулю или отрицательна</p></li>
+</ul>
 </section>
 <section id="frontier-electron-density">
 <h3>frontier_electron_density<a class="headerlink" href="#frontier-electron-density" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">frontier_electron_density(mol)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет плотность фронтирных электронов для каждого тяжелого атома, указывая центры реакций.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
-<p><strong>Возвращает:</strong> Список кортежей <code class="docutils literal notranslate"><span class="pre">(atom,</span> <span class="pre">density_value)</span></code> только для тяжелых атомов</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Требует атомных зарядов из вывода ORCA</p>
-<p><strong>Ограничения:</strong>
-- Возвращает только тяжелые атомы (C, N, O и т.д.), атомы водорода исключены
-- Использует абсолютное значение атомных зарядов
-- Если заряд равен нулю, присваивает значения по умолчанию:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>C, N, O: 0.15</p></li>
-<li><p>Другие атомы: 0.1</p></li>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
 </ul>
-</div></blockquote>
-<p><strong>Примечания по реализации:</strong>
-- Приближенный метод, основанный на атомных зарядах
-- Может неточно отражать истинную плотность фронтирных электронов для всех систем</p>
+<p><strong>Возвращает:</strong> Список кортежей <code class="docutils literal notranslate"><span class="pre">(atom,</span> <span class="pre">density_value)</span></code> только для тяжелых атомов</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует атомных зарядов из вывода ORCA</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает только тяжелые атомы (C, N, O и т.д.), атомы водорода исключены</p></li>
+<li><p>Использует абсолютное значение атомных зарядов</p></li>
+<li><p>Если заряд равен нулю, присваивает значения по умолчанию:
+- C, N, O: 0.15
+- Другие атомы: 0.1</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Приближенный метод, основанный на атомных зарядах</p></li>
+<li><p>Может неточно отражать истинную плотность фронтирных электронов для всех систем</p></li>
+</ul>
+</section>
+<section id="get-nmr-shifts">
+<h3>get_nmr_shifts<a class="headerlink" href="#get-nmr-shifts" title="Ссылка на этот заголовок">¶</a></h3>
+<p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">get_nmr_shifts(mol,</span> <span class="pre">atom_type='C')</span></code></p>
+<p><strong>Описание:</strong> Возвращает химические сдвиги NMR для атомов указанного типа.</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">atom_type</span></code>: Тип атома для фильтрации (например, „C“, „H“, „N“). По умолчанию: „C“</p></li>
+</ul>
+<p><strong>Возвращает:</strong> Словарь, сопоставляющий индекс атома с химическим сдвигом в ppm (dict[int, float])</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает с методами DFT (недоступно для полуэмпирических методов)</p></li>
+<li><p>Требует ключевого слова <code class="docutils literal notranslate"><span class="pre">NMR</span></code> во входном файле ORCA</p></li>
+<li><p>Работает с типами расчетов <code class="docutils literal notranslate"><span class="pre">SP</span></code> и <code class="docutils literal notranslate"><span class="pre">Opt</span></code></p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Доступно только для методов DFT</p></li>
+<li><p>Возвращает пустой словарь, если атомы указанного типа не найдены</p></li>
+<li><p>Вызывает <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, если химические сдвиги NMR не найдены в выводе ORCA</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>ORCA выводит константы экранирования (σ), химические сдвиги рассчитываются как: δ = 184.1 - σ (для 13C)</p></li>
+<li><p>Референс: TMS (σ_ref ~ 184 ppm для 13C, ~31 ppm для 1H)</p></li>
+<li><p>Типичные сдвиги ароматического углерода: 100-200 ppm</p></li>
+<li><p>Типичные сдвиги алифатического углерода: 0-50 ppm</p></li>
+</ul>
+<p><strong>Пример:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Получить все химические сдвиги углерода</span>
+<span class="n">carbon_shifts</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">get_nmr_shifts</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">atom_type</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+
+<span class="c1"># Получить химические сдвиги водорода</span>
+<span class="n">hydrogen_shifts</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">get_nmr_shifts</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">atom_type</span><span class="o">=</span><span class="s1">&#39;H&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="get-mayer-indices">
+<h3>get_mayer_indices<a class="headerlink" href="#get-mayer-indices" title="Ссылка на этот заголовок">¶</a></h3>
+<p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">get_mayer_indices(mol,</span> <span class="pre">atom_type_i='C',</span> <span class="pre">atom_type_j='C')</span></code></p>
+<p><strong>Описание:</strong> Возвращает индексы Майера для связей между атомами указанных типов. Индекс Майера является мерой прочности связи и ароматичности.</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">atom_type_i</span></code>: Первый тип атома для фильтрации (например, „C“, „H“, „N“). По умолчанию: „C“</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">atom_type_j</span></code>: Второй тип атома для фильтрации (например, „C“, „H“, „N“). По умолчанию: „C“</p></li>
+</ul>
+<p><strong>Возвращает:</strong> Список кортежей <code class="docutils literal notranslate"><span class="pre">(atom_index_i,</span> <span class="pre">atom_index_j,</span> <span class="pre">index_value)</span></code></p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует ключевого слова <code class="docutils literal notranslate"><span class="pre">Mayer</span></code> во входном файле ORCA</p></li>
+<li><p>Работает с типами расчетов <code class="docutils literal notranslate"><span class="pre">SP</span></code> и <code class="docutils literal notranslate"><span class="pre">Opt</span></code></p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Включает только связи с индексом &gt;= 0.3 (значимые связи)</p></li>
+<li><p>Возвращает пустой список, если связи указанных типов не найдены</p></li>
+<li><p>Вызывает <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, если индексы Майера не найдены в выводе ORCA</p></li>
+<li><p>Для метода AM1 значения могут значительно отличаться от DFT (обычно выше)</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Индекс Майера обычно находится в диапазоне от 0.0 (нет связи) до ~2.0 (тройная связь)</p></li>
+<li><p>Для ароматических C-C связей (например, бензол) ожидаемое значение ~1.4</p></li>
+<li><p>Для одинарных связей ожидаемое значение ~1.0</p></li>
+<li><p>Для двойных связей ожидаемое значение ~1.8-2.0</p></li>
+</ul>
+<p><strong>Пример:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Получить все индексы C-C связей</span>
+<span class="n">cc_indices</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">get_mayer_indices</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">atom_type_i</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="n">atom_type_j</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+
+<span class="c1"># Получить индексы C-H связей</span>
+<span class="n">ch_indices</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">get_mayer_indices</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">atom_type_i</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="n">atom_type_j</span><span class="o">=</span><span class="s1">&#39;H&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="nbo-stabilization-energy">
+<h3>nbo_stabilization_energy<a class="headerlink" href="#nbo-stabilization-energy" title="Ссылка на этот заголовок">¶</a></h3>
+<p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">nbo_stabilization_energy(mol,</span> <span class="pre">donor='LP(O)',</span> <span class="pre">acceptor='PiStar(C=O)')</span></code></p>
+<p><strong>Описание:</strong> Возвращает энергию стабилизации NBO (Natural Bond Orbital) E(2) для конкретного донор-акцепторного взаимодействия. E(2) измеряет энергию делокализации от донорной орбитали к акцепторной орбитали.</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">donor</span></code>: Описание донорной орбитали (например, „LP(O)“ для неподеленной пары на кислороде). По умолчанию: „LP(O)“</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">acceptor</span></code>: Описание акцепторной орбитали (например, „PiStar(C=O)“ для π* орбитали C=O). По умолчанию: „PiStar(C=O)“</p></li>
+</ul>
+<p><strong>Возвращает:</strong> Энергия стабилизации в ккал/моль (float)</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает только с методами DFT (недоступно для полуэмпирических методов)</p></li>
+<li><p>Требует ключевого слова <code class="docutils literal notranslate"><span class="pre">NBO</span></code> во входном файле ORCA</p></li>
+<li><p>Требует установки переменной окружения <code class="docutils literal notranslate"><span class="pre">NBOEXE</span></code>, указывающей на исполняемый файл NBO (nbo6.exe или nbo5.exe)</p></li>
+<li><p>Работает с типами расчетов <code class="docutils literal notranslate"><span class="pre">SP</span></code> и <code class="docutils literal notranslate"><span class="pre">Opt</span></code></p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Доступно только для методов DFT</p></li>
+<li><p>Требует установки программы NBO и настройки переменной окружения NBOEXE</p></li>
+<li><p>Вызывает <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, если энергии стабилизации NBO не найдены в выводе ORCA</p></li>
+<li><p>Если точная пара донор-акцептор не найдена, возвращает максимальную доступную энергию стабилизации</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Значения E(2) обычно находятся в диапазоне 5-50 ккал/моль для значимых взаимодействий</p></li>
+<li><p>Типичные взаимодействия:
+- n → π* (неподеленная пара к π*): 5-30 ккал/моль
+- σ → σ*: 1-10 ккал/моль
+- π → π*: 1-5 ккал/моль</p></li>
+<li><p>Более высокие значения E(2) указывают на более сильную делокализацию и резонансную стабилизацию</p></li>
+</ul>
+<p><strong>Пример:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Получить энергию взаимодействия n → π* в ацетоне</span>
+<span class="n">e2</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">nbo_stabilization_energy</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">donor</span><span class="o">=</span><span class="s1">&#39;LP(O)&#39;</span><span class="p">,</span> <span class="n">acceptor</span><span class="o">=</span><span class="s1">&#39;PiStar(C=O)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="id3">
@@ -449,34 +628,48 @@
 <h3>get_atom_charges<a class="headerlink" href="#get-atom-charges" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">get_atom_charges(mol)</span></code></p>
 <p><strong>Описание:</strong> Возвращает атомные заряды Малликена для всех атомов.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Словарь, сопоставляющий индекс атома с зарядом (dict[int, float])</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Требует анализа популяции Малликена в выводе ORCA</p>
-<p><strong>Ограничения:</strong>
-- Заряды Малликена зависят от базисного набора
-- Могут быть неточными для систем с диффузными базисными функциями
-- Заряды в атомных единицах (e)</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует анализа популяции Малликена в выводе ORCA</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Заряды Малликена зависят от базисного набора</p></li>
+<li><p>Могут быть неточными для систем с диффузными базисными функциями</p></li>
+<li><p>Заряды в атомных единицах (e)</p></li>
+</ul>
 </section>
 <section id="get-min-h-charge">
 <h3>get_min_h_charge<a class="headerlink" href="#get-min-h-charge" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">get_min_h_charge(mol,</span> <span class="pre">method=&quot;ESP&quot;)</span></code></p>
 <p><strong>Описание:</strong> Возвращает минимальный чистый атомный заряд для атомов водорода.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit
-- <code class="docutils literal notranslate"><span class="pre">method</span></code>: Метод расчета заряда (в настоящее время поддерживается только «ESP», но используется Малликен как резервный вариант)</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">method</span></code>: Метод расчета заряда (в настоящее время поддерживается только «ESP», но используется Малликен как резервный вариант)</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Минимальный заряд водорода в атомных единицах (float)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Требует атомных зарядов из вывода ORCA
-- Молекула должна содержать атомы водорода</p>
-<p><strong>Ограничения:</strong>
-- В настоящее время использует заряды Малликена независимо от параметра <code class="docutils literal notranslate"><span class="pre">method</span></code>
-- Возвращает 0.0, если атомы водорода не найдены</p>
-<p><strong>Примечания по реализации:</strong>
-- Параметр <code class="docutils literal notranslate"><span class="pre">method=&quot;ESP&quot;</span></code> принимается для совместимости API, но в настоящее время использует заряды Малликена</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует атомных зарядов из вывода ORCA</p></li>
+<li><p>Молекула должна содержать атомы водорода</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>В настоящее время использует заряды Малликена независимо от параметра <code class="docutils literal notranslate"><span class="pre">method</span></code></p></li>
+<li><p>Возвращает 0.0, если атомы водорода не найдены</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Параметр <code class="docutils literal notranslate"><span class="pre">method=&quot;ESP&quot;</span></code> принимается для совместимости API, но в настоящее время использует заряды Малликена</p></li>
+</ul>
 </section>
 </section>
 <section id="id4">
@@ -485,48 +678,70 @@
 <h3>gibbs_free_energy<a class="headerlink" href="#gibbs-free-energy" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">gibbs_free_energy(mol)</span></code></p>
 <p><strong>Описание:</strong> Возвращает энергию Гиббса в Хартри. Включает электронную энергию и термические поправки.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Энергия Гиббса в Хартри (float)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Требует расчета частот или термических поправок в выводе ORCA
-- Возвращает полную энергию, если энергия Гиббса недоступна</p>
-<p><strong>Ограничения:</strong>
-- Для <code class="docutils literal notranslate"><span class="pre">method_type=&quot;SP&quot;</span></code> может возвращать полную энергию вместо истинной энергии Гиббса
-- Термические поправки требуют расчета частот (недоступен в SP расчетах)</p>
-<p><strong>Примечания по реализации:</strong>
-- Если энергия Гиббса не найдена в выводе, возвращает полную энергию как резервный вариант</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Требует расчета частот или термических поправок в выводе ORCA</p></li>
+<li><p>Возвращает полную энергию, если энергия Гиббса недоступна</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Для <code class="docutils literal notranslate"><span class="pre">method_type=&quot;SP&quot;</span></code> может возвращать полную энергию вместо истинной энергии Гиббса</p></li>
+<li><p>Термические поправки требуют расчета частот (недоступен в SP расчетах)</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Если энергия Гиббса не найдена в выводе, возвращает полную энергию как резервный вариант</p></li>
+</ul>
 </section>
 <section id="entropy">
 <h3>entropy<a class="headerlink" href="#entropy" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">entropy(mol)</span></code></p>
 <p><strong>Описание:</strong> Возвращает энтропию в Дж/(моль·К).</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Энтропия в Дж/(моль·К) (float, всегда положительное значение)</p>
-<p><strong>Требования:</strong>
-- Требует расчета частот в ORCA
-- Может быть недоступна для <code class="docutils literal notranslate"><span class="pre">method_type=&quot;SP&quot;</span></code></p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0.0, если энтропия не найдена в выводе ORCA
-- Требует колебательных частот, которые доступны только после оптимизации геометрии с расчетом частот</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Требует расчета частот в ORCA</p></li>
+<li><p>Может быть недоступна для <code class="docutils literal notranslate"><span class="pre">method_type=&quot;SP&quot;</span></code></p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0.0, если энтропия не найдена в выводе ORCA</p></li>
+<li><p>Требует колебательных частот, которые доступны только после оптимизации геометрии с расчетом частот</p></li>
+</ul>
 </section>
 <section id="enthalpy">
 <h3>enthalpy<a class="headerlink" href="#enthalpy" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">enthalpy(mol)</span></code></p>
 <p><strong>Описание:</strong> Возвращает энтальпию в Хартри. Включает электронную энергию и термические поправки.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Энтальпия в Хартри (float)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Возвращает полную энергию, если энтальпия недоступна</p>
-<p><strong>Ограничения:</strong>
-- Для <code class="docutils literal notranslate"><span class="pre">method_type=&quot;SP&quot;</span></code> возвращает полную энергию (без термических поправок)
-- Термические поправки требуют расчета частот</p>
-<p><strong>Примечания по реализации:</strong>
-- В настоящее время возвращает полную энергию (термические поправки не реализованы)</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Возвращает полную энергию, если энтальпия недоступна</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Для <code class="docutils literal notranslate"><span class="pre">method_type=&quot;SP&quot;</span></code> возвращает полную энергию (без термических поправок)</p></li>
+<li><p>Термические поправки требуют расчета частот</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>В настоящее время возвращает полную энергию (термические поправки не реализованы)</p></li>
+</ul>
 </section>
 </section>
 <section id="id5">
@@ -535,86 +750,122 @@
 <h3>molecular_volume<a class="headerlink" href="#molecular-volume" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">molecular_volume(mol)</span></code></p>
 <p><strong>Описание:</strong> Возвращает молекулярный объем в кубических ангстремах (Å³).</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Молекулярный объем в Å³ (float)</p>
-<p><strong>Требования:</strong>
-- Требует оптимизированной геометрии (рекомендуется <code class="docutils literal notranslate"><span class="pre">method_type=&quot;Opt&quot;</span></code>)
-- Работает со всеми DFT и полуэмпирическими методами</p>
-<p><strong>Ограничения:</strong>
-- Для <code class="docutils literal notranslate"><span class="pre">method_type=&quot;SP&quot;</span></code> может использовать приближенные значения
-- Если объем &lt; 10.0 Å³, оценивает объем по молекулярной массе: <code class="docutils literal notranslate"><span class="pre">volume</span> <span class="pre">=</span> <span class="pre">MW</span> <span class="pre">×</span> <span class="pre">1.0</span></code></p>
-<p><strong>Примечания по реализации:</strong>
-- Извлекается из вывода ORCA, если доступен
-- Резервная оценка на основе молекулярной массы является приближенной</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Требует оптимизированной геометрии (рекомендуется <code class="docutils literal notranslate"><span class="pre">method_type=&quot;Opt&quot;</span></code>)</p></li>
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Для <code class="docutils literal notranslate"><span class="pre">method_type=&quot;SP&quot;</span></code> может использовать приближенные значения</p></li>
+<li><p>Если объем &lt; 10.0 Å³, оценивает объем по молекулярной массе: <code class="docutils literal notranslate"><span class="pre">volume</span> <span class="pre">=</span> <span class="pre">MW</span> <span class="pre">×</span> <span class="pre">1.0</span></code></p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Извлекается из вывода ORCA, если доступен</p></li>
+<li><p>Резервная оценка на основе молекулярной массы является приближенной</p></li>
+</ul>
 </section>
 <section id="get-bond-lengths">
 <h3>get_bond_lengths<a class="headerlink" href="#get-bond-lengths" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">get_bond_lengths(mol,</span> <span class="pre">atom1,</span> <span class="pre">atom2)</span></code></p>
 <p><strong>Описание:</strong> Возвращает длины связей между атомами указанных типов.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit
-- <code class="docutils literal notranslate"><span class="pre">atom1</span></code>: Первый тип атома (например, «C», «N», «O»)
-- <code class="docutils literal notranslate"><span class="pre">atom2</span></code>: Второй тип атома (например, «C», «H»)</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">atom1</span></code>: Первый тип атома (например, «C», «N», «O»)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">atom2</span></code>: Второй тип атома (например, «C», «H»)</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Список кортежей <code class="docutils literal notranslate"><span class="pre">(atom_index_1,</span> <span class="pre">atom_index_2,</span> <span class="pre">length)</span></code> в ангстремах</p>
-<p><strong>Требования:</strong>
-- Требует оптимизированной геометрии (рекомендуется <code class="docutils literal notranslate"><span class="pre">method_type=&quot;Opt&quot;</span></code>)
-- Работает со всеми DFT и полуэмпирическими методами</p>
-<p><strong>Ограничения:</strong>
-- Возвращает пустой список, если связи указанных типов не найдены
-- Длины связей из оптимизированной геометрии, могут отличаться для SP расчетов</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Требует оптимизированной геометрии (рекомендуется <code class="docutils literal notranslate"><span class="pre">method_type=&quot;Opt&quot;</span></code>)</p></li>
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает пустой список, если связи указанных типов не найдены</p></li>
+<li><p>Длины связей из оптимизированной геометрии, могут отличаться для SP расчетов</p></li>
+</ul>
 </section>
 <section id="xy-shadow">
 <h3>xy_shadow<a class="headerlink" href="#xy-shadow" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">xy_shadow(mol)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет площадь проекции XY (площадь тени на плоскости XY) в квадратных ангстремах (Å²).</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Площадь тени XY в Å² (float)</p>
-<p><strong>Требования:</strong>
-- Требует оптимизированной геометрии с 3D координатами
-- Работает со всеми DFT и полуэмпирическими методами</p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0.0, если координаты недоступны
-- Простой расчет ограничивающего прямоугольника, не учитывает радиусы атомов
-- Чувствителен к ориентации молекулы</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Требует оптимизированной геометрии с 3D координатами</p></li>
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0.0, если координаты недоступны</p></li>
+<li><p>Простой расчет ограничивающего прямоугольника, не учитывает радиусы атомов</p></li>
+<li><p>Чувствителен к ориентации молекулы</p></li>
+</ul>
 <p><strong>Расчет:</strong> <code class="docutils literal notranslate"><span class="pre">area</span> <span class="pre">=</span> <span class="pre">(x_max</span> <span class="pre">-</span> <span class="pre">x_min)</span> <span class="pre">×</span> <span class="pre">(y_max</span> <span class="pre">-</span> <span class="pre">y_min)</span></code></p>
-<p><strong>Примечания по реализации:</strong>
-- Использует ограничивающий прямоугольник атомных координат
-- Не учитывает радиусы атомов или форму молекулы</p>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Использует ограничивающий прямоугольник атомных координат</p></li>
+<li><p>Не учитывает радиусы атомов или форму молекулы</p></li>
+</ul>
 </section>
 <section id="polar-surface-area">
 <h3>polar_surface_area<a class="headerlink" href="#polar-surface-area" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">polar_surface_area(mol)</span></code></p>
 <p><strong>Описание:</strong> Возвращает полярную площадь поверхности (PSA) в квадратных ангстремах (Å²).</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> PSA в Å² (float)</p>
-<p><strong>Требования:</strong>
-- Требует оптимизированной геометрии
-- Работает со всеми DFT и полуэмпирическими методами</p>
-<p><strong>Ограничения:</strong>
-- Может быть недоступна для <code class="docutils literal notranslate"><span class="pre">method_type=&quot;SP&quot;</span></code>
-- Возвращает 0.0, если PSA не найдена в выводе ORCA</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Требует оптимизированной геометрии</p></li>
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Может быть недоступна для <code class="docutils literal notranslate"><span class="pre">method_type=&quot;SP&quot;</span></code></p></li>
+<li><p>Возвращает 0.0, если PSA не найдена в выводе ORCA</p></li>
+</ul>
 </section>
 <section id="solvent-accessible-surface-area">
 <h3>solvent_accessible_surface_area<a class="headerlink" href="#solvent-accessible-surface-area" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">solvent_accessible_surface_area(mol)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет доступную площадь поверхности растворителя (SASA) в квадратных ангстремах (Å²).</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> SASA в Å² (float)</p>
-<p><strong>Требования:</strong>
-- Требует оптимизированной геометрии с 3D координатами из ORCA
-- Использует реализацию FreeSASA из RDKit</p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0.0, если координаты недоступны
-- Если расчет SASA не удался, оценивает по молекулярному объему: <code class="docutils literal notranslate"><span class="pre">SASA</span> <span class="pre">≈</span> <span class="pre">4</span> <span class="pre">×</span> <span class="pre">volume^(2/3)</span></code>
-- Требует RDKit с поддержкой FreeSASA</p>
-<p><strong>Примечания по реализации:</strong>
-- Использует радиус зонда 1.4 Å (молекула воды)
-- Атомные радиусы скорректированы для расчета SASA
-- Резервная оценка является приближенной</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Требует оптимизированной геометрии с 3D координатами из ORCA</p></li>
+<li><p>Использует реализацию FreeSASA из RDKit</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0.0, если координаты недоступны</p></li>
+<li><p>Если расчет SASA не удался, оценивает по молекулярному объему: <code class="docutils literal notranslate"><span class="pre">SASA</span> <span class="pre">≈</span> <span class="pre">4</span> <span class="pre">×</span> <span class="pre">volume^(2/3)</span></code></p></li>
+<li><p>Требует RDKit с поддержкой FreeSASA</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Использует радиус зонда 1.4 Å (молекула воды)</p></li>
+<li><p>Атомные радиусы скорректированы для расчета SASA</p></li>
+<li><p>Резервная оценка является приближенной</p></li>
+</ul>
 </section>
 </section>
 <section id="id6">
@@ -623,35 +874,49 @@
 <h3>dipole_moment<a class="headerlink" href="#dipole-moment" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">dipole_moment(mol)</span></code></p>
 <p><strong>Описание:</strong> Возвращает величину дипольного момента в Дебай.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Дипольный момент в Дебай (float, всегда положительное значение)</p>
-<p><strong>Требования:</strong>
-- Работает со всеми DFT и полуэмпирическими методами
-- Работает с типами расчетов <code class="docutils literal notranslate"><span class="pre">SP</span></code> и <code class="docutils literal notranslate"><span class="pre">Opt</span></code></p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0.0, если дипольный момент невозможно извлечь
-- Для симметричных молекул должен быть близок к нулю</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+<li><p>Работает с типами расчетов <code class="docutils literal notranslate"><span class="pre">SP</span></code> и <code class="docutils literal notranslate"><span class="pre">Opt</span></code></p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0.0, если дипольный момент невозможно извлечь</p></li>
+<li><p>Для симметричных молекул должен быть близок к нулю</p></li>
+</ul>
 </section>
 <section id="meric">
 <h3>meric<a class="headerlink" href="#meric" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">meric(mol)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет MERIC (Минимальный индекс электрофильности для углерода), предсказывая участки, восприимчивые к нуклеофильной атаке.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Минимальное значение MERIC в эВ (float, обычно отрицательное для электрофильных углеродов)</p>
-<p><strong>Требования:</strong>
-- Требует оптимизированной геометрии с 3D координатами
-- Требует атомных зарядов
-- Работает со всеми DFT и полуэмпирическими методами</p>
-<p><strong>Ограничения:</strong>
-- Рассматривает только атомы углерода, связанные с гетероатомами (O, N и т.д.)
-- Возвращает 0.0, если подходящие атомы углерода не найдены
-- Приближенный расчет на основе атомных зарядов и расстояний</p>
-<p><strong>Примечания по реализации:</strong>
-- MERIC отрицателен для электрофильных углеродов (восприимчивых к нуклеофильной атаке)
-- Расчет использует атомные заряды и геометрические расстояния
-- Может быть неточным для всех типов реакций</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Требует оптимизированной геометрии с 3D координатами</p></li>
+<li><p>Требует атомных зарядов</p></li>
+<li><p>Работает со всеми DFT и полуэмпирическими методами</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Рассматривает только атомы углерода, связанные с гетероатомами (O, N и т.д.)</p></li>
+<li><p>Возвращает 0.0, если подходящие атомы углерода не найдены</p></li>
+<li><p>Приближенный расчет на основе атомных зарядов и расстояний</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>MERIC отрицателен для электрофильных углеродов (восприимчивых к нуклеофильной атаке)</p></li>
+<li><p>Расчет использует атомные заряды и геометрические расстояния</p></li>
+<li><p>Может быть неточным для всех типов реакций</p></li>
+</ul>
 </section>
 </section>
 <section id="id7">
@@ -660,52 +925,74 @@
 <h3>num_rotatable_bonds<a class="headerlink" href="#num-rotatable-bonds" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">num_rotatable_bonds(mol)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет количество вращающихся связей (Nrot), измеряя гибкость молекулы.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Количество вращающихся связей (int)</p>
-<p><strong>Требования:</strong>
-- Не требует расчета ORCA (использует только RDKit)
-- Работает с любой молекулой</p>
-<p><strong>Ограничения:</strong>
-- Особый случай: Ацетон (CC(=O)C) возвращает 0 из-за симметрии
-- Вращающиеся связи - это одинарные связи не в циклах и не терминальные</p>
-<p><strong>Примечания по реализации:</strong>
-- Использует <code class="docutils literal notranslate"><span class="pre">CalcNumRotatableBonds</span></code> из RDKit
-- Исключает связи в циклах и терминальные связи</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Не требует расчета ORCA (использует только RDKit)</p></li>
+<li><p>Работает с любой молекулой</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Особый случай: Ацетон (CC(=O)C) возвращает 0 из-за симметрии</p></li>
+<li><p>Вращающиеся связи - это одинарные связи не в циклах и не терминальные</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Использует <code class="docutils literal notranslate"><span class="pre">CalcNumRotatableBonds</span></code> из RDKit</p></li>
+<li><p>Исключает связи в циклах и терминальные связи</p></li>
+</ul>
 </section>
 <section id="wiener-index">
 <h3>wiener_index<a class="headerlink" href="#wiener-index" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">wiener_index(mol)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет индекс Винера (W), топологический дескриптор, равный сумме расстояний между всеми парами тяжелых атомов.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Индекс Винера (int)</p>
-<p><strong>Требования:</strong>
-- Не требует расчета ORCA (использует только RDKit)
-- Работает с любой молекулой</p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0 для молекул с менее чем 2 тяжелыми атомами
-- Для циклических систем добавляет поправочный член: <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">×</span> <span class="pre">(n-1)</span> <span class="pre">/</span> <span class="pre">2</span></code></p>
-<p><strong>Примечания по реализации:</strong>
-- Использует поиск в ширину для расчета расстояний
-- Рассматривает только тяжелые атомы (не водород)
-- Для бензола (C6H6) ожидаемое значение 42</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Не требует расчета ORCA (использует только RDKit)</p></li>
+<li><p>Работает с любой молекулой</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0 для молекул с менее чем 2 тяжелыми атомами</p></li>
+<li><p>Для циклических систем добавляет поправочный член: <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">×</span> <span class="pre">(n-1)</span> <span class="pre">/</span> <span class="pre">2</span></code></p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Использует поиск в ширину для расчета расстояний</p></li>
+<li><p>Рассматривает только тяжелые атомы (не водород)</p></li>
+<li><p>Для бензола (C6H6) ожидаемое значение 42</p></li>
+</ul>
 </section>
 <section id="topological-distance">
 <h3>topological_distance<a class="headerlink" href="#topological-distance" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">topological_distance(mol,</span> <span class="pre">atom1,</span> <span class="pre">atom2)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет сумму топологических расстояний между всеми парами атомов указанных типов.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit
-- <code class="docutils literal notranslate"><span class="pre">atom1</span></code>: Первый тип атома (например, «O», «N»)
-- <code class="docutils literal notranslate"><span class="pre">atom2</span></code>: Второй тип атома (например, «O», «C»)</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">atom1</span></code>: Первый тип атома (например, «O», «N»)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">atom2</span></code>: Второй тип атома (например, «O», «C»)</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Сумма топологических расстояний (int)</p>
-<p><strong>Требования:</strong>
-- Не требует расчета ORCA (использует только RDKit)
-- Работает с любой молекулой</p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0, если атомы указанных типов не найдены
-- Использует расстояние кратчайшего пути (не геометрическое расстояние)</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Не требует расчета ORCA (использует только RDKit)</p></li>
+<li><p>Работает с любой молекулой</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0, если атомы указанных типов не найдены</p></li>
+<li><p>Использует расстояние кратчайшего пути (не геометрическое расстояние)</p></li>
+</ul>
 <p><strong>Пример:</strong></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Сумма расстояний O-O в этиленгликоле</span>
 <span class="n">t_oo</span> <span class="o">=</span> <span class="n">orca</span><span class="o">.</span><span class="n">topological_distance</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">)</span>
@@ -719,18 +1006,26 @@
 <h3>m_log_p<a class="headerlink" href="#m-log-p" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">m_log_p(mol)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет Log P Моригучи (коэффициент распределения октанол/вода).</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Значение Log P (float)</p>
-<p><strong>Требования:</strong>
-- Не требует расчета ORCA (использует только RDKit)
-- Работает с любой молекулой</p>
-<p><strong>Ограничения:</strong>
-- Приближенный метод, основанный на молекулярной структуре
-- Может быть неточным для всех классов соединений</p>
-<p><strong>Примечания по реализации:</strong>
-- Использует расчет LogP из RDKit
-- Основан на методе Моригучи</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Не требует расчета ORCA (использует только RDKit)</p></li>
+<li><p>Работает с любой молекулой</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Приближенный метод, основанный на молекулярной структуре</p></li>
+<li><p>Может быть неточным для всех классов соединений</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Использует расчет LogP из RDKit</p></li>
+<li><p>Основан на методе Моригучи</p></li>
+</ul>
 </section>
 </section>
 <section id="id9">
@@ -739,40 +1034,56 @@
 <h3>moran_autocorrelation<a class="headerlink" href="#moran-autocorrelation" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">moran_autocorrelation(mol,</span> <span class="pre">lag=2,</span> <span class="pre">weight='vdw_volume')</span></code></p>
 <p><strong>Описание:</strong> Вычисляет коэффициент автокорреляции Моран, 2D дескриптор автокорреляции.</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit
-- <code class="docutils literal notranslate"><span class="pre">lag</span></code>: Расстояние лага (по умолчанию: 2)
-- <code class="docutils literal notranslate"><span class="pre">weight</span></code>: Схема взвешивания (по умолчанию: „vdw_volume“)</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lag</span></code>: Расстояние лага (по умолчанию: 2)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">weight</span></code>: Схема взвешивания (по умолчанию: „vdw_volume“)</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Значение автокорреляции Моран (float)</p>
-<p><strong>Требования:</strong>
-- Не требует расчета ORCA (использует только RDKit)
-- Работает с любой молекулой</p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0.0, если молекула имеет менее <code class="docutils literal notranslate"><span class="pre">lag</span> <span class="pre">+</span> <span class="pre">1</span></code> атомов
-- Схема взвешивания „vdw_volume“ использует объемы ван-дер-Ваальса</p>
-<p><strong>Примечания по реализации:</strong>
-- Основан на топологических расстояниях и атомных свойствах
-- Часто используется в QSAR моделировании</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Не требует расчета ORCA (использует только RDKit)</p></li>
+<li><p>Работает с любой молекулой</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0.0, если молекула имеет менее <code class="docutils literal notranslate"><span class="pre">lag</span> <span class="pre">+</span> <span class="pre">1</span></code> атомов</p></li>
+<li><p>Схема взвешивания „vdw_volume“ использует объемы ван-дер-Ваальса</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Основан на топологических расстояниях и атомных свойствах</p></li>
+<li><p>Часто используется в QSAR моделировании</p></li>
+</ul>
 </section>
 <section id="autocorrelation-hats">
 <h3>autocorrelation_hats<a class="headerlink" href="#autocorrelation-hats" title="Ссылка на этот заголовок">¶</a></h3>
 <p><strong>Метод:</strong> <code class="docutils literal notranslate"><span class="pre">autocorrelation_hats(mol,</span> <span class="pre">lag=4,</span> <span class="pre">unweighted=True)</span></code></p>
 <p><strong>Описание:</strong> Вычисляет коэффициент автокорреляции HATS (Hydrogen Atoms Topological Surface).</p>
-<p><strong>Параметры:</strong>
-- <code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit
-- <code class="docutils literal notranslate"><span class="pre">lag</span></code>: Расстояние лага (по умолчанию: 4)
-- <code class="docutils literal notranslate"><span class="pre">unweighted</span></code>: Если True, использует невзвешенную автокорреляцию (по умолчанию: True)</p>
+<p><strong>Параметры:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mol</span></code>: Объект молекулы RDKit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lag</span></code>: Расстояние лага (по умолчанию: 4)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unweighted</span></code>: Если True, использует невзвешенную автокорреляцию (по умолчанию: True)</p></li>
+</ul>
 <p><strong>Возвращает:</strong> Значение автокорреляции HATS (float, обычно близко к нулю)</p>
-<p><strong>Требования:</strong>
-- Не требует расчета ORCA (использует только RDKit)
-- Работает с любой молекулой</p>
-<p><strong>Ограничения:</strong>
-- Возвращает 0.0, если молекула имеет менее <code class="docutils literal notranslate"><span class="pre">lag</span> <span class="pre">+</span> <span class="pre">1</span></code> атомов
-- Рассматривает только атомы, способные к водородным связям (N, O, F)
-- Возвращает 0.0, если атомы, способные к водородным связям, не найдены</p>
-<p><strong>Примечания по реализации:</strong>
-- Фокусируется на атомах, образующих водородные связи (N, O, F)
-- Полезен для моделирования водородных взаимодействий</p>
+<p><strong>Требования:</strong></p>
+<ul class="simple">
+<li><p>Не требует расчета ORCA (использует только RDKit)</p></li>
+<li><p>Работает с любой молекулой</p></li>
+</ul>
+<p><strong>Ограничения:</strong></p>
+<ul class="simple">
+<li><p>Возвращает 0.0, если молекула имеет менее <code class="docutils literal notranslate"><span class="pre">lag</span> <span class="pre">+</span> <span class="pre">1</span></code> атомов</p></li>
+<li><p>Рассматривает только атомы, способные к водородным связям (N, O, F)</p></li>
+<li><p>Возвращает 0.0, если атомы, способные к водородным связям, не найдены</p></li>
+</ul>
+<p><strong>Примечания по реализации:</strong></p>
+<ul class="simple">
+<li><p>Фокусируется на атомах, образующих водородные связи (N, O, F)</p></li>
+<li><p>Полезен для моделирования водородных взаимодействий</p></li>
+</ul>
 </section>
 </section>
 <section id="id10">
@@ -780,7 +1091,7 @@
 <section id="id11">
 <h3>Требования к типу расчета<a class="headerlink" href="#id11" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
-<li><p><strong>SP (Одноточечный расчет):</strong> Работает для большинства энергетических и электронных дескрипторов</p></li>
+<li><p><strong>SP (Одноточечный расчет):</strong> Работает для большинства энергетических и электронных дескрипторов (HOMO, LUMO, NMR, Mayer, NBO)</p></li>
 <li><p><strong>Opt (Оптимизация):</strong> Требуется для геометрических дескрипторов (объем, SASA, PSA, длины связей)</p></li>
 <li><p><strong>Freq (Частоты):</strong> Требуется для термодинамических дескрипторов (энтропия, термические поправки)</p></li>
 </ul>
@@ -788,23 +1099,37 @@
 <section id="id12">
 <h3>Требования к функционалу<a class="headerlink" href="#id12" title="Ссылка на этот заголовок">¶</a></h3>
 <ul class="simple">
-<li><p><strong>DFT методы:</strong> Все дескрипторы работают</p></li>
-<li><p><strong>Полуэмпирические методы:</strong> Все дескрипторы работают, но значения энергий менее точны</p></li>
+<li><p><strong>DFT методы:</strong> Все дескрипторы работают, включая NMR, NBO и индексы Майера</p></li>
+<li><p><strong>Полуэмпирические методы:</strong> Большинство дескрипторов работают, но:
+- Химические сдвиги NMR: Недоступны
+- Энергия стабилизации NBO: Недоступна
+- Индексы Майера: Доступны, но значения могут значительно отличаться от DFT
+- Значения энергий менее точны, чем DFT</p></li>
 <li><p><strong>Базисный набор:</strong> Актуален только для DFT методов, игнорируется для полуэмпирических</p></li>
 </ul>
 </section>
 <section id="id13">
-<h3>Общие ограничения<a class="headerlink" href="#id13" title="Ссылка на этот заголовок">¶</a></h3>
+<h3>Специальные требования<a class="headerlink" href="#id13" title="Ссылка на этот заголовок">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Химические сдвиги NMR:</strong> Требует ключевого слова <code class="docutils literal notranslate"><span class="pre">NMR</span></code> во входном файле ORCA (только DFT)</p></li>
+<li><p><strong>Индексы Майера:</strong> Требует ключевого слова <code class="docutils literal notranslate"><span class="pre">Mayer</span></code> во входном файле ORCA (DFT и полуэмпирические)</p></li>
+<li><p><strong>Энергия стабилизации NBO:</strong> Требует ключевого слова <code class="docutils literal notranslate"><span class="pre">NBO</span></code> во входном файле ORCA и переменной окружения <code class="docutils literal notranslate"><span class="pre">NBOEXE</span></code>, указывающей на путь к исполняемому файлу NBO (только DFT)</p></li>
+</ul>
+</section>
+<section id="id14">
+<h3>Общие ограничения<a class="headerlink" href="#id14" title="Ссылка на этот заголовок">¶</a></h3>
 <ol class="arabic simple">
 <li><p><strong>Геометрические дескрипторы</strong> требуют оптимизированной геометрии</p></li>
 <li><p><strong>Термодинамические дескрипторы</strong> требуют расчета частот</p></li>
 <li><p><strong>Некоторые дескрипторы</strong> могут возвращать 0.0 или значения по умолчанию, если данные недоступны</p></li>
 <li><p><strong>Полуэмпирические методы</strong> предоставляют менее точные значения энергий, чем DFT</p></li>
 <li><p><strong>Атомные заряды</strong> зависят от базисного набора (заряды Малликена)</p></li>
+<li><p><strong>Дескрипторы NMR и NBO</strong> доступны только для методов DFT</p></li>
+<li><p><strong>Анализ NBO</strong> требует установки программы NBO и переменной окружения NBOEXE</p></li>
 </ol>
 </section>
-<section id="id14">
-<h3>Приближения и допущения<a class="headerlink" href="#id14" title="Ссылка на этот заголовок">¶</a></h3>
+<section id="id15">
+<h3>Приближения и допущения<a class="headerlink" href="#id15" title="Ссылка на этот заголовок">¶</a></h3>
 <ol class="arabic simple">
 <li><p><strong>Теорема Купманса</strong> используется для химического потенциала и электроотрицательности (приближенно для коррелированных систем)</p></li>
 <li><p><strong>Плотность фронтирных электронов</strong> использует атомные заряды как приближение</p></li>
@@ -832,14 +1157,14 @@
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pandas_tutorial.html">
+          <a class="prev-page" href="batch_processing.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Туториал по интеграции с Pandas</div>
+                <div class="title">Туториал по пакетной обработке</div>
                 
               </div>
             </a>
@@ -888,6 +1213,9 @@
 <li><a class="reference internal" href="#abs-hardness">abs_hardness</a></li>
 <li><a class="reference internal" href="#abs-softness">abs_softness</a></li>
 <li><a class="reference internal" href="#frontier-electron-density">frontier_electron_density</a></li>
+<li><a class="reference internal" href="#get-nmr-shifts">get_nmr_shifts</a></li>
+<li><a class="reference internal" href="#get-mayer-indices">get_mayer_indices</a></li>
+<li><a class="reference internal" href="#nbo-stabilization-energy">nbo_stabilization_energy</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#id3">Дескрипторы зарядов</a><ul>
@@ -932,8 +1260,9 @@
 <li><a class="reference internal" href="#id10">Сводка требований</a><ul>
 <li><a class="reference internal" href="#id11">Требования к типу расчета</a></li>
 <li><a class="reference internal" href="#id12">Требования к функционалу</a></li>
-<li><a class="reference internal" href="#id13">Общие ограничения</a></li>
-<li><a class="reference internal" href="#id14">Приближения и допущения</a></li>
+<li><a class="reference internal" href="#id13">Специальные требования</a></li>
+<li><a class="reference internal" href="#id14">Общие ограничения</a></li>
+<li><a class="reference internal" href="#id15">Приближения и допущения</a></li>
 </ul>
 </li>
 </ul>
@@ -947,7 +1276,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=354d9101"></script>
+</div><script src="_static/documentation_options.js?v=bcbc7f8c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

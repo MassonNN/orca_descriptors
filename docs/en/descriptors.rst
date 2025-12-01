@@ -14,20 +14,24 @@ homo_energy
 **Description:** Returns the energy of the Highest Occupied Molecular Orbital (HOMO) in electronvolts (eV).
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** HOMO energy in eV (float, typically negative)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Requires successful SCF convergence
 - Works with both ``SP`` and ``Opt`` method types
 
 **Limitations:**
+
 - Returns 0.0 if HOMO energy cannot be parsed from ORCA output
 - For open-shell systems, returns alpha HOMO energy
 
 **Implementation Notes:**
+
 - Extracted directly from ORCA output
 - Uses cached results if available
 
@@ -39,16 +43,19 @@ lumo_energy
 **Description:** Returns the energy of the Lowest Unoccupied Molecular Orbital (LUMO) in electronvolts (eV).
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** LUMO energy in eV (float, typically positive or small negative)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Requires successful SCF convergence
 - Works with both ``SP`` and ``Opt`` method types
 
 **Limitations:**
+
 - Returns 0.0 if LUMO energy cannot be parsed from ORCA output
 - For open-shell systems, returns alpha LUMO energy
 
@@ -60,17 +67,20 @@ gap_energy
 **Description:** Calculates the HOMO-LUMO energy gap (band gap) in electronvolts (eV).
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** HOMO-LUMO gap in eV (float, always positive)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Requires both HOMO and LUMO energies
 
 **Calculation:** ``gap = LUMO - HOMO``
 
 **Limitations:**
+
 - Returns 0.0 if either HOMO or LUMO energy is missing
 
 total_energy
@@ -81,19 +91,23 @@ total_energy
 **Description:** Returns the total electronic energy in Hartree (atomic units).
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Total energy in Hartree (float, typically large negative value)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Works with both ``SP`` and ``Opt`` method types
 
 **Limitations:**
+
 - For semi-empirical methods (AM1, PM3, etc.), energies are less negative than DFT
 - Returns 0.0 if energy cannot be parsed
 
 **Implementation Notes:**
+
 - For DFT: typically -100 to -1000 Hartree for small molecules
 - For AM1: typically -5 to -50 Hartree for small molecules
 
@@ -105,18 +119,22 @@ mo_energy
 **Description:** Returns the energy of a specific molecular orbital by index.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 - ``index``: Orbital index (int)
+  
   - Negative indices: -1 = HOMO, -2 = HOMO-1, etc.
   - Positive indices: 0 = first orbital, 1 = second orbital, etc.
 
 **Returns:** Orbital energy in eV (float)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Requires orbital energies in ORCA output
 
 **Limitations:**
+
 - Returns 0.0 if index is out of range
 - May not work with all ORCA output formats
 
@@ -136,21 +154,25 @@ ch_potential
 **Description:** Calculates the chemical potential (μ) in electronvolts (eV). The chemical potential is defined as μ = (HOMO + LUMO) / 2.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Chemical potential in eV (float, typically negative for stable molecules)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Requires both HOMO and LUMO energies
 
 **Calculation:** ``μ = (HOMO + LUMO) / 2``
 
 **Limitations:**
+
 - Based on Koopmans' theorem approximation
 - May not be accurate for systems with strong electron correlation
 
 **Physical Meaning:**
+
 - Negative values indicate stable molecules
 - Related to electronegativity: χ = -μ
 
@@ -162,11 +184,13 @@ electronegativity
 **Description:** Calculates the electronegativity (χ) in electronvolts (eV). Defined as χ = -μ = -(HOMO + LUMO) / 2.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Electronegativity in eV (float, always positive)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Requires both HOMO and LUMO energies
 
@@ -180,17 +204,20 @@ abs_hardness
 **Description:** Calculates the absolute hardness (η) in electronvolts (eV). Hardness measures resistance to electron transfer.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Hardness in eV (float, always positive)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Requires both HOMO and LUMO energies
 
 **Calculation:** ``η = (LUMO - HOMO) / 2``
 
 **Physical Meaning:**
+
 - Large values indicate hard molecules (difficult to polarize)
 - Small values indicate soft molecules (easy to polarize)
 - Related to chemical reactivity: hard molecules prefer hard reagents
@@ -203,17 +230,20 @@ abs_softness
 **Description:** Calculates the absolute softness (S) in 1/eV. Softness is the reciprocal of hardness.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Softness in 1/eV (float, always positive)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Requires hardness calculation
 
 **Calculation:** ``S = 1 / (2 * η)``
 
 **Limitations:**
+
 - Returns 0.0 if hardness is zero or negative
 
 frontier_electron_density
@@ -224,15 +254,18 @@ frontier_electron_density
 **Description:** Calculates frontier electron density for each heavy atom, indicating reaction centers.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** List of tuples ``(atom, density_value)`` for heavy atoms only
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Requires atomic charges from ORCA output
 
 **Limitations:**
+
 - Only returns heavy atoms (C, N, O, etc.), hydrogen atoms are excluded
 - Uses absolute value of atomic charges
 - If charge is zero, assigns default values:
@@ -240,8 +273,139 @@ frontier_electron_density
   - Other atoms: 0.1
 
 **Implementation Notes:**
+
 - Approximate method based on atomic charges
 - May not accurately reflect true frontier electron density for all systems
+
+get_nmr_shifts
+~~~~~~~~~~~~~~
+
+**Method:** ``get_nmr_shifts(mol, atom_type='C')``
+
+**Description:** Returns NMR chemical shifts for atoms of specified type.
+
+**Parameters:**
+
+- ``mol``: RDKit molecule object
+- ``atom_type``: Atom type to filter (e.g., 'C', 'H', 'N'). Default: 'C'
+
+**Returns:** Dictionary mapping atom index to chemical shift in ppm (dict[int, float])
+
+**Requirements:**
+
+- Works with DFT methods (not available for semi-empirical methods)
+- Requires ``NMR`` keyword in ORCA input
+- Works with both ``SP`` and ``Opt`` method types
+
+**Limitations:**
+
+- Only available for DFT methods
+- Returns empty dictionary if no atoms of specified type are found
+- Raises ``ValueError`` if NMR shifts are not found in ORCA output
+
+**Implementation Notes:**
+
+- ORCA outputs shielding constants (σ), chemical shifts are calculated as: δ = 184.1 - σ (for 13C)
+- Reference: TMS (σ_ref ~ 184 ppm for 13C, ~31 ppm for 1H)
+- Typical aromatic carbon shifts: 100-200 ppm
+- Typical aliphatic carbon shifts: 0-50 ppm
+
+**Example:**
+::
+
+   # Get all carbon chemical shifts
+   carbon_shifts = orca.get_nmr_shifts(mol, atom_type='C')
+   
+   # Get hydrogen chemical shifts
+   hydrogen_shifts = orca.get_nmr_shifts(mol, atom_type='H')
+
+get_mayer_indices
+~~~~~~~~~~~~~~~~~
+
+**Method:** ``get_mayer_indices(mol, atom_type_i='C', atom_type_j='C')``
+
+**Description:** Returns Mayer bond indices for bonds between specified atom types. Mayer bond order is a measure of bond strength and aromaticity.
+
+**Parameters:**
+
+- ``mol``: RDKit molecule object
+- ``atom_type_i``: First atom type to filter (e.g., 'C', 'H', 'N'). Default: 'C'
+- ``atom_type_j``: Second atom type to filter (e.g., 'C', 'H', 'N'). Default: 'C'
+
+**Returns:** List of tuples ``(atom_index_i, atom_index_j, index_value)``
+
+**Requirements:**
+
+- Works with all DFT and semi-empirical methods
+- Requires ``Mayer`` keyword in ORCA input
+- Works with both ``SP`` and ``Opt`` method types
+
+**Limitations:**
+
+- Only includes bonds with index value >= 0.3 (significant bonds)
+- Returns empty list if no bonds of specified types are found
+- Raises ``ValueError`` if Mayer indices are not found in ORCA output
+- For AM1 method, values may differ significantly from DFT (typically higher)
+
+**Implementation Notes:**
+
+- Mayer bond order typically ranges from 0.0 (no bond) to ~2.0 (triple bond)
+- For aromatic C-C bonds (e.g., benzene), expected value is ~1.4
+- For single bonds, expected value is ~1.0
+- For double bonds, expected value is ~1.8-2.0
+
+**Example:**
+::
+
+   # Get all C-C bond indices
+   cc_indices = orca.get_mayer_indices(mol, atom_type_i='C', atom_type_j='C')
+   
+   # Get C-H bond indices
+   ch_indices = orca.get_mayer_indices(mol, atom_type_i='C', atom_type_j='H')
+
+nbo_stabilization_energy
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Method:** ``nbo_stabilization_energy(mol, donor='LP(O)', acceptor='PiStar(C=O)')``
+
+**Description:** Returns NBO (Natural Bond Orbital) stabilization energy E(2) for a specific donor-acceptor interaction. E(2) measures the energy of delocalization from a donor orbital to an acceptor orbital.
+
+**Parameters:**
+
+- ``mol``: RDKit molecule object
+- ``donor``: Donor orbital description (e.g., 'LP(O)' for lone pair on oxygen). Default: 'LP(O)'
+- ``acceptor``: Acceptor orbital description (e.g., 'PiStar(C=O)' for π* orbital of C=O). Default: 'PiStar(C=O)'
+
+**Returns:** Stabilization energy in kcal/mol (float)
+
+**Requirements:**
+
+- Works with DFT methods only (not available for semi-empirical methods)
+- Requires ``NBO`` keyword in ORCA input
+- Requires ``NBOEXE`` environment variable to be set to point to NBO executable (nbo6.exe or nbo5.exe)
+- Works with both ``SP`` and ``Opt`` method types
+
+**Limitations:**
+
+- Only available for DFT methods
+- Requires NBO program to be installed and NBOEXE environment variable to be set
+- Raises ``ValueError`` if NBO stabilization energies are not found in ORCA output
+- If exact donor-acceptor pair is not found, returns the maximum available stabilization energy
+
+**Implementation Notes:**
+
+- E(2) values are typically in the range 5-50 kcal/mol for significant interactions
+- Common interactions:
+  - n → π* (lone pair to π*): 5-30 kcal/mol
+  - σ → σ*: 1-10 kcal/mol
+  - π → π*: 1-5 kcal/mol
+- Higher E(2) values indicate stronger delocalization and resonance stabilization
+
+**Example:**
+::
+
+   # Get n → π* interaction energy in acetone
+   e2 = orca.nbo_stabilization_energy(mol, donor='LP(O)', acceptor='PiStar(C=O)')
 
 Charge Descriptors
 ------------------
@@ -254,15 +418,18 @@ get_atom_charges
 **Description:** Returns Mulliken atomic charges for all atoms.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Dictionary mapping atom index to charge (dict[int, float])
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Requires Mulliken population analysis in ORCA output
 
 **Limitations:**
+
 - Mulliken charges are basis-set dependent
 - May not be accurate for systems with diffuse basis functions
 - Charges are in atomic units (e)
@@ -275,21 +442,25 @@ get_min_h_charge
 **Description:** Returns the minimum net atomic charge for hydrogen atoms.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 - ``method``: Charge method (currently only "ESP" supported, but uses Mulliken as fallback)
 
 **Returns:** Minimum hydrogen charge in atomic units (float)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Requires atomic charges from ORCA output
 - Molecule must contain hydrogen atoms
 
 **Limitations:**
+
 - Currently uses Mulliken charges regardless of ``method`` parameter
 - Returns 0.0 if no hydrogen atoms are found
 
 **Implementation Notes:**
+
 - The ``method="ESP"`` parameter is accepted for API compatibility but currently uses Mulliken charges
 
 Thermodynamic Descriptors
@@ -303,20 +474,24 @@ gibbs_free_energy
 **Description:** Returns the Gibbs free energy in Hartree. Includes electronic energy and thermal corrections.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Gibbs free energy in Hartree (float)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Requires frequency calculation or thermal corrections in ORCA output
 - Falls back to total energy if Gibbs free energy is not available
 
 **Limitations:**
+
 - For ``method_type="SP"``, may return total energy instead of true Gibbs free energy
 - Thermal corrections require frequency calculation (not available in SP calculations)
 
 **Implementation Notes:**
+
 - If Gibbs free energy is not found in output, returns total energy as fallback
 
 entropy
@@ -327,15 +502,18 @@ entropy
 **Description:** Returns the entropy in J/(mol·K).
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Entropy in J/(mol·K) (float, always positive)
 
 **Requirements:**
+
 - Requires frequency calculation in ORCA
 - May not be available for ``method_type="SP"``
 
 **Limitations:**
+
 - Returns 0.0 if entropy is not found in ORCA output
 - Requires vibrational frequencies, which are only available after geometry optimization with frequency calculation
 
@@ -347,19 +525,23 @@ enthalpy
 **Description:** Returns the enthalpy in Hartree. Includes electronic energy and thermal corrections.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Enthalpy in Hartree (float)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Falls back to total energy if enthalpy is not available
 
 **Limitations:**
+
 - For ``method_type="SP"``, returns total energy (no thermal corrections)
 - Thermal corrections require frequency calculation
 
 **Implementation Notes:**
+
 - Currently returns total energy (thermal corrections not implemented)
 
 Geometric Descriptors
@@ -373,19 +555,23 @@ molecular_volume
 **Description:** Returns the molecular volume in cubic Angstroms (Å³).
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Molecular volume in Å³ (float)
 
 **Requirements:**
+
 - Requires optimized geometry (``method_type="Opt"`` recommended)
 - Works with all DFT and semi-empirical methods
 
 **Limitations:**
+
 - For ``method_type="SP"``, may use approximate values
 - If volume < 10.0 Å³, estimates volume from molecular weight: ``volume = MW × 1.0``
 
 **Implementation Notes:**
+
 - Extracted from ORCA output if available
 - Fallback estimation based on molecular weight is approximate
 
@@ -397,6 +583,7 @@ get_bond_lengths
 **Description:** Returns bond lengths between atoms of specified types.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 - ``atom1``: First atom type (e.g., "C", "N", "O")
 - ``atom2``: Second atom type (e.g., "C", "H")
@@ -404,10 +591,12 @@ get_bond_lengths
 **Returns:** List of tuples ``(atom_index_1, atom_index_2, length)`` in Angstroms
 
 **Requirements:**
+
 - Requires optimized geometry (``method_type="Opt"`` recommended)
 - Works with all DFT and semi-empirical methods
 
 **Limitations:**
+
 - Returns empty list if no bonds of specified types are found
 - Bond lengths are from optimized geometry, may differ for SP calculations
 
@@ -419,15 +608,18 @@ xy_shadow
 **Description:** Calculates the XY projection area (shadow area on XY plane) in square Angstroms (Å²).
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** XY shadow area in Å² (float)
 
 **Requirements:**
+
 - Requires optimized geometry with 3D coordinates
 - Works with all DFT and semi-empirical methods
 
 **Limitations:**
+
 - Returns 0.0 if coordinates are not available
 - Simple bounding box calculation, does not account for atom radii
 - Sensitive to molecular orientation
@@ -435,6 +627,7 @@ xy_shadow
 **Calculation:** ``area = (x_max - x_min) × (y_max - y_min)``
 
 **Implementation Notes:**
+
 - Uses bounding box of atomic coordinates
 - Does not account for atomic radii or molecular shape
 
@@ -446,15 +639,18 @@ polar_surface_area
 **Description:** Returns the polar surface area (PSA) in square Angstroms (Å²).
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** PSA in Å² (float)
 
 **Requirements:**
+
 - Requires optimized geometry
 - Works with all DFT and semi-empirical methods
 
 **Limitations:**
+
 - May not be available for ``method_type="SP"``
 - Returns 0.0 if PSA is not found in ORCA output
 
@@ -466,20 +662,24 @@ solvent_accessible_surface_area
 **Description:** Calculates the Solvent Accessible Surface Area (SASA) in square Angstroms (Å²).
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** SASA in Å² (float)
 
 **Requirements:**
+
 - Requires optimized geometry with 3D coordinates from ORCA
 - Uses RDKit's FreeSASA implementation
 
 **Limitations:**
+
 - Returns 0.0 if coordinates are not available
 - If SASA calculation fails, estimates from molecular volume: ``SASA ≈ 4 × volume^(2/3)``
 - Requires RDKit with FreeSASA support
 
 **Implementation Notes:**
+
 - Uses probe radius of 1.4 Å (water molecule)
 - Atomic radii are adjusted for SASA calculation
 - Fallback estimation is approximate
@@ -495,15 +695,18 @@ dipole_moment
 **Description:** Returns the dipole moment magnitude in Debye.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Dipole moment in Debye (float, always positive)
 
 **Requirements:**
+
 - Works with all DFT and semi-empirical methods
 - Works with both ``SP`` and ``Opt`` method types
 
 **Limitations:**
+
 - Returns 0.0 if dipole moment cannot be parsed
 - For symmetric molecules, should be close to zero
 
@@ -515,21 +718,25 @@ meric
 **Description:** Calculates MERIC (Minimum Electrophilicity Index for Carbon), predicting sites susceptible to nucleophilic attack.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Minimum MERIC value in eV (float, typically negative for electrophilic carbons)
 
 **Requirements:**
+
 - Requires optimized geometry with 3D coordinates
 - Requires atomic charges
 - Works with all DFT and semi-empirical methods
 
 **Limitations:**
+
 - Only considers carbon atoms bonded to heteroatoms (O, N, etc.)
 - Returns 0.0 if no suitable carbon atoms are found
 - Approximate calculation based on atomic charges and distances
 
 **Implementation Notes:**
+
 - MERIC is negative for electrophilic carbons (susceptible to nucleophilic attack)
 - Calculation uses atomic charges and geometric distances
 - May not be accurate for all reaction types
@@ -545,19 +752,23 @@ num_rotatable_bonds
 **Description:** Calculates the number of rotatable bonds (Nrot), measuring molecular flexibility.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Number of rotatable bonds (int)
 
 **Requirements:**
+
 - No ORCA calculation required (uses RDKit only)
 - Works with any molecule
 
 **Limitations:**
+
 - Special case: Acetone (CC(=O)C) returns 0 due to symmetry
 - Rotatable bonds are single bonds not in rings and not terminal
 
 **Implementation Notes:**
+
 - Uses RDKit's ``CalcNumRotatableBonds``
 - Excludes bonds in rings and terminal bonds
 
@@ -569,19 +780,23 @@ wiener_index
 **Description:** Calculates the Wiener Index (W), a topological descriptor equal to the sum of distances between all pairs of non-hydrogen atoms.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Wiener Index (int)
 
 **Requirements:**
+
 - No ORCA calculation required (uses RDKit only)
 - Works with any molecule
 
 **Limitations:**
+
 - Returns 0 for molecules with less than 2 heavy atoms
 - For ring systems, adds correction term: ``n × (n-1) / 2``
 
 **Implementation Notes:**
+
 - Uses breadth-first search to calculate distances
 - Only considers heavy atoms (non-hydrogen)
 - For benzene (C6H6), expected value is 42
@@ -594,6 +809,7 @@ topological_distance
 **Description:** Calculates the sum of topological distances between all pairs of atoms of specified types.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 - ``atom1``: First atom type (e.g., "O", "N")
 - ``atom2``: Second atom type (e.g., "O", "C")
@@ -601,10 +817,12 @@ topological_distance
 **Returns:** Sum of topological distances (int)
 
 **Requirements:**
+
 - No ORCA calculation required (uses RDKit only)
 - Works with any molecule
 
 **Limitations:**
+
 - Returns 0 if no atoms of specified types are found
 - Uses shortest path distance (not geometric distance)
 
@@ -625,19 +843,23 @@ m_log_p
 **Description:** Calculates the Moriguchi Log P (octanol/water partition coefficient).
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 
 **Returns:** Log P value (float)
 
 **Requirements:**
+
 - No ORCA calculation required (uses RDKit only)
 - Works with any molecule
 
 **Limitations:**
+
 - Approximate method based on molecular structure
 - May not be accurate for all compound classes
 
 **Implementation Notes:**
+
 - Uses RDKit's LogP calculation
 - Based on Moriguchi's method
 
@@ -652,6 +874,7 @@ moran_autocorrelation
 **Description:** Calculates Moran autocorrelation coefficient, a 2D autocorrelation descriptor.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 - ``lag``: Lag distance (default: 2)
 - ``weight``: Weighting scheme (default: 'vdw_volume')
@@ -659,14 +882,17 @@ moran_autocorrelation
 **Returns:** Moran autocorrelation value (float)
 
 **Requirements:**
+
 - No ORCA calculation required (uses RDKit only)
 - Works with any molecule
 
 **Limitations:**
+
 - Returns 0.0 if molecule has fewer than ``lag + 1`` atoms
 - Weighting scheme 'vdw_volume' uses van der Waals volumes
 
 **Implementation Notes:**
+
 - Based on topological distances and atomic properties
 - Commonly used in QSAR modeling
 
@@ -678,6 +904,7 @@ autocorrelation_hats
 **Description:** Calculates HATS (Hydrogen Atoms Topological Surface) autocorrelation coefficient.
 
 **Parameters:**
+
 - ``mol``: RDKit molecule object
 - ``lag``: Lag distance (default: 4)
 - ``unweighted``: If True, use unweighted autocorrelation (default: True)
@@ -685,15 +912,18 @@ autocorrelation_hats
 **Returns:** HATS autocorrelation value (float, typically close to zero)
 
 **Requirements:**
+
 - No ORCA calculation required (uses RDKit only)
 - Works with any molecule
 
 **Limitations:**
+
 - Returns 0.0 if molecule has fewer than ``lag + 1`` atoms
 - Only considers atoms capable of hydrogen bonding (N, O, F)
 - Returns 0.0 if no H-bond capable atoms are found
 
 **Implementation Notes:**
+
 - Focuses on hydrogen-bonding atoms (N, O, F)
 - Useful for modeling hydrogen-bonding interactions
 
@@ -703,16 +933,27 @@ Summary of Requirements
 Method Type Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **SP (Single Point):** Works for most energy and electronic descriptors
+- **SP (Single Point):** Works for most energy and electronic descriptors (HOMO, LUMO, NMR, Mayer, NBO)
 - **Opt (Optimization):** Required for geometric descriptors (volume, SASA, PSA, bond lengths)
 - **Freq (Frequency):** Required for thermodynamic descriptors (entropy, thermal corrections)
 
 Functional Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-- **DFT methods:** All descriptors work
-- **Semi-empirical methods:** All descriptors work, but energy values are less accurate
+- **DFT methods:** All descriptors work, including NMR, NBO, and Mayer indices
+- **Semi-empirical methods:** Most descriptors work, but:
+  - NMR chemical shifts: Not available
+  - NBO stabilization energy: Not available
+  - Mayer indices: Available but values may differ significantly from DFT
+  - Energy values are less accurate than DFT
 - **Basis set:** Only relevant for DFT methods, ignored for semi-empirical
+
+Special Requirements
+~~~~~~~~~~~~~~~~~~~~
+
+- **NMR chemical shifts:** Requires ``NMR`` keyword in ORCA input (DFT only)
+- **Mayer bond indices:** Requires ``Mayer`` keyword in ORCA input (DFT and semi-empirical)
+- **NBO stabilization energy:** Requires ``NBO`` keyword in ORCA input and ``NBOEXE`` environment variable set to NBO executable path (DFT only)
 
 Common Limitations
 ~~~~~~~~~~~~~~~~~~
@@ -722,6 +963,8 @@ Common Limitations
 3. **Some descriptors** may return 0.0 or default values if data is unavailable
 4. **Semi-empirical methods** provide less accurate energy values than DFT
 5. **Atomic charges** are basis-set dependent (Mulliken charges)
+6. **NMR and NBO descriptors** are only available for DFT methods
+7. **NBO analysis** requires NBO program installation and NBOEXE environment variable
 
 Approximations and Assumptions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

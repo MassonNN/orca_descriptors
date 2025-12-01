@@ -20,7 +20,7 @@ Contents
 
    installation
    tutorial
-   pandas_tutorial
+   batch_processing
    descriptors
    benchmark
    api/index

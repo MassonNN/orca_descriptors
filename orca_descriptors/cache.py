@@ -63,12 +63,14 @@ class CacheManager:
             mol_hash: Hash of the molecule and calculation parameters
             output_file: Path to ORCA output file
         """
-        # Copy file to cache directory
-        cached_file = self.cache_dir / f"{mol_hash}.out"
+        # Copy file to cache directory, preserving original extension
         if output_file.exists():
+            cached_file = self.cache_dir / f"{mol_hash}{output_file.suffix}"
             shutil.copy2(output_file, cached_file)
             self.index[mol_hash] = str(cached_file)
             self._save_index()
+            return cached_file
+        return None
     
     def clear(self):
         """Clear all cached files."""

@@ -16,7 +16,7 @@ run_benchmark
 Опции:
 
 * ``--working_dir``: Рабочая директория для расчетов (по умолчанию: текущая директория)
-* ``--functional``: DFT функционал (по умолчанию: PBE0)
+* ``--functional``: DFT функционал или полуэмпирический метод (по умолчанию: AM1)
 * ``--basis_set``: Базисный набор (по умолчанию: def2-SVP)
 * ``--n_processors``: Количество процессоров (по умолчанию: 1)
 * Все остальные параметры ORCA также доступны
@@ -51,6 +51,43 @@ approximate_time
        --basis_set def2-TZVP \\
        --n_processors 8
 
+clear
+~~~~~
+
+Удалить все файлы ORCA в рабочей директории (полезно для очистки файлов, которые не были удалены из-за ошибок)::
+
+   orca_descriptors clear [ОПЦИИ]
+
+Эта команда удаляет все файлы, связанные с ORCA (`.inp`, `.out`, `.log`, `.gbw`, `.cube`, `.prop` и т.д.) из рабочей директории.
+
+Опции:
+
+* ``--working_dir``: Рабочая директория для очистки (по умолчанию: текущая директория)
+* Все остальные параметры ORCA доступны, но не используются
+
+Пример::
+
+   orca_descriptors clear --working_dir ./calculations
+
+purge_cache
+~~~~~~~~~~~
+
+Удалить кеш ORCA::
+
+   orca_descriptors purge_cache [ОПЦИИ]
+
+Эта команда очищает директорию кеша ORCA, удаляя все закешированные результаты расчетов.
+
+Опции:
+
+* ``--cache_dir``: Директория кеша для очистки (по умолчанию: output_dir/.orca_cache)
+* ``--output_dir``: Директория вывода (используется для определения местоположения кеша, если cache_dir не указан)
+* Все остальные параметры ORCA доступны, но не используются
+
+Пример::
+
+   orca_descriptors purge_cache --output_dir ./calculations
+
 Доступные параметры
 -------------------
 
@@ -59,7 +96,7 @@ approximate_time
 * ``--script_path``: Путь к исполняемому файлу ORCA (по умолчанию: 'orca')
 * ``--working_dir``: Рабочая директория для расчетов
 * ``--output_dir``: Директория для выходных файлов
-* ``--functional``: DFT функционал (по умолчанию: PBE0)
+* ``--functional``: DFT функционал или полуэмпирический метод (по умолчанию: AM1)
 * ``--basis_set``: Базисный набор (по умолчанию: def2-SVP)
 * ``--method_type``: Тип расчета: Opt, SP или Freq (по умолчанию: Opt)
 * ``--dispersion_correction``: Коррекция дисперсии, например, D3BJ (по умолчанию: D3BJ). Используйте 'None' для отключения.
@@ -81,4 +118,6 @@ approximate_time
    orca_descriptors --help
    orca_descriptors run_benchmark --help
    orca_descriptors approximate_time --help
+   orca_descriptors clear --help
+   orca_descriptors purge_cache --help
 

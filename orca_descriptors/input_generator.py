@@ -28,7 +28,7 @@ class ORCAInputGenerator:
     def generate(
         self,
         mol: Mol,
-        functional: str = "PBE0",
+        functional: str = "AM1",
         basis_set: str = "def2-SVP",
         method_type: str = "Opt",
         dispersion_correction: Optional[str] = None,
@@ -73,6 +73,7 @@ class ORCAInputGenerator:
             # For semi-empirical methods, just add the method name
             # Format: ! Opt AM1 or ! SP PM3
             calc_line_parts.append(functional.upper())
+            calc_line_parts.append("Mayer")
         else:
             # For DFT methods, add functional and basis set
             calc_line_parts.append(f"{functional}")
@@ -86,6 +87,9 @@ class ORCAInputGenerator:
             
             calc_line_parts.append("SlowConv")
             calc_line_parts.append("TightSCF")
+            calc_line_parts.append("NMR")
+            calc_line_parts.append("Mayer")
+            calc_line_parts.append("NBO")
         
         lines.append(" ".join(calc_line_parts))
         lines.append("")
@@ -123,7 +127,11 @@ class ORCAInputGenerator:
         lines.append("  PrintLevel 2")
         lines.append("  Print[P_Mulliken] 1")
         lines.append("  Print[P_AtCharges_M] 1")
+        lines.append("  Print[P_Mayer] 1")
+        if not is_semi_empirical:
+            lines.append("  Print[P_NBO] 1")
         lines.append("end")
+        lines.append("")
         lines.append("")
         
         lines.append(f"* xyz {charge} {multiplicity}")

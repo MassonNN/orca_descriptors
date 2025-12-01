@@ -44,8 +44,8 @@ def create_parser() -> argparse.ArgumentParser:
     common_parser.add_argument(
         "--functional",
         type=str,
-        default="PBE0",
-        help="DFT functional (default: PBE0)",
+        default="AM1",
+        help="DFT functional or semi-empirical method (default: AM1)",
     )
     common_parser.add_argument(
         "--basis_set",
@@ -165,6 +165,20 @@ def create_parser() -> argparse.ArgumentParser:
         type=int,
         default=None,
         help="Expected number of optimization steps (for Opt method, default: auto-estimate)",
+    )
+    
+    # clear command
+    clear_parser = subparsers.add_parser(
+        "clear",
+        parents=[common_parser],
+        help="Remove all ORCA files in the working directory (if not removed due to error)",
+    )
+    
+    # purge_cache command
+    purge_parser = subparsers.add_parser(
+        "purge_cache",
+        parents=[common_parser],
+        help="Remove ORCA cache",
     )
     
     return parser
@@ -348,6 +362,102 @@ def cmd_approximate_time(args: argparse.Namespace) -> int:
         return 1
 
 
+def cmd_clear(args: argparse.Namespace) -> int:
+    """Remove all ORCA files in the working directory."""
+    working_dir = Path(args.working_dir)
+    if not working_dir.exists():
+        print(f"ERROR: Working directory does not exist: {working_dir}", file=sys.stderr)
+        return 1
+    
+    orca_extensions = [
+        ".inp",
+        ".out",
+        ".log",
+        ".smd.out",
+        ".gbw",
+        ".densities",
+        ".densitiesinfo",
+        ".ges",
+        ".property.txt",
+        ".bibtex",
+        ".cpcm",
+        ".cpcm_corr",
+        ".engrad",
+        ".opt",
+        ".xyz",
+        "_trj.xyz",
+        ".molden",
+        ".mkl",
+        ".tmp",
+        ".int.tmp",
+        ".cube",
+        ".prop",
+        ".prop.scf",
+    ]
+    
+    removed_count = 0
+    removed_size = 0
+    errors = []
+    
+    for ext in orca_extensions:
+        patterns = [
+            f"orca_*{ext}",
+            f"*{ext}",
+        ]
+        
+        for pattern in patterns:
+            for file_path in working_dir.glob(pattern):
+                try:
+                    if file_path.is_file():
+                        size = file_path.stat().st_size
+                        file_path.unlink()
+                        removed_count += 1
+                        removed_size += size
+                except Exception as e:
+                    errors.append(f"Failed to remove {file_path}: {e}")
+    
+    print("\n" + "=" * 70)
+    print("ORCA Files Cleanup Summary:")
+    print("=" * 70)
+    print(f"Files removed: {removed_count}")
+    print(f"Total size freed: {removed_size / (1024 * 1024):.2f} MB")
+    
+    if errors:
+        print(f"\nErrors encountered: {len(errors)}")
+        for error in errors[:10]:
+            print(f"  {error}")
+        if len(errors) > 10:
+            print(f"  ... and {len(errors) - 10} more errors")
+    
+    print("=" * 70 + "\n")
+    
+    return 0 if not errors else 1
+
+
+def cmd_purge_cache(args: argparse.Namespace) -> int:
+    """Remove ORCA cache."""
+    from orca_descriptors.cache import CacheManager
+    
+    if args.cache_dir:
+        cache_dir = Path(args.cache_dir)
+    else:
+        output_dir = Path(args.output_dir)
+        cache_dir = output_dir / ".orca_cache"
+    
+    if not cache_dir.exists():
+        print(f"Cache directory does not exist: {cache_dir}")
+        return 0
+    
+    try:
+        cache = CacheManager(cache_dir)
+        cache.clear()
+        print(f"\nCache cleared successfully: {cache_dir}\n")
+        return 0
+    except Exception as e:
+        print(f"ERROR: Failed to clear cache: {e}", file=sys.stderr)
+        return 1
+
+
 def main() -> int:
     """Main entry point for CLI."""
     parser = create_parser()
@@ -361,6 +471,10 @@ def main() -> int:
         return cmd_run_benchmark(args)
     elif args.command == "approximate_time":
         return cmd_approximate_time(args)
+    elif args.command == "clear":
+        return cmd_clear(args)
+    elif args.command == "purge_cache":
+        return cmd_purge_cache(args)
     else:
         print(f"ERROR: Unknown command: {args.command}", file=sys.stderr)
         return 1

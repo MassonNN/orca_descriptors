@@ -103,12 +103,14 @@ For high-accuracy calculations, use DFT functionals with basis sets::
    )
 
 Common DFT functionals:
+
 - ``PBE0`` - Hybrid GGA functional, good balance of accuracy and speed
 - ``B3LYP`` - Popular hybrid functional
 - ``M06-2X`` - Meta-GGA functional, good for thermochemistry
 - ``ωB97X-D`` - Range-separated hybrid with dispersion
 
 Common basis sets:
+
 - ``def2-SVP`` - Small, fast (default)
 - ``def2-TZVP`` - Triple-zeta, more accurate
 - ``def2-QZVP`` - Quadruple-zeta, very accurate but slow
@@ -127,6 +129,7 @@ For faster calculations on large molecules, use semi-empirical methods::
    )
 
 Supported semi-empirical methods:
+
 - ``AM1`` - Austin Model 1, good for organic molecules
 - ``PM3`` - Parametric Method 3, improved over AM1
 - ``PM6`` - Parametric Method 6, better for transition metals
@@ -155,6 +158,7 @@ By default, the library performs geometry pre-optimization using RDKit's MMFF94 
    )
 
 Benefits of pre-optimization:
+
 - Faster ORCA convergence (fewer optimization steps needed)
 - More stable calculations (better starting geometry)
 - Reduced computational cost

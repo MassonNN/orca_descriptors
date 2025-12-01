@@ -16,7 +16,7 @@ Run a benchmark calculation to calibrate time estimation::
 Options:
 
 * ``--working_dir``: Working directory for calculations (default: current directory)
-* ``--functional``: DFT functional (default: PBE0)
+* ``--functional``: DFT functional or semi-empirical method (default: AM1)
 * ``--basis_set``: Basis set (default: def2-SVP)
 * ``--n_processors``: Number of processors (default: 1)
 * All other ORCA parameters are also available
@@ -47,9 +47,46 @@ Example::
    orca_descriptors approximate_time \\
        --molecule CCO \\
        --method_type Opt \\
-       --functional PBE0 \\
+       --functional AM1 \\
        --basis_set def2-TZVP \\
        --n_processors 8
+
+clear
+~~~~~
+
+Remove all ORCA files in the working directory (useful for cleaning up files that weren't removed due to errors)::
+
+   orca_descriptors clear [OPTIONS]
+
+This command removes all ORCA-related files (`.inp`, `.out`, `.log`, `.gbw`, `.cube`, `.prop`, etc.) from the working directory.
+
+Options:
+
+* ``--working_dir``: Working directory to clean (default: current directory)
+* All other ORCA parameters are available but not used
+
+Example::
+
+   orca_descriptors clear --working_dir ./calculations
+
+purge_cache
+~~~~~~~~~~~
+
+Remove ORCA cache::
+
+   orca_descriptors purge_cache [OPTIONS]
+
+This command clears the ORCA cache directory, removing all cached calculation results.
+
+Options:
+
+* ``--cache_dir``: Cache directory to purge (default: output_dir/.orca_cache)
+* ``--output_dir``: Output directory (used to determine cache location if cache_dir not specified)
+* All other ORCA parameters are available but not used
+
+Example::
+
+   orca_descriptors purge_cache --output_dir ./calculations
 
 Available Parameters
 -------------------
@@ -59,7 +96,7 @@ All parameters from the ``Orca`` class are available as command-line arguments:
 * ``--script_path``: Path to ORCA executable (default: 'orca')
 * ``--working_dir``: Working directory for calculations
 * ``--output_dir``: Directory for output files
-* ``--functional``: DFT functional (default: PBE0)
+* ``--functional``: DFT functional or semi-empirical method (default: AM1)
 * ``--basis_set``: Basis set (default: def2-SVP)
 * ``--method_type``: Calculation type: Opt, SP, or Freq (default: Opt)
 * ``--dispersion_correction``: Dispersion correction, e.g., D3BJ (default: D3BJ). Use 'None' to disable.
@@ -81,4 +118,6 @@ Get help for any command::
    orca_descriptors --help
    orca_descriptors run_benchmark --help
    orca_descriptors approximate_time --help
+   orca_descriptors clear --help
+   orca_descriptors purge_cache --help
 

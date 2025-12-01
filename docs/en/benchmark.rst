@@ -12,16 +12,19 @@ How It Works
 The time estimation system uses a benchmark calculation to calibrate performance on your machine:
 
 1. **Benchmark Calculation**: A single-point calculation is run on benzene (C₁H₆) to measure:
+
    - Number of basis functions
    - Time per SCF cycle
    - Total calculation time
 
 2. **Scaling Formula**: For new molecules, the system estimates time using:
+
    - Molecular size scaling (O(N².⁵) for DFT calculations)
    - Method type (SP, Opt, Freq)
    - Number of processors
 
 3. **Parameter Scaling**: The system automatically adjusts for different:
+
    - Number of processors (accounts for parallel efficiency)
    - Basis sets (scales with size)
    - Functionals (accounts for computational cost)
@@ -104,6 +107,7 @@ The benchmark data is saved to::
    <working_dir>/.orca_benchmark.json
 
 This file contains:
+
 * Functional and basis set used
 * Number of processors
 * Number of basis functions

@@ -7,7 +7,7 @@
         <link rel="prefetch" href="_static/logo.png" as="image">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>Интерфейс командной строки - документация ORCA Descriptors 0.3.1</title>
+        <title>Интерфейс командной строки - документация ORCA Descriptors 0.3.3</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">документация ORCA Descriptors 0.3.1</div></a>
+      <a href="index.html"><div class="brand">документация ORCA Descriptors 0.3.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">документация ORCA Descriptors 0.3.1</span>
+  <span class="sidebar-brand-text">документация ORCA Descriptors 0.3.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Поиск" name="q" aria-label="Поиск">
@@ -214,7 +214,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Установка</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Туториал</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pandas_tutorial.html">Туториал по интеграции с Pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_processing.html">Туториал по пакетной обработке</a></li>
 <li class="toctree-l1"><a class="reference internal" href="descriptors.html">Справочник дескрипторов</a></li>
 <li class="toctree-l1"><a class="reference internal" href="benchmark.html">Бенчмарк и оценка времени</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -275,7 +275,7 @@
 <p>Опции:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--working_dir</span></code>: Рабочая директория для расчетов (по умолчанию: текущая директория)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--functional</span></code>: DFT функционал (по умолчанию: PBE0)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--functional</span></code>: DFT функционал или полуэмпирический метод (по умолчанию: AM1)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--basis_set</span></code>: Базисный набор (по умолчанию: def2-SVP)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--n_processors</span></code>: Количество процессоров (по умолчанию: 1)</p></li>
 <li><p>Все остальные параметры ORCA также доступны</p></li>
@@ -311,6 +311,41 @@
 </pre></div>
 </div>
 </section>
+<section id="clear">
+<h3>clear<a class="headerlink" href="#clear" title="Ссылка на этот заголовок">¶</a></h3>
+<p>Удалить все файлы ORCA в рабочей директории (полезно для очистки файлов, которые не были удалены из-за ошибок):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">orca_descriptors</span> <span class="n">clear</span> <span class="p">[</span><span class="n">ОПЦИИ</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Эта команда удаляет все файлы, связанные с ORCA (<cite>.inp</cite>, <cite>.out</cite>, <cite>.log</cite>, <cite>.gbw</cite>, <cite>.cube</cite>, <cite>.prop</cite> и т.д.) из рабочей директории.</p>
+<p>Опции:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--working_dir</span></code>: Рабочая директория для очистки (по умолчанию: текущая директория)</p></li>
+<li><p>Все остальные параметры ORCA доступны, но не используются</p></li>
+</ul>
+<p>Пример:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">orca_descriptors</span> <span class="n">clear</span> <span class="o">--</span><span class="n">working_dir</span> <span class="o">./</span><span class="n">calculations</span>
+</pre></div>
+</div>
+</section>
+<section id="purge-cache">
+<h3>purge_cache<a class="headerlink" href="#purge-cache" title="Ссылка на этот заголовок">¶</a></h3>
+<p>Удалить кеш ORCA:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">orca_descriptors</span> <span class="n">purge_cache</span> <span class="p">[</span><span class="n">ОПЦИИ</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Эта команда очищает директорию кеша ORCA, удаляя все закешированные результаты расчетов.</p>
+<p>Опции:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--cache_dir</span></code>: Директория кеша для очистки (по умолчанию: output_dir/.orca_cache)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--output_dir</span></code>: Директория вывода (используется для определения местоположения кеша, если cache_dir не указан)</p></li>
+<li><p>Все остальные параметры ORCA доступны, но не используются</p></li>
+</ul>
+<p>Пример:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">orca_descriptors</span> <span class="n">purge_cache</span> <span class="o">--</span><span class="n">output_dir</span> <span class="o">./</span><span class="n">calculations</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="id3">
 <h2>Доступные параметры<a class="headerlink" href="#id3" title="Ссылка на этот заголовок">¶</a></h2>
@@ -319,7 +354,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">--script_path</span></code>: Путь к исполняемому файлу ORCA (по умолчанию: „orca“)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--working_dir</span></code>: Рабочая директория для расчетов</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--output_dir</span></code>: Директория для выходных файлов</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--functional</span></code>: DFT функционал (по умолчанию: PBE0)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--functional</span></code>: DFT функционал или полуэмпирический метод (по умолчанию: AM1)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--basis_set</span></code>: Базисный набор (по умолчанию: def2-SVP)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--method_type</span></code>: Тип расчета: Opt, SP или Freq (по умолчанию: Opt)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--dispersion_correction</span></code>: Коррекция дисперсии, например, D3BJ (по умолчанию: D3BJ). Используйте „None“ для отключения.</p></li>
@@ -340,6 +375,8 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">orca_descriptors</span> <span class="o">--</span><span class="n">help</span>
 <span class="n">orca_descriptors</span> <span class="n">run_benchmark</span> <span class="o">--</span><span class="n">help</span>
 <span class="n">orca_descriptors</span> <span class="n">approximate_time</span> <span class="o">--</span><span class="n">help</span>
+<span class="n">orca_descriptors</span> <span class="n">clear</span> <span class="o">--</span><span class="n">help</span>
+<span class="n">orca_descriptors</span> <span class="n">purge_cache</span> <span class="o">--</span><span class="n">help</span>
 </pre></div>
 </div>
 </section>
@@ -404,6 +441,8 @@
 <li><a class="reference internal" href="#id2">Команды</a><ul>
 <li><a class="reference internal" href="#run-benchmark">run_benchmark</a></li>
 <li><a class="reference internal" href="#approximate-time">approximate_time</a></li>
+<li><a class="reference internal" href="#clear">clear</a></li>
+<li><a class="reference internal" href="#purge-cache">purge_cache</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#id3">Доступные параметры</a></li>
@@ -419,7 +458,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=354d9101"></script>
+</div><script src="_static/documentation_options.js?v=bcbc7f8c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

@@ -39,6 +39,9 @@ class ORCAOutputParser:
         data["molecular_volume"] = self._parse_molecular_volume(content)
         data["polar_surface_area"] = self._parse_polar_surface_area(content, data.get("coordinates", []))
         data["orbital_energies"] = self._parse_all_orbital_energies(content)
+        data["nmr_shifts"] = self._parse_nmr_shifts(content, mol)
+        data["mayer_indices"] = self._parse_mayer_indices(content, mol)
+        data["nbo_stabilization_energies"] = self._parse_nbo_stabilization_energies(content)
         
         return data
     
@@ -535,4 +538,173 @@ class ORCAOutputParser:
                         continue
         
         return orbital_energies
-
+    
+    def _parse_nmr_shifts(self, content: str, mol: Optional[Mol] = None) -> dict[int, float]:
+        """Parse NMR chemical shifts from ORCA output.
+        
+        Returns dictionary mapping atom index to chemical shift in ppm.
+        ORCA outputs shielding constants (sigma), chemical shifts are calculated as: delta = sigma_ref - sigma
+        For typical reference: TMS for 13C (sigma_ref ~ 184 ppm), TMS for 1H (sigma_ref ~ 31 ppm)
+        """
+        shifts: dict[int, float] = {}
+        shielding: dict[int, float] = {}
+        
+        lines = content.split("\n")
+        in_nmr_section = False
+        in_shielding_section = False
+        
+        for i, line in enumerate(lines):
+            if "NMR SHIELDING" in line.upper() or "GIAO" in line.upper() or ("ISOTROPIC" in line.upper() and "SHIELDING" in line.upper()):
+                in_shielding_section = True
+                in_nmr_section = True
+                continue
+            
+            if "CHEMICAL SHIFT" in line.upper() or "NMR SHIFTS" in line.upper():
+                in_nmr_section = True
+                in_shielding_section = False
+                continue
+            
+            if in_shielding_section or in_nmr_section:
+                match = re.match(r"\s*(\d+)\s+\w+\s+(-?\d+\.\d+)", line)
+                if not match:
+                    match = re.match(r"\s*(\d+)\s+(-?\d+\.\d+)", line)
+                if match:
+                    idx = int(match.group(1))
+                    val = float(match.group(2))
+                    if in_shielding_section:
+                        shielding[idx] = val
+                    else:
+                        if abs(val) > 10.0:
+                            shifts[idx] = val
+                elif "---" in line or "===" in line:
+                    if shifts or shielding:
+                        break
+                elif not line.strip() and (shifts or shielding):
+                    break
+        
+        if shielding and not shifts:
+            for idx, sigma in shielding.items():
+                if abs(sigma) < 500:
+                    delta = 184.1 - sigma
+                    if 50.0 <= delta <= 250.0:
+                        shifts[idx] = delta
+        
+        if not shifts:
+            for i, line in enumerate(lines):
+                if "ISOTROPIC" in line.upper() and "SHIELDING" in line.upper():
+                    for j in range(i + 1, min(i + 50, len(lines))):
+                        match = re.search(r"(\d+)\s+(-?\d+\.\d+)", lines[j])
+                        if match:
+                            idx = int(match.group(1))
+                            sigma = float(match.group(2))
+                            if abs(sigma) < 500:
+                                delta = 184.1 - sigma
+                                if 50.0 <= delta <= 250.0:
+                                    shifts[idx] = delta
+        
+        return shifts
+    
+    def _parse_mayer_indices(self, content: str, mol: Optional[Mol] = None) -> list[tuple[int, int, float]]:
+        """Parse Mayer bond indices from ORCA output.
+        
+        Returns list of tuples: (atom_i, atom_j, index_value)
+        """
+        indices: list[tuple[int, int, float]] = []
+        
+        lines = content.split("\n")
+        in_mayer_section = False
+        
+        for i, line in enumerate(lines):
+            if "MAYER BOND ORDERS" in line.upper() or ("MAYER" in line.upper() and "bond orders" in line.lower()):
+                in_mayer_section = True
+                continue
+            
+            if in_mayer_section:
+                matches = re.findall(r"B\s*\(\s*(\d+)\s*-\s*\w+\s*,\s*(\d+)\s*-\s*\w+\s*\)\s*:\s*(\d+\.\d+)", line)
+                for match in matches:
+                    idx_i = int(match[0])
+                    idx_j = int(match[1])
+                    index_val = float(match[2])
+                    if 0.01 <= index_val <= 10.0:
+                        indices.append((idx_i, idx_j, index_val))
+                
+                if "---" in line or "===" in line or (not line.strip() and indices and not matches):
+                    if indices:
+                        break
+                elif "MAYER" in line.upper() and "POPULATION" in line.upper():
+                    if indices:
+                        break
+        
+        if not indices:
+            for i, line in enumerate(lines):
+                if "Mayer bond orders" in line.lower():
+                    for j in range(i, min(i + 50, len(lines))):
+                        matches = re.findall(r"B\s*\(\s*(\d+)\s*-\s*\w+\s*,\s*(\d+)\s*-\s*\w+\s*\)\s*:\s*(\d+\.\d+)", lines[j])
+                        for match in matches:
+                            idx_i = int(match[0])
+                            idx_j = int(match[1])
+                            index_val = float(match[2])
+                            if 0.01 <= index_val <= 10.0:
+                                indices.append((idx_i, idx_j, index_val))
+                        if "---" in lines[j] or "===" in lines[j] or (not lines[j].strip() and indices and not matches):
+                            if indices:
+                                break
+        
+        return indices
+    
+    def _parse_nbo_stabilization_energies(self, content: str) -> dict[str, float]:
+        """Parse NBO stabilization energies (E(2)) from ORCA output.
+        
+        Returns dictionary mapping interaction description to energy in kcal/mol.
+        """
+        energies: dict[str, float] = {}
+        
+        if "NBOEXE" in content.upper() and ("NOT SET" in content.upper() or "SKIPPING" in content.upper()):
+            return energies
+        
+        lines = content.split("\n")
+        in_perturbation_section = False
+        
+        for i, line in enumerate(lines):
+            if "SECOND ORDER PERTURBATION THEORY" in line.upper() or "SECOND ORDER" in line.upper():
+                in_perturbation_section = True
+                continue
+            
+            if in_perturbation_section:
+                if "E(2)" in line or "STABILIZATION ENERGY" in line.upper():
+                    match = re.search(r"(-?\d+\.\d+)\s*kcal", line, re.IGNORECASE)
+                    if match:
+                        energy = float(match.group(1))
+                        if energy > 0:
+                            donor_match = re.search(r"(\w+)\s*->\s*(\w+)", line)
+                            if donor_match:
+                                key = f"{donor_match.group(1)}->{donor_match.group(2)}"
+                                energies[key] = energy
+                            else:
+                                lp_match = re.search(r"LP\s*\(\s*(\w+)\s*\)", line, re.IGNORECASE)
+                                pi_match = re.search(r"PI\s*\*\s*\(([^)]+)\)", line, re.IGNORECASE)
+                                if lp_match and pi_match:
+                                    key = f"LP({lp_match.group(1)})->PiStar({pi_match.group(1)})"
+                                    energies[key] = energy
+                                else:
+                                    donor_acceptor = re.search(r"(\w+)\s+(\w+)", line)
+                                    if donor_acceptor:
+                                        key = f"{donor_acceptor.group(1)}->{donor_acceptor.group(2)}"
+                                        energies[key] = energy
+                                    else:
+                                        energies[f"interaction_{len(energies)}"] = energy
+                elif "---" in line or "===" in line or (not line.strip() and energies):
+                    if energies:
+                        break
+        
+        if not energies:
+            for i, line in enumerate(lines):
+                if "E(2)" in line or ("STABILIZATION" in line.upper() and "ENERGY" in line.upper()):
+                    match = re.search(r"(-?\d+\.\d+)\s*kcal", line, re.IGNORECASE)
+                    if match:
+                        energy = float(match.group(1))
+                        if energy > 0:
+                            energies[f"interaction_{len(energies)}"] = energy
+        
+        return energies
+    

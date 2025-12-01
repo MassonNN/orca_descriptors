@@ -3,11 +3,11 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Алфавитный указатель" href="genindex.html"><link rel="search" title="Поиск" href="search.html"><link rel="next" title="Туториал по интеграции с Pandas" href="pandas_tutorial.html"><link rel="prev" title="Установка" href="installation.html">
+<link rel="index" title="Алфавитный указатель" href="genindex.html"><link rel="search" title="Поиск" href="search.html"><link rel="next" title="Туториал по пакетной обработке" href="batch_processing.html"><link rel="prev" title="Установка" href="installation.html">
         <link rel="prefetch" href="_static/logo.png" as="image">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>Туториал - документация ORCA Descriptors 0.3.1</title>
+        <title>Туториал - документация ORCA Descriptors 0.3.3</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">документация ORCA Descriptors 0.3.1</div></a>
+      <a href="index.html"><div class="brand">документация ORCA Descriptors 0.3.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">документация ORCA Descriptors 0.3.1</span>
+  <span class="sidebar-brand-text">документация ORCA Descriptors 0.3.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Поиск" name="q" aria-label="Поиск">
@@ -214,7 +214,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Установка</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Туториал</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pandas_tutorial.html">Туториал по интеграции с Pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_processing.html">Туториал по пакетной обработке</a></li>
 <li class="toctree-l1"><a class="reference internal" href="descriptors.html">Справочник дескрипторов</a></li>
 <li class="toctree-l1"><a class="reference internal" href="benchmark.html">Бенчмарк и оценка времени</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -359,15 +359,19 @@
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Распространенные DFT функционалы:
-- <code class="docutils literal notranslate"><span class="pre">PBE0</span></code> - Гибридный GGA функционал, хороший баланс точности и скорости
-- <code class="docutils literal notranslate"><span class="pre">B3LYP</span></code> - Популярный гибридный функционал
-- <code class="docutils literal notranslate"><span class="pre">M06-2X</span></code> - Meta-GGA функционал, хорош для термохимии
-- <code class="docutils literal notranslate"><span class="pre">ωB97X-D</span></code> - Range-separated гибрид с дисперсией</p>
-<p>Распространенные базисные наборы:
-- <code class="docutils literal notranslate"><span class="pre">def2-SVP</span></code> - Маленький, быстрый (по умолчанию)
-- <code class="docutils literal notranslate"><span class="pre">def2-TZVP</span></code> - Тройной дзета, более точный
-- <code class="docutils literal notranslate"><span class="pre">def2-QZVP</span></code> - Четверной дзета, очень точный, но медленный</p>
+<p>Распространенные DFT функционалы:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PBE0</span></code> - Гибридный GGA функционал, хороший баланс точности и скорости</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B3LYP</span></code> - Популярный гибридный функционал</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">M06-2X</span></code> - Meta-GGA функционал, хорош для термохимии</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ωB97X-D</span></code> - Range-separated гибрид с дисперсией</p></li>
+</ul>
+<p>Распространенные базисные наборы:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">def2-SVP</span></code> - Маленький, быстрый (по умолчанию)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">def2-TZVP</span></code> - Тройной дзета, более точный</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">def2-QZVP</span></code> - Четверной дзета, очень точный, но медленный</p></li>
+</ul>
 </section>
 <section id="id5">
 <h4>Полуэмпирические методы<a class="headerlink" href="#id5" title="Ссылка на этот заголовок">¶</a></h4>
@@ -381,12 +385,14 @@
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Поддерживаемые полуэмпирические методы:
-- <code class="docutils literal notranslate"><span class="pre">AM1</span></code> - Austin Model 1, хорош для органических молекул
-- <code class="docutils literal notranslate"><span class="pre">PM3</span></code> - Parametric Method 3, улучшенная версия AM1
-- <code class="docutils literal notranslate"><span class="pre">PM6</span></code> - Parametric Method 6, лучше для переходных металлов
-- <code class="docutils literal notranslate"><span class="pre">PM7</span></code> - Parametric Method 7, улучшенная точность
-- <code class="docutils literal notranslate"><span class="pre">RM1</span></code> - Recife Model 1, оптимизирован для органических соединений</p>
+<p>Поддерживаемые полуэмпирические методы:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AM1</span></code> - Austin Model 1, хорош для органических молекул</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PM3</span></code> - Parametric Method 3, улучшенная версия AM1</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PM6</span></code> - Parametric Method 6, лучше для переходных металлов</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PM7</span></code> - Parametric Method 7, улучшенная точность</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RM1</span></code> - Recife Model 1, оптимизирован для органических соединений</p></li>
+</ul>
 <p>Примечание: Для полуэмпирических методов параметры <code class="docutils literal notranslate"><span class="pre">basis_set</span></code> и <code class="docutils literal notranslate"><span class="pre">dispersion_correction</span></code> автоматически игнорируются.</p>
 </section>
 </section>
@@ -408,10 +414,12 @@
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Преимущества предоптимизации:
-- Быстрее сходимость ORCA (требуется меньше шагов оптимизации)
-- Более стабильные расчеты (лучшая стартовая геометрия)
-- Снижение вычислительных затрат</p>
+<p>Преимущества предоптимизации:</p>
+<ul class="simple">
+<li><p>Быстрее сходимость ORCA (требуется меньше шагов оптимизации)</p></li>
+<li><p>Более стабильные расчеты (лучшая стартовая геометрия)</p></li>
+<li><p>Снижение вычислительных затрат</p></li>
+</ul>
 <p>Предоптимизация использует MMFF94, который требует явных атомов водорода. Библиотека автоматически добавляет водород, если необходимо, и генерирует 3D координаты, если они отсутствуют.</p>
 </section>
 <section id="id7">
@@ -583,12 +591,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pandas_tutorial.html">
+          <a class="next-page" href="batch_processing.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Туториал по интеграции с Pandas</div>
+                <div class="title">Туториал по пакетной обработке</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -675,7 +683,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=354d9101"></script>
+</div><script src="_static/documentation_options.js?v=bcbc7f8c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

@@ -53,8 +53,8 @@ class XMolecule:
     Example::
     
         x = batch_processing.x_molecule()
-        desc = orca.ch_potential(x)  # Returns DescriptorCall('ch_potential', (), {})
-        desc = orca.mo_energy(x, -3)  # Returns DescriptorCall('mo_energy', (-3,), {})
+        desc = orca.ch_potential(x)
+        desc = orca.mo_energy(x, -3)
     """
     def __init__(self, orca: Optional[Orca] = None):
         """Initialize X molecule.
@@ -218,7 +218,7 @@ class ORCABatchProcessing:
         script_path: str = "orca",
         working_dir: str = ".",
         output_dir: str = ".",
-        functional: str = "PBE0",
+        functional: str = "AM1",
         basis_set: str = "def2-SVP",
         method_type: str = "Opt",
         dispersion_correction: Optional[str] = "D3BJ",
@@ -699,7 +699,6 @@ class ORCABatchProcessing:
                 logger.info(f"[{idx + 1}/{total}] Error processing SMILES {smiles}: {e}")
                 logger.debug(f"[{idx + 1}/{total}] Full error traceback: {error_msg}")
             
-            # Create keys for result dict
             if descriptors and isinstance(descriptors[0], DescriptorCall):
                 keys = []
                 for d in descriptors:
@@ -717,12 +716,17 @@ class ORCABatchProcessing:
     def _get_available_descriptors(self) -> list[str]:
         """Get list of all available descriptor method names.
         
+        Excludes descriptors that require additional parameters beyond the molecule.
+        
         Returns:
             List of descriptor method names
         """
+        import inspect
+        
         excluded = {
             'run_benchmark', 'estimate_calculation_time', 'calculate_descriptors',
             '_get_available_descriptors', 'get_atom_charges', 'get_bond_lengths',
+            'mo_energy', 'topological_distance', 'moran_autocorrelation', 'autocorrelation_hats',
         }
         
         descriptor_methods = []
@@ -730,6 +734,21 @@ class ORCABatchProcessing:
             if not name.startswith('_') and name not in excluded:
                 method = getattr(self.orca, name, None)
                 if callable(method):
+                    try:
+                        sig = inspect.signature(method)
+                        params = list(sig.parameters.values())
+                        if len(params) > 1:
+                            has_required_params = False
+                            for param in params[1:]:
+                                if param.kind in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD):
+                                    continue
+                                if param.default == inspect.Parameter.empty:
+                                    has_required_params = True
+                                    break
+                            if has_required_params:
+                                continue
+                    except (ValueError, TypeError):
+                        pass
                     descriptor_methods.append(name)
         
         return sorted(descriptor_methods)
@@ -779,8 +798,6 @@ class ORCABatchProcessing:
         
         if pandas_available:
             if isinstance(smiles_column, pd.Series):
-                # For Series, we don't create a DataFrame with 'smiles' column
-                # We'll only return descriptors
                 df = None
                 smiles_list = smiles_column.tolist()
             elif isinstance(smiles_column, pd.DataFrame):
@@ -851,16 +868,12 @@ class ORCABatchProcessing:
         
         estimated_times = []
         if progress and total > 1:
-            logger.info("Estimating calculation times...")
             estimated_times = self._estimate_times(smiles_list)
             total_estimated = sum(estimated_times)
             
             if self.parallel_mode == "multiprocessing" and total > 1 and self.n_workers > 1:
                 efficiency = self._get_parallel_efficiency(self.n_workers)
                 parallel_estimated = total_estimated / (self.n_workers * efficiency)
-                logger.info(
-                    f"Total estimated time (sequential): {self._format_time(total_estimated)}"
-                )
                 logger.info(
                     f"Total estimated time (parallel, {self.n_workers} workers, "
                     f"efficiency {efficiency:.0%}): {self._format_time(parallel_estimated)}"
@@ -876,7 +889,6 @@ class ORCABatchProcessing:
                 f"(parallel efficiency: {efficiency:.0%})"
             )
             
-            # Prepare Orca parameters for worker processes
             orca_params = {
                 'script_path': self.orca.script_path,
                 'working_dir': str(self.orca.working_dir),
@@ -900,12 +912,87 @@ class ORCABatchProcessing:
                 'pre_optimize': self.orca.pre_optimize,
             }
             
+            cached_info = {}
+            if progress:
+                for idx, smiles in enumerate(smiles_list):
+                    try:
+                        mol = self._prepare_molecule(smiles)
+                        if mol is not None:
+                            mol_hash = self.orca._get_molecule_hash(mol)
+                            cached_output = self.orca.cache.get(mol_hash)
+                            cached_info[idx] = cached_output is not None and cached_output.exists()
+                    except Exception:
+                        cached_info[idx] = False
+            
             with multiprocessing.Pool(processes=self.n_workers) as pool:
                 args_list = [
                     (idx, smiles, descriptors_to_calculate, total, orca_params)
                     for idx, smiles in enumerate(smiles_list)
                 ]
-                results = pool.map(_calculate_worker_multiprocessing, args_list)
+                
+                if progress and total > 1:
+                    completed = 0
+                    results = []
+                    actual_times = []
+                    processed_indices = set()
+                    last_result_time = time.time()
+                    
+                    for result in pool.imap(_calculate_worker_multiprocessing, args_list):
+                        current_time = time.time()
+                        results.append(result)
+                        completed += 1
+                        remaining = total - completed
+                        idx = result[0]
+                        is_cached = cached_info.get(idx, False)
+                        processed_indices.add(idx)
+                        
+                        if not is_cached:
+                            time_between_results = current_time - last_result_time
+                            if time_between_results > 0:
+                                actual_times.append(time_between_results)
+                        
+                        last_result_time = current_time
+                        remaining_non_cached = sum(1 for i in range(total) if i not in processed_indices and not cached_info.get(i, False))
+                        
+                        if is_cached:
+                            logger.info(f"Processing molecule {completed}/{total} (remaining: {remaining}, CACHED)")
+                        else:
+                            if remaining_non_cached > 0 and (actual_times or estimated_times):
+                                if actual_times and len(actual_times) > 0:
+                                    alpha = 0.3
+                                    if len(actual_times) == 1:
+                                        avg_time = actual_times[0]
+                                    else:
+                                        avg_time = actual_times[0]
+                                        for t in actual_times[1:]:
+                                            avg_time = alpha * t + (1 - alpha) * avg_time
+                                    
+                                    efficiency = self._get_parallel_efficiency(self.n_workers)
+                                    remaining_estimated = (avg_time * remaining_non_cached) / (self.n_workers * efficiency)
+                                else:
+                                    remaining_estimated_times = [estimated_times[i] for i in range(total) if i not in processed_indices and not cached_info.get(i, False)]
+                                    if remaining_estimated_times:
+                                        efficiency = self._get_parallel_efficiency(self.n_workers)
+                                        remaining_estimated = sum(remaining_estimated_times) / (self.n_workers * efficiency)
+                                    else:
+                                        remaining_estimated = 0.0
+                                
+                                if remaining_estimated > 0:
+                                    time_str = f"~{self._format_time(remaining_estimated)}"
+                                    if actual_times:
+                                        avg_actual = sum(actual_times) / len(actual_times)
+                                        logger.info(
+                                            f"Processing molecule {completed}/{total} (remaining: {remaining}, "
+                                            f"estimated time: {time_str}, avg: {avg_actual:.1f}s/molecule)"
+                                        )
+                                    else:
+                                        logger.info(f"Processing molecule {completed}/{total} (remaining: {remaining}, estimated time: {time_str})")
+                                else:
+                                    logger.info(f"Processing molecule {completed}/{total} (remaining: {remaining})")
+                            else:
+                                logger.info(f"Processing molecule {completed}/{total} (remaining: {remaining})")
+                else:
+                    results = pool.map(_calculate_worker_multiprocessing, args_list)
             
             results.sort(key=lambda x: x[0])
             descriptors_list = [result[1] for result in results]

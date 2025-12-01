@@ -7,7 +7,7 @@
         <link rel="prefetch" href="../_static/logo.png" as="image">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.09.25 -->
-        <title>Orca Class - документация ORCA Descriptors 0.3.1</title>
+        <title>Orca Class - документация ORCA Descriptors 0.3.3</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -178,7 +178,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">документация ORCA Descriptors 0.3.1</div></a>
+      <a href="../index.html"><div class="brand">документация ORCA Descriptors 0.3.3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -202,7 +202,7 @@
     <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">документация ORCA Descriptors 0.3.1</span>
+  <span class="sidebar-brand-text">документация ORCA Descriptors 0.3.3</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Поиск" name="q" aria-label="Поиск">
@@ -214,7 +214,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Установка</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Туториал</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pandas_tutorial.html">Туториал по интеграции с Pandas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../batch_processing.html">Туториал по пакетной обработке</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../descriptors.html">Справочник дескрипторов</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../benchmark.html">Бенчмарк и оценка времени</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
@@ -266,337 +266,12 @@
 <p>Main Orca class for quantum chemical calculations.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="orca_descriptors.orca.Orca">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">orca_descriptors.orca.</span></span><span class="sig-name descname"><span class="pre">Orca</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'orca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">functional</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'PBE0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'def2-SVP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Opt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispersion_correction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'D3BJ'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvation_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_processors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_scf_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_convergence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_wait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mpirun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpirun_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_optimize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">orca_descriptors.orca.</span></span><span class="sig-name descname"><span class="pre">Orca</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'orca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">functional</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AM1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'def2-SVP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Opt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispersion_correction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'D3BJ'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvation_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_processors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_scf_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf_convergence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_wait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mpirun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpirun_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_optimize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">OrcaBase</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CalculationMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ElectronicDescriptorsMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyDescriptorsMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">StructuralDescriptorsMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TopologicalDescriptorsMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MiscDescriptorsMixin</span></code></p>
 <p>Main class for ORCA quantum chemical calculations.</p>
 <p>Supports both DFT methods (with basis sets) and semi-empirical methods
 (AM1, PM3, PM6, PM7, etc.). For semi-empirical methods, basis_set and
 dispersion_correction parameters are ignored.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.ch_potential">
-<span class="sig-name descname"><span class="pre">ch_potential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.ch_potential"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.ch_potential" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate chemical potential (mu = -electronegativity).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.electronegativity">
-<span class="sig-name descname"><span class="pre">electronegativity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.electronegativity"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.electronegativity" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate electronegativity (chi = -mu).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.abs_hardness">
-<span class="sig-name descname"><span class="pre">abs_hardness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.abs_hardness"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.abs_hardness" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate absolute hardness (eta = (LUMO - HOMO) / 2).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.abs_softness">
-<span class="sig-name descname"><span class="pre">abs_softness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.abs_softness"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.abs_softness" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate absolute softness (S = 1 / (2 * eta)).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.frontier_electron_density">
-<span class="sig-name descname"><span class="pre">frontier_electron_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.frontier_electron_density"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.frontier_electron_density" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate frontier electron density for each atom.</p>
-<p>Returns list of tuples: (atom, density_value)
-For aromatic systems, typically returns only heavy atoms (C, N, O, etc.)</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.homo_energy">
-<span class="sig-name descname"><span class="pre">homo_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.homo_energy"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.homo_energy" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Get HOMO energy in eV.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.lumo_energy">
-<span class="sig-name descname"><span class="pre">lumo_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.lumo_energy"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.lumo_energy" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Get LUMO energy in eV.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.gap_energy">
-<span class="sig-name descname"><span class="pre">gap_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.gap_energy"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.gap_energy" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate HOMO-LUMO gap in eV.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.total_energy">
-<span class="sig-name descname"><span class="pre">total_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.total_energy"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.total_energy" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Get total energy in Hartree.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.dipole_moment">
-<span class="sig-name descname"><span class="pre">dipole_moment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.dipole_moment"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.dipole_moment" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Get dipole moment magnitude in Debye.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.polar_surface_area">
-<span class="sig-name descname"><span class="pre">polar_surface_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.polar_surface_area"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.polar_surface_area" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate polar surface area in Å².</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.get_atom_charges">
-<span class="sig-name descname"><span class="pre">get_atom_charges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.get_atom_charges"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.get_atom_charges" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Get Mulliken charges for each atom.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.gibbs_free_energy">
-<span class="sig-name descname"><span class="pre">gibbs_free_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.gibbs_free_energy"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.gibbs_free_energy" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Get Gibbs free energy in Hartree.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.entropy">
-<span class="sig-name descname"><span class="pre">entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.entropy"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.entropy" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Get entropy in J/(mol·K).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.enthalpy">
-<span class="sig-name descname"><span class="pre">enthalpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.enthalpy"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.enthalpy" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Get enthalpy in Hartree.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.molecular_volume">
-<span class="sig-name descname"><span class="pre">molecular_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.molecular_volume"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.molecular_volume" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Get molecular volume in Å³.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.get_bond_lengths">
-<span class="sig-name descname"><span class="pre">get_bond_lengths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.get_bond_lengths"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.get_bond_lengths" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Get bond lengths between atoms of specified types in Å.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.run_benchmark">
-<span class="sig-name descname"><span class="pre">run_benchmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.run_benchmark"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.run_benchmark" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Run benchmark calculation to calibrate time estimation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mol</strong> – Test molecule (default: benzene)</p>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionary with benchmark data</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.estimate_calculation_time">
-<span class="sig-name descname"><span class="pre">estimate_calculation_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_opt_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.estimate_calculation_time"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.estimate_calculation_time" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Estimate calculation time for a molecule.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mol</strong> – Target molecule</p></li>
-<li><p><strong>n_opt_steps</strong> – Expected number of optimization steps (for Opt)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>Estimated time in seconds</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.num_rotatable_bonds">
-<span class="sig-name descname"><span class="pre">num_rotatable_bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.num_rotatable_bonds"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.num_rotatable_bonds" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate number of rotatable bonds (Nrot).</p>
-<p>Rotatable bonds are single bonds that are not in rings and not terminal.
-This measures molecular flexibility.</p>
-<p>Special case: For symmetric molecules like acetone (CC(=O)C), the C-C bonds
-on either side of the C=O are not considered rotatable due to symmetry.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mol</strong> – RDKit molecule</p>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>Number of rotatable bonds</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.wiener_index">
-<span class="sig-name descname"><span class="pre">wiener_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.wiener_index"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.wiener_index" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate Wiener Index (W).</p>
-<p>The Wiener Index is a topological descriptor equal to the sum of distances
-between all pairs of non-hydrogen atoms in the molecule’s skeletal graph.
-Paths can go through hydrogen atoms, but only distances between heavy atoms
-are summed.</p>
-<p>For benzene (C6H6), the expected value is 42.
-This is calculated as: sum of distances from each heavy atom to all others.
-For a 6-atom ring: each atom has distances [1,2,3,2,1] to the other 5 atoms,
-sum = 9 per atom, total = 6*9 = 54, but the standard definition counts
-each pair only once, so W = 54/2 = 27. However, some definitions use
-the sum from each atom to all others, which gives 42 for benzene.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mol</strong> – RDKit molecule</p>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>Wiener Index (integer)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.solvent_accessible_surface_area">
-<span class="sig-name descname"><span class="pre">solvent_accessible_surface_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.solvent_accessible_surface_area"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.solvent_accessible_surface_area" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate Solvent Accessible Surface Area (SASA) in Å².</p>
-<p>SASA measures the surface area of the molecule that is accessible to a
-solvent probe. Requires 3D coordinates from ORCA optimization.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mol</strong> – RDKit molecule</p>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>SASA in square Angstroms (Å²)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.mo_energy">
-<span class="sig-name descname"><span class="pre">mo_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.mo_energy"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.mo_energy" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Get molecular orbital energy by index.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mol</strong> – RDKit molecule</p></li>
-<li><p><strong>index</strong> – Orbital index (negative for occupied: -1=HOMO, -2=HOMO-1, etc.)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>Orbital energy in eV</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.get_min_h_charge">
-<span class="sig-name descname"><span class="pre">get_min_h_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ESP'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.get_min_h_charge"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.get_min_h_charge" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Get minimum net atomic charge for hydrogen atoms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mol</strong> – RDKit molecule</p></li>
-<li><p><strong>method</strong> – Charge method (currently only «ESP» supported, uses Mulliken as fallback)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>Minimum hydrogen charge in atomic units</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.xy_shadow">
-<span class="sig-name descname"><span class="pre">xy_shadow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.xy_shadow"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.xy_shadow" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate XY shadow area (projection area on XY plane).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mol</strong> – RDKit molecule</p>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>XY shadow area in Å²</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.meric">
-<span class="sig-name descname"><span class="pre">meric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.meric"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.meric" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate MERIC (Minimum Electrophilicity Index for Carbon).</p>
-<p>MERIC predicts sites susceptible to nucleophilic attack.
-For carbon bonded to heteroatoms (O, N, etc.), MERIC is typically negative.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mol</strong> – RDKit molecule</p>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>Minimum MERIC value in eV (typically negative for electrophilic carbons)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.topological_distance">
-<span class="sig-name descname"><span class="pre">topological_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.topological_distance"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.topological_distance" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate sum of topological distances between all pairs of atoms of specified types.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mol</strong> – RDKit molecule</p></li>
-<li><p><strong>atom1</strong> – First atom type (e.g., „O“)</p></li>
-<li><p><strong>atom2</strong> – Second atom type (e.g., „O“)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>Sum of topological distances (integer)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.m_log_p">
-<span class="sig-name descname"><span class="pre">m_log_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.m_log_p"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.m_log_p" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate Moriguchi Log P (octanol/water partition coefficient).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mol</strong> – RDKit molecule</p>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>Log P value (positive for hydrophobic, negative for hydrophilic)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.moran_autocorrelation">
-<span class="sig-name descname"><span class="pre">moran_autocorrelation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'vdw_volume'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.moran_autocorrelation"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.moran_autocorrelation" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate Moran autocorrelation descriptor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mol</strong> – RDKit molecule</p></li>
-<li><p><strong>lag</strong> – Lag distance (default: 2)</p></li>
-<li><p><strong>weight</strong> – Weighting scheme („vdw_volume“, „atomic_mass“, etc.)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>Moran autocorrelation value (typically in range -1.0 to 1.0)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="orca_descriptors.orca.Orca.autocorrelation_hats">
-<span class="sig-name descname"><span class="pre">autocorrelation_hats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unweighted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.autocorrelation_hats"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.autocorrelation_hats" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Calculate HATS autocorrelation descriptor (H-bond acceptor/donor).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Параметры<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mol</strong> – RDKit molecule</p></li>
-<li><p><strong>lag</strong> – Lag distance (default: 4)</p></li>
-<li><p><strong>unweighted</strong> – If True, use unweighted autocorrelation</p></li>
-</ul>
-</dd>
-<dt class="field-even">Результат<span class="colon">:</span></dt>
-<dd class="field-even"><p>HATS autocorrelation value (typically close to zero)</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="orca_descriptors.orca.Orca.calculate_descriptors">
 <span class="sig-name descname"><span class="pre">calculate_descriptors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smiles_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descriptors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/orca_descriptors/orca.html#Orca.calculate_descriptors"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#orca_descriptors.orca.Orca.calculate_descriptors" title="Ссылка на это определение">¶</a></dt>
@@ -694,36 +369,6 @@ or list of dictionaries (if pandas not available)</p>
             <ul>
 <li><a class="reference internal" href="#">Orca Class</a><ul>
 <li><a class="reference internal" href="#orca_descriptors.orca.Orca"><code class="docutils literal notranslate"><span class="pre">Orca</span></code></a><ul>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.ch_potential"><code class="docutils literal notranslate"><span class="pre">Orca.ch_potential()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.electronegativity"><code class="docutils literal notranslate"><span class="pre">Orca.electronegativity()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.abs_hardness"><code class="docutils literal notranslate"><span class="pre">Orca.abs_hardness()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.abs_softness"><code class="docutils literal notranslate"><span class="pre">Orca.abs_softness()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.frontier_electron_density"><code class="docutils literal notranslate"><span class="pre">Orca.frontier_electron_density()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.homo_energy"><code class="docutils literal notranslate"><span class="pre">Orca.homo_energy()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.lumo_energy"><code class="docutils literal notranslate"><span class="pre">Orca.lumo_energy()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.gap_energy"><code class="docutils literal notranslate"><span class="pre">Orca.gap_energy()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.total_energy"><code class="docutils literal notranslate"><span class="pre">Orca.total_energy()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.dipole_moment"><code class="docutils literal notranslate"><span class="pre">Orca.dipole_moment()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.polar_surface_area"><code class="docutils literal notranslate"><span class="pre">Orca.polar_surface_area()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.get_atom_charges"><code class="docutils literal notranslate"><span class="pre">Orca.get_atom_charges()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.gibbs_free_energy"><code class="docutils literal notranslate"><span class="pre">Orca.gibbs_free_energy()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.entropy"><code class="docutils literal notranslate"><span class="pre">Orca.entropy()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.enthalpy"><code class="docutils literal notranslate"><span class="pre">Orca.enthalpy()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.molecular_volume"><code class="docutils literal notranslate"><span class="pre">Orca.molecular_volume()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.get_bond_lengths"><code class="docutils literal notranslate"><span class="pre">Orca.get_bond_lengths()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.run_benchmark"><code class="docutils literal notranslate"><span class="pre">Orca.run_benchmark()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.estimate_calculation_time"><code class="docutils literal notranslate"><span class="pre">Orca.estimate_calculation_time()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.num_rotatable_bonds"><code class="docutils literal notranslate"><span class="pre">Orca.num_rotatable_bonds()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.wiener_index"><code class="docutils literal notranslate"><span class="pre">Orca.wiener_index()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.solvent_accessible_surface_area"><code class="docutils literal notranslate"><span class="pre">Orca.solvent_accessible_surface_area()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.mo_energy"><code class="docutils literal notranslate"><span class="pre">Orca.mo_energy()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.get_min_h_charge"><code class="docutils literal notranslate"><span class="pre">Orca.get_min_h_charge()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.xy_shadow"><code class="docutils literal notranslate"><span class="pre">Orca.xy_shadow()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.meric"><code class="docutils literal notranslate"><span class="pre">Orca.meric()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.topological_distance"><code class="docutils literal notranslate"><span class="pre">Orca.topological_distance()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.m_log_p"><code class="docutils literal notranslate"><span class="pre">Orca.m_log_p()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.moran_autocorrelation"><code class="docutils literal notranslate"><span class="pre">Orca.moran_autocorrelation()</span></code></a></li>
-<li><a class="reference internal" href="#orca_descriptors.orca.Orca.autocorrelation_hats"><code class="docutils literal notranslate"><span class="pre">Orca.autocorrelation_hats()</span></code></a></li>
 <li><a class="reference internal" href="#orca_descriptors.orca.Orca.calculate_descriptors"><code class="docutils literal notranslate"><span class="pre">Orca.calculate_descriptors()</span></code></a></li>
 </ul>
 </li>
@@ -738,7 +383,7 @@ or list of dictionaries (if pandas not available)</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=354d9101"></script>
+</div><script src="../_static/documentation_options.js?v=bcbc7f8c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

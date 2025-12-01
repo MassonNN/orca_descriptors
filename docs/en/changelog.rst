@@ -2,6 +2,72 @@ Changelog
 =========
 
 
+Version 0.3.4
+-------------
+
+Added
+~~~~~
+
+* Added ``clear`` CLI command to remove all ORCA files in the working directory (useful for cleaning up files that weren't removed due to errors)
+* Added ``purge_cache`` CLI command to remove ORCA cache
+
+Changed
+~~~~~~~
+
+* Improved cache system to preserve original file extensions (`.out`, `.log`, `.smd.out`) when storing files
+* Enhanced NBO stabilization energy parsing with better error messages indicating NBOEXE environment variable requirement
+* Updated test for AM1 Mayer bond indices to account for different values compared to DFT methods
+
+Removed
+~~~~~~~
+
+* Removed ESP extrema descriptor (``get_esp_extrema``) - not implemented due to limitations in ORCA 6.0.1 for generating ESP cube files directly (would require orca_plot utility integration)
+
+Fixed
+~~~~~
+
+* Fixed cache system issue where files were saved with `.out` extension regardless of original extension, causing file not found errors
+* Fixed NBO stabilization energy parsing to properly detect when NBOEXE environment variable is not set
+* Fixed NMR chemical shifts parsing to work correctly with cached files
+* Fixed test for AM1 Mayer bond indices to accept different value ranges compared to DFT
+
+Technical Details
+~~~~~~~~~~~~~~~~~
+
+* Cache now preserves original file extensions to ensure correct file retrieval
+* NBO analysis requires NBOEXE environment variable to be set to point to NBO executable (nbo6.exe or nbo5.exe)
+* ESP extrema calculation would require integration with orca_plot utility, which is not currently implemented
+* CLI commands ``clear`` and ``purge_cache`` help maintain clean working directories and cache management
+
+
+Version 0.3.3
+-------------
+
+Changed
+~~~~~~~
+
+* Major code refactoring: split large ``orca.py`` file (1620 lines) into modular structure:
+  * Created ``base.py`` with ``OrcaBase`` class containing common utility methods
+  * Created ``calculation.py`` with ``CalculationMixin`` for calculation execution methods
+  * Created ``decorators.py`` with ``handle_x_molecule`` decorator
+  * Split descriptors into separate modules by category:
+    * ``descriptors/electronic.py`` - Electronic property descriptors
+    * ``descriptors/energy.py`` - Energy-related descriptors
+    * ``descriptors/structural.py`` - Structural property descriptors
+    * ``descriptors/topological.py`` - Topological descriptors
+    * ``descriptors/misc.py`` - Miscellaneous descriptors
+  * Main ``Orca`` class now uses multiple inheritance from mixins
+  * Improved code organization and maintainability
+  * Removed redundant comments throughout the codebase
+
+Technical Details
+~~~~~~~~~~~~~~~~~
+
+* The new modular structure makes it easier to extend functionality and maintain code
+* Descriptors are organized by category for better code navigation
+* All functionality remains backward compatible
+
+
 Version 0.3.0
 -------------
 
