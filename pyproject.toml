@@ -1,18 +1,58 @@
 [project]
 name = "orca-descriptors"
 version = "0.3.3b2"
-description = "A library of QSAR descriptors calculation using ORCA script"
-authors = [
-    {name = "MassonNN",email = "me@ilyalyapin.ru"}
-]
-license = {text = "LICENSE.md"}
+description = "A Python library for automatic calculation of quantum chemical descriptors for QSAR analysis using ORCA quantum chemistry software"
 readme = "README.md"
 requires-python = ">=3.10"
+license = {text = "MIT License"}
+authors = [
+    {name = "MassonNN", email = "me@ilyalyapin.ru"}
+]
+maintainers = [
+    {name = "MassonNN", email = "me@ilyalyapin.ru"}
+]
+keywords = [
+    "orca",
+    "quantum-chemistry",
+    "qsar",
+    "descriptors",
+    "molecular-descriptors",
+    "computational-chemistry",
+    "dft",
+    "semi-empirical",
+    "molecular-modeling",
+    "cheminformatics",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+    "Natural Language :: Russian",
+]
 dependencies = [
     "rdkit>=2023.0.0",
     "numpy>=1.20.0",
     "requests>=2.28.0",
 ]
+
+[project.urls]
+Homepage = "https://orca-descriptors.massonnn.ru"
+Documentation = "https://orca-descriptors.massonnn.ru"
+Repository = "https://github.com/MassonNN/orca_descriptors"
+Issues = "https://github.com/MassonNN/orca_descriptors/issues"
+"Source Code" = "https://github.com/MassonNN/orca_descriptors"
+"Bug Tracker" = "https://github.com/MassonNN/orca_descriptors/issues"
 
 [project.optional-dependencies]
 pandas = [
