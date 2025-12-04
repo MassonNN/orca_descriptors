@@ -287,7 +287,17 @@ class CalculationMixin:
                 f"ORCA output file not found. Expected one of: {[str(p) for p in possible_outputs]}"
             )
         
-        cached_file = self.cache.store(mol_hash, output_file)
+        # Prepare input parameters for remote cache
+        input_parameters = {
+            'functional': self.functional,
+            'basis_set': self.basis_set,
+            'method_type': self.method_type,
+            'dispersion_correction': self.dispersion_correction,
+            'solvation_model': self.solvation_model,
+            'charge': self.charge,
+            'multiplicity': self.multiplicity,
+        }
+        cached_file = self.cache.store(mol_hash, output_file, input_parameters=input_parameters)
         
         self._cleanup_temp_files(base_name, output_file)
         

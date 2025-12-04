@@ -109,6 +109,24 @@ def create_parser() -> argparse.ArgumentParser:
         help="Directory for caching results (default: output_dir/.orca_cache)",
     )
     common_parser.add_argument(
+        "--cache_server_url",
+        type=str,
+        default=None,
+        help="URL of the remote cache server (e.g., http://localhost:3000). Requires --cache_api_token.",
+    )
+    common_parser.add_argument(
+        "--cache_api_token",
+        type=str,
+        default=None,
+        help="API token for remote cache authentication. Requires --cache_server_url.",
+    )
+    common_parser.add_argument(
+        "--cache_timeout",
+        type=int,
+        default=30,
+        help="Timeout for remote cache requests in seconds (default: 30)",
+    )
+    common_parser.add_argument(
         "--log_level",
         type=str,
         default="INFO",
@@ -272,6 +290,9 @@ def cmd_run_benchmark(args: argparse.Namespace) -> int:
         use_mpirun=args.use_mpirun,
         mpirun_path=args.mpirun_path,
         extra_env=extra_env,
+        cache_server_url=args.cache_server_url,
+        cache_api_token=args.cache_api_token,
+        cache_timeout=args.cache_timeout,
     )
     
     try:
@@ -331,6 +352,9 @@ def cmd_approximate_time(args: argparse.Namespace) -> int:
         use_mpirun=args.use_mpirun,
         mpirun_path=args.mpirun_path,
         extra_env=extra_env,
+        cache_server_url=args.cache_server_url,
+        cache_api_token=args.cache_api_token,
+        cache_timeout=args.cache_timeout,
     )
     
     try:
@@ -398,7 +422,21 @@ def cmd_clear(args: argparse.Namespace) -> int:
     removed_count = 0
     removed_size = 0
     errors = []
+    processed_files = set()
     
+    # First, remove all files starting with "orca_" (covers orca_<hash>.tmp0, orca_<hash>.tmp1, etc.)
+    for file_path in working_dir.glob("orca_*"):
+        try:
+            if file_path.is_file() and file_path not in processed_files:
+                size = file_path.stat().st_size
+                file_path.unlink()
+                removed_count += 1
+                removed_size += size
+                processed_files.add(file_path)
+        except Exception as e:
+            errors.append(f"Failed to remove {file_path}: {e}")
+    
+    # Then, remove files by extension patterns
     for ext in orca_extensions:
         patterns = [
             f"orca_*{ext}",
@@ -408,11 +446,12 @@ def cmd_clear(args: argparse.Namespace) -> int:
         for pattern in patterns:
             for file_path in working_dir.glob(pattern):
                 try:
-                    if file_path.is_file():
+                    if file_path.is_file() and file_path not in processed_files:
                         size = file_path.stat().st_size
                         file_path.unlink()
                         removed_count += 1
                         removed_size += size
+                        processed_files.add(file_path)
                 except Exception as e:
                     errors.append(f"Failed to remove {file_path}: {e}")
     

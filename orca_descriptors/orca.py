@@ -61,6 +61,9 @@ class Orca(
         mpirun_path: Optional[str] = None,
         extra_env: Optional[dict] = None,
         pre_optimize: bool = True,
+        cache_server_url: Optional[str] = None,
+        cache_api_token: Optional[str] = None,
+        cache_timeout: int = 30,
     ):
         """Initialize ORCA calculator.
         
@@ -88,6 +91,9 @@ class Orca(
             mpirun_path: Path to mpirun executable (default: None, will search in PATH)
             extra_env: Additional environment variables to pass to ORCA process (default: None)
             pre_optimize: Whether to pre-optimize geometry with MMFF94 before ORCA calculation (default: True)
+            cache_server_url: URL of the remote cache server (e.g., "http://localhost:3000")
+            cache_api_token: API token for remote cache authentication
+            cache_timeout: Timeout for remote cache requests in seconds (default: 30)
         """
         if not logger.handlers:
             handler = logging.StreamHandler()
@@ -123,8 +129,30 @@ class Orca(
         self.working_dir.mkdir(parents=True, exist_ok=True)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
+        # Initialize remote cache client if credentials provided
+        remote_cache_client = None
+        if cache_server_url and cache_api_token:
+            try:
+                from orca_descriptors.remote_cache import RemoteCacheClient
+                remote_cache_client = RemoteCacheClient(
+                    server_url=cache_server_url,
+                    api_token=cache_api_token,
+                    timeout=cache_timeout,
+                )
+                logger.info(f"Remote cache enabled: {cache_server_url}")
+            except Exception as e:
+                logger.warning(
+                    f"Failed to initialize remote cache client: {e}. "
+                    f"Continuing with local cache only."
+                )
+        elif cache_server_url or cache_api_token:
+            logger.warning(
+                "Both cache_server_url and cache_api_token must be provided "
+                "to enable remote caching. Continuing with local cache only."
+            )
+        
         cache_dir = cache_dir or str(self.output_dir / ".orca_cache")
-        self.cache = CacheManager(cache_dir)
+        self.cache = CacheManager(cache_dir, remote_cache_client=remote_cache_client)
         self.input_generator = ORCAInputGenerator()
         self.output_parser = ORCAOutputParser()
         self.time_estimator = ORCATimeEstimator(working_dir=self.working_dir)

@@ -58,7 +58,7 @@ Remove all ORCA files in the working directory (useful for cleaning up files tha
 
    orca_descriptors clear [OPTIONS]
 
-This command removes all ORCA-related files (`.inp`, `.out`, `.log`, `.gbw`, `.cube`, `.prop`, etc.) from the working directory.
+This command removes all ORCA-related files (`.inp`, `.out`, `.log`, `.gbw`, `.cube`, `.prop`, etc.) and all files starting with ``orca_`` (including temporary files like ``orca_<hash>.tmp0``, ``orca_<hash>.tmp1``, etc.) from the working directory.
 
 Options:
 

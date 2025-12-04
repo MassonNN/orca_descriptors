@@ -2,6 +2,56 @@ Changelog
 =========
 
 
+Version 0.3.3b2
+---------------
+
+Added
+~~~~~
+
+* Added remote cache support for ORCA calculation results via API
+* Added ``RemoteCacheClient`` class for interacting with remote cache service API
+* Added remote cache integration in ``CacheManager`` with hybrid local/remote caching
+* Added ``cache_server_url``, ``cache_api_token``, and ``cache_timeout`` parameters to ``Orca`` class
+* Added CLI parameters ``--cache_server_url``, ``--cache_api_token``, and ``--cache_timeout`` for remote cache configuration
+* Added ``requests>=2.28.0`` dependency for HTTP API communication
+* Added comprehensive error handling for remote cache operations:
+  * ``RemoteCacheError`` for general API errors
+  * ``RemoteCachePermissionError`` for access permission errors (can_read/can_upload)
+  * Proper handling of HTTP errors (401, 403, 404, 500, timeouts, network errors)
+  * Graceful handling of rate limiting and server errors
+* Added integration tests for remote cache functionality:
+  * Client initialization and connectivity tests
+  * Permission checking tests
+  * Upload and retrieval tests
+  * ORCA calculation integration tests
+  * Error handling and fallback tests
+  * Batch processing with remote cache tests
+
+Changed
+~~~~~~~
+
+* Enhanced ``CacheManager`` to support hybrid caching (local + remote):
+  * Local cache is checked first, then remote cache if available
+  * Remote cache entries are automatically downloaded and stored locally when found
+  * Local cache entries are automatically uploaded to remote server after storage
+* Improved cache system to gracefully handle remote cache failures without interrupting calculations
+* Updated ``RemoteCacheClient`` to support both ``X-API-Key`` (default) and ``Authorization: Bearer`` authentication methods
+* Enhanced error parsing to extract detailed error messages from API responses
+* Improved cache retrieval flow: first checks cache existence, then downloads file if available
+
+Technical Details
+~~~~~~~~~~~~~~~~~
+
+* Remote cache works transparently - cached results from server work the same as local cache
+* If remote cache is unavailable or fails, the system falls back to local-only caching
+* API token authentication supports both ``X-API-Key`` header (recommended for programmatic access) and ``Authorization: Bearer`` token
+* Remote cache supports both read and upload operations with permission checking
+* Cache timeout is configurable (default: 30 seconds)
+* All remote cache errors are logged as warnings, allowing calculations to continue with local cache
+* Batch processing fully supports remote cache - calculations are cached and retrieved from remote server when available
+* Cache operations use API v1 endpoints: ``/api/v1/cache/check``, ``/api/v1/cache/upload``, ``/api/v1/cache/{cache_id}/files/{filename}``
+
+
 Version 0.3.4
 -------------
 
