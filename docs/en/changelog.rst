@@ -11,8 +11,9 @@ Added
 * Added remote cache support for ORCA calculation results via API
 * Added ``RemoteCacheClient`` class for interacting with remote cache service API
 * Added remote cache integration in ``CacheManager`` with hybrid local/remote caching
-* Added ``cache_server_url``, ``cache_api_token``, and ``cache_timeout`` parameters to ``Orca`` class
-* Added CLI parameters ``--cache_server_url``, ``--cache_api_token``, and ``--cache_timeout`` for remote cache configuration
+* Added ``cache_server_url``, ``cache_api_token``, ``cache_timeout``, and ``cache_only`` parameters to ``Orca`` class
+* Added CLI parameters ``--cache_server_url``, ``--cache_api_token``, ``--cache_timeout``, and ``--cache_only`` for remote cache configuration
+* Added ``cache_only`` parameter to ``ORCABatchProcessing`` class to enable cache-only mode (no ORCA calculations, only use cached results)
 * Added ``requests>=2.28.0`` dependency for HTTP API communication
 * Added comprehensive error handling for remote cache operations:
   * ``RemoteCacheError`` for general API errors
@@ -34,10 +35,24 @@ Changed
   * Local cache is checked first, then remote cache if available
   * Remote cache entries are automatically downloaded and stored locally when found
   * Local cache entries are automatically uploaded to remote server after storage
+  * ``input_parameters`` are now extracted from remote cache responses and stored in local cache index
 * Improved cache system to gracefully handle remote cache failures without interrupting calculations
 * Updated ``RemoteCacheClient`` to support both ``X-API-Key`` (default) and ``Authorization: Bearer`` authentication methods
 * Enhanced error parsing to extract detailed error messages from API responses
 * Improved cache retrieval flow: first checks cache existence, then downloads file if available
+* Improved batch processing performance by implementing pre-cache checking for all molecules:
+  * All molecules are checked for cache (both local and remote) before starting calculations
+  * Cached molecules are processed immediately and excluded from further calculations
+  * Statistics are displayed showing the number of molecules found in cache and excluded from calculations
+  * This significantly speeds up batch processing when many molecules are already cached
+* Enhanced cache integration in batch processing:
+  * Remote cache is checked automatically if API token is provided
+  * Cached results from both local and remote cache are processed immediately
+  * Better progress reporting with cache statistics
+* Added cache-only mode support:
+  * When ``cache_only=True``, only cached results are used (no ORCA calculations are performed)
+  * Molecules not found in cache return ``None`` for descriptors instead of triggering calculations
+  * Useful for quickly retrieving results from cache without running expensive calculations
 
 Technical Details
 ~~~~~~~~~~~~~~~~~
@@ -50,6 +65,10 @@ Technical Details
 * All remote cache errors are logged as warnings, allowing calculations to continue with local cache
 * Batch processing fully supports remote cache - calculations are cached and retrieved from remote server when available
 * Cache operations use API v1 endpoints: ``/api/v1/cache/check``, ``/api/v1/cache/upload``, ``/api/v1/cache/{cache_id}/files/{filename}``
+* Pre-cache checking in batch processing happens before any calculations start, allowing immediate processing of cached molecules
+* Cached molecules are excluded from calculation queues, reducing unnecessary work
+* Cache statistics help users understand how many calculations were skipped due to caching
+* Works seamlessly with both sequential and multiprocessing modes
 
 
 Version 0.3.4

@@ -83,6 +83,52 @@ The library automatically caches calculation results. If you calculate descripto
    # Second calculation - uses cache
    homo2 = orca.homo_energy(mol)  # Instant
 
+Remote Cache
+~~~~~~~~~~~~
+
+The library supports remote caching via API, allowing you to share calculation results across different machines and users. A public cache server is available at ``https://api.orca-descriptors.massonnn.ru``.
+
+To use remote cache, you need to:
+
+1. Register at `orca-descriptors.massonnn.ru <https://orca-descriptors.massonnn.ru>`_ and generate an API token
+2. Provide the API token when initializing the Orca instance::
+
+   orca = Orca(
+       functional="PBE0",
+       basis_set="def2-SVP",
+       cache_api_token="your_api_token_here",
+       # Optional: specify custom server URL
+       # cache_server_url="https://api.orca-descriptors.massonnn.ru",
+   )
+
+The remote cache works transparently:
+- Local cache is checked first, then remote cache if available
+- Results found in remote cache are automatically downloaded and stored locally
+- New calculations are automatically uploaded to the remote server (if you have upload permissions)
+- If remote cache is unavailable, the system falls back to local-only caching
+
+Cache-Only Mode
+~~~~~~~~~~~~~~~
+
+You can enable cache-only mode to use only cached results without running ORCA calculations. This is useful for quickly retrieving results from cache::
+
+   orca = Orca(
+       functional="PBE0",
+       basis_set="def2-SVP",
+       cache_api_token="your_api_token_here",
+       cache_only=True,  # Only use cache, don't run calculations
+   )
+   
+   # If result is in cache, returns value
+   # If result is not in cache, raises FileNotFoundError
+   homo = orca.homo_energy(mol)
+
+In cache-only mode:
+- Only cached results (local or remote) are used
+- If a result is not found in cache, descriptors return ``None`` in batch processing
+- No ORCA calculations are performed
+- Useful for quickly retrieving results from cache without running expensive calculations
+
 Choosing Functionals and Methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

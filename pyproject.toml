@@ -63,7 +63,7 @@ pandas = [
 orca_descriptors = "orca_descriptors.cli:main"
 
 [tool.poetry]
-packages = [{include = "orca_descriptors"}]
+packages = [{include = "orca_descriptors", from = "."}]
 
 [tool.poetry.scripts]
 orca_descriptors = "orca_descriptors.cli:main"

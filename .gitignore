@@ -245,4 +245,9 @@ test_data/
 
 # Benchmark data (machine-specific)
 .orca_benchmark.json
-orca_*
+# ORCA cache and temporary files (but not files in orca_descriptors package directory)
+orca_*.json
+orca_*.tmp
+orca_*.cache
+orca_*.out
+orca_*.log

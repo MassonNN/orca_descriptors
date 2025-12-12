@@ -411,20 +411,69 @@ Process molecules in batches with different configurations::
    # Combine results
    final_df = pd.concat(all_results, ignore_index=True)
 
+Remote Cache
+-------------
+
+The batch processor supports remote caching via API, allowing you to share calculation results across different machines and users. A public cache server is available at ``https://api.orca-descriptors.massonnn.ru``.
+
+To use remote cache:
+
+1. Register at `orca-descriptors.massonnn.ru <https://orca-descriptors.massonnn.ru>`_ and generate an API token
+2. Provide the API token when initializing the Orca instance::
+
+   orca = Orca(
+       functional="PBE0",
+       basis_set="def2-SVP",
+       cache_api_token="your_api_token_here",
+   )
+   
+   batch_processing = ORCABatchProcessing(orca=orca)
+
+The remote cache works transparently in batch processing:
+- All molecules are checked for cache (both local and remote) before starting calculations
+- Cached molecules are processed immediately and excluded from further calculations
+- New calculations are automatically uploaded to the remote server (if you have upload permissions)
+- Progress messages show when molecules are found in cache
+
+Cache-Only Mode
+---------------
+
+You can enable cache-only mode to use only cached results without running ORCA calculations::
+
+   orca = Orca(
+       functional="PBE0",
+       basis_set="def2-SVP",
+       cache_api_token="your_api_token_here",
+       cache_only=True,  # Only use cache, don't run calculations
+   )
+   
+   batch_processing = ORCABatchProcessing(orca=orca)
+   
+   result = batch_processing.calculate_descriptors(smiles_list)
+
+In cache-only mode:
+- Only cached results (local or remote) are used
+- Molecules not found in cache return ``None`` for descriptors
+- No ORCA calculations are performed
+- Progress messages show warnings for molecules not found in cache
+- Useful for quickly retrieving results from cache without running expensive calculations
+
 Tips and Best Practices
 -----------------------
 
 1. **Caching**: The library automatically caches calculation results. Recalculating descriptors for the same molecules uses cached results, significantly speeding up subsequent runs.
 
-2. **Multiprocessing**: For large datasets, use ``parallel_mode="multiprocessing"`` with an appropriate number of workers (typically equal to CPU cores).
+2. **Remote Cache**: Use remote cache to share results across machines and collaborate with others. Register at `orca-descriptors.massonnn.ru <https://orca-descriptors.massonnn.ru>`_ to get an API token.
 
-3. **Descriptor Selection**: Use the XMolecule API to define descriptors with parameters, making your code more readable and maintainable.
+3. **Multiprocessing**: For large datasets, use ``parallel_mode="multiprocessing"`` with an appropriate number of workers (typically equal to CPU cores).
 
-4. **Progress Monitoring**: Keep ``progress=True`` (default) to monitor long-running calculations and identify cached molecules.
+4. **Descriptor Selection**: Use the XMolecule API to define descriptors with parameters, making your code more readable and maintainable.
 
-5. **Data Validation**: Check for ``None`` values in the result DataFrame to identify molecules that failed descriptor calculation.
+5. **Progress Monitoring**: Keep ``progress=True`` (default) to monitor long-running calculations and identify cached molecules.
 
-6. **Memory Management**: For very large datasets, process molecules in batches to manage memory usage.
+6. **Data Validation**: Check for ``None`` values in the result DataFrame to identify molecules that failed descriptor calculation or were not found in cache (when using cache-only mode).
+
+7. **Memory Management**: For very large datasets, process molecules in batches to manage memory usage.
 
 Available Descriptors
 ---------------------

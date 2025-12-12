@@ -1,6 +1,8 @@
 """Main Orca class for quantum chemical calculations."""
 
 import logging
+import os
+import re
 from pathlib import Path
 from typing import Any, Optional, Union
 
@@ -64,6 +66,7 @@ class Orca(
         cache_server_url: Optional[str] = None,
         cache_api_token: Optional[str] = None,
         cache_timeout: int = 30,
+        cache_only: bool = False,
     ):
         """Initialize ORCA calculator.
         
@@ -91,9 +94,10 @@ class Orca(
             mpirun_path: Path to mpirun executable (default: None, will search in PATH)
             extra_env: Additional environment variables to pass to ORCA process (default: None)
             pre_optimize: Whether to pre-optimize geometry with MMFF94 before ORCA calculation (default: True)
-            cache_server_url: URL of the remote cache server (e.g., "http://localhost:3000")
-            cache_api_token: API token for remote cache authentication
+            cache_server_url: URL of the remote cache server (optional, defaults to https://api.orca-descriptors.massonnn.ru)
+            cache_api_token: API token for remote cache authentication (required for remote cache)
             cache_timeout: Timeout for remote cache requests in seconds (default: 30)
+            cache_only: If True, only use cache and do not run ORCA calculations (default: False)
         """
         if not logger.handlers:
             handler = logging.StreamHandler()
@@ -125,30 +129,39 @@ class Orca(
         self.mpirun_path = mpirun_path
         self.extra_env = extra_env or {}
         self.pre_optimize = pre_optimize
+        self.cache_only = cache_only
         
         self.working_dir.mkdir(parents=True, exist_ok=True)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize remote cache client if credentials provided
+        # Initialize remote cache client if API token provided
         remote_cache_client = None
-        if cache_server_url and cache_api_token:
+        if cache_api_token:
             try:
                 from orca_descriptors.remote_cache import RemoteCacheClient
-                remote_cache_client = RemoteCacheClient(
-                    server_url=cache_server_url,
-                    api_token=cache_api_token,
-                    timeout=cache_timeout,
-                )
-                logger.info(f"Remote cache enabled: {cache_server_url}")
+                # Use provided URL or let RemoteCacheClient use its default
+                if cache_server_url:
+                    remote_cache_client = RemoteCacheClient(
+                        server_url=cache_server_url,
+                        api_token=cache_api_token,
+                        timeout=cache_timeout,
+                    )
+                else:
+                    # Use default URL from RemoteCacheClient
+                    remote_cache_client = RemoteCacheClient(
+                        api_token=cache_api_token,
+                        timeout=cache_timeout,
+                    )
+                    logger.debug(f"Remote cache enabled: {remote_cache_client.server_url}")
             except Exception as e:
                 logger.warning(
                     f"Failed to initialize remote cache client: {e}. "
                     f"Continuing with local cache only."
                 )
-        elif cache_server_url or cache_api_token:
+        elif cache_server_url:
             logger.warning(
-                "Both cache_server_url and cache_api_token must be provided "
-                "to enable remote caching. Continuing with local cache only."
+                "cache_api_token is required to enable remote caching. "
+                "Continuing with local cache only."
             )
         
         cache_dir = cache_dir or str(self.output_dir / ".orca_cache")
@@ -156,6 +169,88 @@ class Orca(
         self.input_generator = ORCAInputGenerator()
         self.output_parser = ORCAOutputParser()
         self.time_estimator = ORCATimeEstimator(working_dir=self.working_dir)
+        
+        # Determine ORCA version for remote cache
+        self._orca_version = None
+        if remote_cache_client:
+            self._determine_orca_version()
+    
+    def _determine_orca_version(self):
+        """Determine ORCA version from executable or cached output files.
+        
+        Tries multiple methods:
+        1. Check if we have cached output files with version info
+        2. Try to run ORCA with --version flag
+        3. Use default version if all else fails
+        """
+        # Method 1: Check cached output files
+        if self.cache and hasattr(self.cache, 'index'):
+            for mol_hash, index_entry in list(self.cache.index.items())[:5]:  # Check first 5 cached files
+                try:
+                    # Handle both old format (string path) and new format (dict with path)
+                    if isinstance(index_entry, str):
+                        cached_path = Path(index_entry)
+                    else:
+                        cached_path = Path(index_entry.get('path', ''))
+                    
+                    if cached_path.exists():
+                        parsed_data = self.output_parser.parse(cached_path)
+                        version = parsed_data.get('orca_version')
+                        if version:
+                            self._orca_version = version  # Keep full format for display
+                            if self.cache.remote_cache_client:
+                                # Normalize to API format (extract version number)
+                                self.cache.remote_cache_client.method_version = version
+                            logger.debug(f"Determined ORCA version from cache: {self.cache.remote_cache_client.method_version if self.cache.remote_cache_client else version}")
+                            return
+                except Exception as e:
+                    logger.debug(f"Could not parse version from cached file: {e}")
+                    continue
+        
+        # Method 2: Try to get version from ORCA executable
+        try:
+            import subprocess
+            import shutil
+            
+            if os.path.isabs(self.script_path):
+                orca_path = self.script_path
+            else:
+                orca_path = shutil.which(self.script_path)
+            
+            if orca_path:
+                # Try --version flag
+                try:
+                    result = subprocess.run(
+                        [orca_path, "--version"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5,
+                        cwd=str(self.working_dir)
+                    )
+                    if result.returncode == 0:
+                        output = result.stdout + result.stderr
+                        # Parse version from output
+                        version_match = re.search(r"(\d+\.\d+\.\d+)", output)
+                        if version_match:
+                            version_display = f"ORCA {version_match.group(1)}"
+                            version_for_api = version_match.group(1)  # API format without "ORCA" prefix
+                            self._orca_version = version_display
+                            if self.cache.remote_cache_client:
+                                self.cache.remote_cache_client.method_version = version_for_api
+                            logger.debug(f"Determined ORCA version from executable: {self.cache.remote_cache_client.method_version if self.cache.remote_cache_client else version_display}")
+                            return
+                except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
+                    logger.debug(f"Could not get version from ORCA executable: {e}")
+        except Exception as e:
+            logger.debug(f"Error determining ORCA version: {e}")
+        
+        # Method 3: Use default version
+        default_version = "ORCA 6.0.1"  # Keep for display/logging
+        default_version_for_api = "6.0.1"  # API format without "ORCA" prefix
+        self._orca_version = default_version
+        if self.cache.remote_cache_client:
+            self.cache.remote_cache_client.method_version = default_version_for_api
+        logger.debug(f"Using default ORCA version: {self.cache.remote_cache_client.method_version if self.cache.remote_cache_client else default_version}")
     
     def calculate_descriptors(
         self,

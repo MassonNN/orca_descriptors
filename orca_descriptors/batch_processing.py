@@ -237,6 +237,7 @@ class ORCABatchProcessing:
         parallel_mode: str = "sequential",
         n_workers: Optional[int] = None,
         pre_optimize: bool = True,
+        cache_only: bool = False,
     ):
         """Initialize ORCA batch processor.
         
@@ -267,6 +268,7 @@ class ORCABatchProcessing:
                           "mpirun": Use mpirun for each ORCA calculation (ORCA's built-in parallelization)
             n_workers: Number of parallel workers for multiprocessing mode (default: number of CPUs)
             pre_optimize: Whether to pre-optimize geometry with MMFF94 before ORCA calculation (default: True)
+            cache_only: If True, only use cache and do not run ORCA calculations (default: False)
         """
         if not logger.handlers:
             handler = logging.StreamHandler()
@@ -282,6 +284,8 @@ class ORCABatchProcessing:
         
         if orca is not None:
             self.orca = orca
+            if cache_only:
+                self.orca.cache_only = cache_only
         else:
             self.orca = Orca(
                 script_path=script_path,
@@ -304,6 +308,7 @@ class ORCABatchProcessing:
                 mpirun_path=mpirun_path,
                 extra_env=extra_env,
                 pre_optimize=pre_optimize,
+                cache_only=cache_only,
             )
         
         self.parallel_mode = parallel_mode
@@ -643,6 +648,25 @@ class ORCABatchProcessing:
                             result = method(mol)
                         
                         result_descriptors[desc_name] = result
+                except FileNotFoundError as e:
+                    if getattr(self.orca, 'cache_only', False) and "cache_only" in str(e).lower():
+                        if isinstance(desc, DescriptorCall):
+                            desc_name = desc.method_name
+                            param_str = ""
+                            if desc.args:
+                                param_str = "_" + "_".join(str(a) for a in desc.args)
+                            if desc.kwargs:
+                                param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(desc.kwargs.items()))
+                            result_key = f"{desc_name}{param_str}"
+                        else:
+                            desc_name = desc
+                            result_key = desc_name
+                        
+                        logger.warning(f"[{idx + 1}/{total}] Result not found in cache for '{desc_name}' (cache_only=True)")
+                        result_descriptors[result_key] = None
+                        continue
+                    else:
+                        raise
                 except Exception as e:
                     error_msg = str(e)
                     brief_error, detailed_error = self._parse_orca_error(error_msg)
@@ -688,6 +712,23 @@ class ORCABatchProcessing:
             
             return result_descriptors
             
+        except FileNotFoundError as e:
+            if getattr(self.orca, 'cache_only', False) and "cache_only" in str(e).lower():
+                if descriptors and isinstance(descriptors[0], DescriptorCall):
+                    keys = []
+                    for d in descriptors:
+                        param_str = ""
+                        if d.args:
+                            param_str = "_" + "_".join(str(a) for a in d.args)
+                        if d.kwargs:
+                            param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(d.kwargs.items()))
+                        keys.append(f"{d.method_name}{param_str}")
+                else:
+                    keys = descriptors if descriptors else []
+                logger.warning(f"[{idx + 1}/{total}] Result not found in cache for SMILES {smiles} (cache_only=True)")
+                return {desc: None for desc in keys}
+            else:
+                raise
         except Exception as e:
             error_msg = str(e)
             brief_error, detailed_error = self._parse_orca_error(error_msg)
@@ -866,12 +907,174 @@ class ORCABatchProcessing:
             else:
                 return []
         
+        cached_results = {}
+        cached_indices = set()
+        molecules_to_process = []
+        indices_to_process = []
+        
+        if progress:
+            logger.info(f"Checking cache for {total} molecules...")
+        
+        for idx, smiles in enumerate(smiles_list):
+            try:
+                mol = self._prepare_molecule(smiles)
+                if mol is not None:
+                    mol_hash = self.orca._get_molecule_hash(mol)
+                    cached_output = self.orca.cache.get(mol_hash)
+                    if cached_output is not None and cached_output.exists():
+                        try:
+                            result = self._calculate_single_molecule(smiles, descriptors_to_calculate, idx, total)
+                            cached_results[idx] = result
+                            cached_indices.add(idx)
+                            if progress:
+                                logger.info(f"[{idx + 1}/{total}] Found in cache")
+                        except Exception as e:
+                            logger.debug(f"Error processing cached molecule {idx + 1}/{total}: {e}")
+                            molecules_to_process.append((idx, smiles))
+                            indices_to_process.append(idx)
+                    else:
+                        if getattr(self.orca, 'cache_only', False):
+                            if progress:
+                                logger.warning(f"[{idx + 1}/{total}] Not found in cache (cache_only=True)")
+                            result = self._calculate_single_molecule(smiles, descriptors_to_calculate, idx, total)
+                            cached_results[idx] = result
+                            cached_indices.add(idx)
+                        else:
+                            molecules_to_process.append((idx, smiles))
+                            indices_to_process.append(idx)
+                else:
+                    if getattr(self.orca, 'cache_only', False):
+                        if progress:
+                            logger.warning(f"[{idx + 1}/{total}] Failed to parse SMILES (cache_only=True): {smiles}")
+                        if descriptors_to_calculate and isinstance(descriptors_to_calculate[0], DescriptorCall):
+                            keys = []
+                            for d in descriptors_to_calculate:
+                                param_str = ""
+                                if d.args:
+                                    param_str = "_" + "_".join(str(a) for a in d.args)
+                                if d.kwargs:
+                                    param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(d.kwargs.items()))
+                                keys.append(f"{d.method_name}{param_str}")
+                        else:
+                            keys = descriptors_to_calculate if descriptors_to_calculate else []
+                        cached_results[idx] = {desc: None for desc in keys}
+                        cached_indices.add(idx)
+                    else:
+                        molecules_to_process.append((idx, smiles))
+                        indices_to_process.append(idx)
+            except Exception as e:
+                logger.debug(f"Error checking cache for molecule {idx + 1}/{total}: {e}")
+                if getattr(self.orca, 'cache_only', False):
+                    if progress:
+                        logger.warning(f"[{idx + 1}/{total}] Error checking cache (cache_only=True): {e}")
+                    if descriptors_to_calculate and isinstance(descriptors_to_calculate[0], DescriptorCall):
+                        keys = []
+                        for d in descriptors_to_calculate:
+                            param_str = ""
+                            if d.args:
+                                param_str = "_" + "_".join(str(a) for a in d.args)
+                            if d.kwargs:
+                                param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(d.kwargs.items()))
+                            keys.append(f"{d.method_name}{param_str}")
+                    else:
+                        keys = descriptors_to_calculate if descriptors_to_calculate else []
+                    cached_results[idx] = {desc: None for desc in keys}
+                    cached_indices.add(idx)
+                else:
+                    molecules_to_process.append((idx, smiles))
+                    indices_to_process.append(idx)
+        
+        cached_count = len(cached_indices)
+        remaining_count = len(molecules_to_process)
+        
+        if progress and cached_count > 0:
+            if getattr(self.orca, 'cache_only', False):
+                logger.info(
+                    f"Found {cached_count} molecule(s) in cache. "
+                    f"{remaining_count} molecule(s) not found in cache (cache_only=True)."
+                )
+            else:
+                logger.info(
+                    f"Found {cached_count} molecule(s) in cache. "
+                    f"{remaining_count} molecule(s) will be calculated."
+                )
+        
+        if getattr(self.orca, 'cache_only', False) and cached_count == total:
+            if progress:
+                logger.info(f"All {total} molecules processed (cache_only=True).")
+            
+            descriptors_list = [cached_results.get(idx, {}) for idx in range(total)]
+            
+            if pandas_available:
+                descriptor_df = pd.DataFrame(descriptors_list)
+                
+                if df is not None:
+                    result_df = pd.concat([df.reset_index(drop=True), descriptor_df.reset_index(drop=True)], axis=1)
+                    return result_df
+                else:
+                    return descriptor_df
+            else:
+                return descriptors_list
+        
+        if cached_count == total and not getattr(self.orca, 'cache_only', False):
+            if progress:
+                logger.info(f"All {total} molecules found in cache. No calculations needed.")
+            
+            descriptors_list = [cached_results.get(idx, {}) for idx in range(total)]
+            
+            if pandas_available:
+                descriptor_df = pd.DataFrame(descriptors_list)
+                
+                if df is not None:
+                    result_df = pd.concat([df.reset_index(drop=True), descriptor_df.reset_index(drop=True)], axis=1)
+                    return result_df
+                else:
+                    return descriptor_df
+            else:
+                return descriptors_list
+        
+        if getattr(self.orca, 'cache_only', False) and remaining_count > 0:
+            if progress:
+                logger.warning(
+                    f"{remaining_count} molecule(s) not found in cache and will be skipped (cache_only=True)."
+                )
+            for idx, smiles in molecules_to_process:
+                if descriptors_to_calculate and isinstance(descriptors_to_calculate[0], DescriptorCall):
+                    keys = []
+                    for d in descriptors_to_calculate:
+                        param_str = ""
+                        if d.args:
+                            param_str = "_" + "_".join(str(a) for a in d.args)
+                        if d.kwargs:
+                            param_str += "_" + "_".join(f"{k}_{v}" for k, v in sorted(d.kwargs.items()))
+                        keys.append(f"{d.method_name}{param_str}")
+                else:
+                    keys = descriptors_to_calculate if descriptors_to_calculate else []
+                cached_results[idx] = {desc: None for desc in keys}
+                cached_indices.add(idx)
+            
+            descriptors_list = [cached_results.get(idx, {}) for idx in range(total)]
+            
+            if pandas_available:
+                descriptor_df = pd.DataFrame(descriptors_list)
+                
+                if df is not None:
+                    result_df = pd.concat([df.reset_index(drop=True), descriptor_df.reset_index(drop=True)], axis=1)
+                    return result_df
+                else:
+                    return descriptor_df
+            else:
+                return descriptors_list
+        
+        smiles_list = [smiles for _, smiles in molecules_to_process]
+        original_indices = [idx for idx, _ in molecules_to_process]
+        
         estimated_times = []
-        if progress and total > 1:
+        if progress and remaining_count > 1:
             estimated_times = self._estimate_times(smiles_list)
             total_estimated = sum(estimated_times)
             
-            if self.parallel_mode == "multiprocessing" and total > 1 and self.n_workers > 1:
+            if self.parallel_mode == "multiprocessing" and remaining_count > 1 and self.n_workers > 1:
                 efficiency = self._get_parallel_efficiency(self.n_workers)
                 parallel_estimated = total_estimated / (self.n_workers * efficiency)
                 logger.info(
@@ -882,10 +1085,10 @@ class ORCABatchProcessing:
             elif total_estimated > 0:
                 logger.info(f"Total estimated time: {self._format_time(total_estimated)}")
         
-        if self.parallel_mode == "multiprocessing" and total > 1:
+        if self.parallel_mode == "multiprocessing" and remaining_count > 1:
             efficiency = self._get_parallel_efficiency(self.n_workers)
             logger.info(
-                f"Processing {total} molecules using multiprocessing with {self.n_workers} workers "
+                f"Processing {remaining_count} molecules using multiprocessing with {self.n_workers} workers "
                 f"(parallel efficiency: {efficiency:.0%})"
             )
             
@@ -913,24 +1116,14 @@ class ORCABatchProcessing:
             }
             
             cached_info = {}
-            if progress:
-                for idx, smiles in enumerate(smiles_list):
-                    try:
-                        mol = self._prepare_molecule(smiles)
-                        if mol is not None:
-                            mol_hash = self.orca._get_molecule_hash(mol)
-                            cached_output = self.orca.cache.get(mol_hash)
-                            cached_info[idx] = cached_output is not None and cached_output.exists()
-                    except Exception:
-                        cached_info[idx] = False
             
             with multiprocessing.Pool(processes=self.n_workers) as pool:
                 args_list = [
-                    (idx, smiles, descriptors_to_calculate, total, orca_params)
-                    for idx, smiles in enumerate(smiles_list)
+                    (original_idx, smiles, descriptors_to_calculate, remaining_count, orca_params)
+                    for original_idx, smiles in molecules_to_process
                 ]
                 
-                if progress and total > 1:
+                if progress and remaining_count > 1:
                     completed = 0
                     results = []
                     actual_times = []
@@ -941,119 +1134,106 @@ class ORCABatchProcessing:
                         current_time = time.time()
                         results.append(result)
                         completed += 1
-                        remaining = total - completed
+                        remaining = remaining_count - completed
                         idx = result[0]
-                        is_cached = cached_info.get(idx, False)
                         processed_indices.add(idx)
                         
-                        if not is_cached:
-                            time_between_results = current_time - last_result_time
-                            if time_between_results > 0:
-                                actual_times.append(time_between_results)
+                        time_between_results = current_time - last_result_time
+                        if time_between_results > 0:
+                            actual_times.append(time_between_results)
                         
                         last_result_time = current_time
-                        remaining_non_cached = sum(1 for i in range(total) if i not in processed_indices and not cached_info.get(i, False))
+                        remaining_to_process = remaining_count - completed
                         
-                        if is_cached:
-                            logger.info(f"Processing molecule {completed}/{total} (remaining: {remaining}, CACHED)")
-                        else:
-                            if remaining_non_cached > 0 and (actual_times or estimated_times):
-                                if actual_times and len(actual_times) > 0:
-                                    alpha = 0.3
-                                    if len(actual_times) == 1:
-                                        avg_time = actual_times[0]
-                                    else:
-                                        avg_time = actual_times[0]
-                                        for t in actual_times[1:]:
-                                            avg_time = alpha * t + (1 - alpha) * avg_time
-                                    
-                                    efficiency = self._get_parallel_efficiency(self.n_workers)
-                                    remaining_estimated = (avg_time * remaining_non_cached) / (self.n_workers * efficiency)
+                        if remaining_to_process > 0 and (actual_times or estimated_times):
+                            if actual_times and len(actual_times) > 0:
+                                alpha = 0.3
+                                if len(actual_times) == 1:
+                                    avg_time = actual_times[0]
                                 else:
-                                    remaining_estimated_times = [estimated_times[i] for i in range(total) if i not in processed_indices and not cached_info.get(i, False)]
-                                    if remaining_estimated_times:
-                                        efficiency = self._get_parallel_efficiency(self.n_workers)
-                                        remaining_estimated = sum(remaining_estimated_times) / (self.n_workers * efficiency)
-                                    else:
-                                        remaining_estimated = 0.0
+                                    avg_time = actual_times[0]
+                                    for t in actual_times[1:]:
+                                        avg_time = alpha * t + (1 - alpha) * avg_time
                                 
-                                if remaining_estimated > 0:
-                                    time_str = f"~{self._format_time(remaining_estimated)}"
-                                    if actual_times:
-                                        avg_actual = sum(actual_times) / len(actual_times)
-                                        logger.info(
-                                            f"Processing molecule {completed}/{total} (remaining: {remaining}, "
-                                            f"estimated time: {time_str}, avg: {avg_actual:.1f}s/molecule)"
-                                        )
-                                    else:
-                                        logger.info(f"Processing molecule {completed}/{total} (remaining: {remaining}, estimated time: {time_str})")
-                                else:
-                                    logger.info(f"Processing molecule {completed}/{total} (remaining: {remaining})")
+                                efficiency = self._get_parallel_efficiency(self.n_workers)
+                                remaining_estimated = (avg_time * remaining_to_process) / (self.n_workers * efficiency)
                             else:
-                                logger.info(f"Processing molecule {completed}/{total} (remaining: {remaining})")
+                                remaining_estimated_times = [estimated_times[i] for i in range(len(estimated_times)) if original_indices[i] not in processed_indices]
+                                if remaining_estimated_times:
+                                    efficiency = self._get_parallel_efficiency(self.n_workers)
+                                    remaining_estimated = sum(remaining_estimated_times) / (self.n_workers * efficiency)
+                                else:
+                                    remaining_estimated = 0.0
+                            
+                            if remaining_estimated > 0:
+                                time_str = f"~{self._format_time(remaining_estimated)}"
+                                if actual_times:
+                                    avg_actual = sum(actual_times) / len(actual_times)
+                                    logger.info(
+                                        f"Processing molecule {completed}/{remaining_count} (remaining: {remaining}, "
+                                        f"estimated time: {time_str}, avg: {avg_actual:.1f}s/molecule)"
+                                    )
+                                else:
+                                    logger.info(f"Processing molecule {completed}/{remaining_count} (remaining: {remaining}, estimated time: {time_str})")
+                            else:
+                                logger.info(f"Processing molecule {completed}/{remaining_count} (remaining: {remaining})")
+                        else:
+                            logger.info(f"Processing molecule {completed}/{remaining_count} (remaining: {remaining})")
                 else:
                     results = pool.map(_calculate_worker_multiprocessing, args_list)
             
             results.sort(key=lambda x: x[0])
-            descriptors_list = [result[1] for result in results]
+            all_results = {}
+            all_results.update(cached_results)
+            for idx, result_dict in results:
+                all_results[idx] = result_dict
+            
+            descriptors_list = [all_results.get(idx, {}) for idx in range(total)]
         else:
             descriptors_list = []
             actual_times = []
             
-            for idx, smiles in enumerate(smiles_list):
-                is_cached = False
-                try:
-                    mol = self._prepare_molecule(smiles)
-                    if mol is not None:
-                        mol_hash = self.orca._get_molecule_hash(mol)
-                        cached_output = self.orca.cache.get(mol_hash)
-                        is_cached = cached_output is not None and cached_output.exists()
-                except Exception:
-                    pass
-                
-                if progress and total > 1:
-                    remaining = total - idx
+            for local_idx, (original_idx, smiles) in enumerate(molecules_to_process):
+                if progress and remaining_count > 1:
+                    remaining = remaining_count - local_idx
                     
-                    if is_cached:
+                    if actual_times and len(actual_times) > 0:
+                        alpha = 0.3
+                        if len(actual_times) == 1:
+                            avg_time = actual_times[0]
+                        else:
+                            avg_time = actual_times[0]
+                            for t in actual_times[1:]:
+                                avg_time = alpha * t + (1 - alpha) * avg_time
+                        remaining_estimated = avg_time * remaining
+                    else:
+                        remaining_estimated = sum(estimated_times[local_idx:]) if estimated_times else 0.0
+                    
+                    if remaining_estimated > 0:
+                        time_str = f"~{self._format_time(remaining_estimated)}"
+                        
                         if actual_times:
                             avg_actual = sum(actual_times) / len(actual_times)
                             logger.info(
-                                f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, "
-                                f"CACHED, avg: {avg_actual:.1f}s/molecule)"
+                                f"Processing molecule {local_idx + 1}/{remaining_count} (remaining: {remaining}, "
+                                f"estimated time: {time_str}, avg: {avg_actual:.1f}s/molecule)"
                             )
                         else:
-                            logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, CACHED)")
+                            logger.info(f"Processing molecule {local_idx + 1}/{remaining_count} (remaining: {remaining}, estimated time: {time_str})")
                     else:
-                        if actual_times and len(actual_times) > 0:
-                            alpha = 0.3
-                            if len(actual_times) == 1:
-                                avg_time = actual_times[0]
-                            else:
-                                avg_time = actual_times[0]
-                                for t in actual_times[1:]:
-                                    avg_time = alpha * t + (1 - alpha) * avg_time
-                            remaining_estimated = avg_time * remaining
-                        else:
-                            remaining_estimated = sum(estimated_times[idx:]) if estimated_times else 0.0
-                        
-                        if remaining_estimated > 0:
-                            time_str = f"~{self._format_time(remaining_estimated)}"
-                            
-                            if actual_times:
-                                avg_actual = sum(actual_times) / len(actual_times)
-                                logger.info(
-                                    f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, "
-                                    f"estimated time: {time_str}, avg: {avg_actual:.1f}s/molecule)"
-                                )
-                            else:
-                                logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining}, estimated time: {time_str})")
-                        else:
-                            logger.info(f"Processing molecule {idx + 1}/{total} (remaining: {remaining})")
+                        logger.info(f"Processing molecule {local_idx + 1}/{remaining_count} (remaining: {remaining})")
                 
                 start_time = time.time()
-                result = self._calculate_single_molecule(smiles, descriptors_to_calculate, idx, total)
-                descriptors_list.append(result)
+                result = self._calculate_single_molecule(smiles, descriptors_to_calculate, original_idx, total)
+                descriptors_list.append((original_idx, result))
                 actual_times.append(time.time() - start_time)
+            
+            all_results = {}
+            all_results.update(cached_results)
+            for original_idx, result_dict in descriptors_list:
+                all_results[original_idx] = result_dict
+            
+            descriptors_list = [all_results.get(idx, {}) for idx in range(total)]
         
         if pandas_available:
             descriptor_df = pd.DataFrame(descriptors_list)

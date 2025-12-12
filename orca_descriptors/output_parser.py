@@ -24,6 +24,7 @@ class ORCAOutputParser:
         
         data: dict[str, Any] = {}
         
+        data["orca_version"] = self._parse_orca_version(content)
         data["total_energy"] = self._parse_total_energy(content)
         
         homo, lumo = self._parse_orbital_energies(content)
@@ -42,8 +43,242 @@ class ORCAOutputParser:
         data["nmr_shifts"] = self._parse_nmr_shifts(content, mol)
         data["mayer_indices"] = self._parse_mayer_indices(content, mol)
         data["nbo_stabilization_energies"] = self._parse_nbo_stabilization_energies(content)
+        data["input_parameters"] = self._parse_input_parameters(content)
         
         return data
+    
+    def _parse_orca_version(self, content: str) -> Optional[str]:
+        """Parse ORCA version from output file.
+        
+        ORCA typically outputs version information like:
+        - "O   R   C   A" followed by version
+        - "Program Version X.Y.Z"
+        - "ORCA Version X.Y.Z"
+        
+        Args:
+            content: ORCA output file content
+            
+        Returns:
+            Version string in format "ORCA X.Y.Z" or None if not found
+        """
+        # Try various patterns for ORCA version
+        patterns = [
+            r"Program Version\s+(\d+\.\d+\.\d+)",
+            r"ORCA Version\s+(\d+\.\d+\.\d+)",
+            r"Version\s+(\d+\.\d+\.\d+)",
+            r"ORCA\s+(\d+\.\d+\.\d+)",
+            r"v(\d+\.\d+\.\d+)",
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, content, re.IGNORECASE)
+            if match:
+                version = match.group(1)
+                return f"ORCA {version}"
+        
+        # Try to find version after "O   R   C   A" header
+        lines = content.split("\n")
+        for i, line in enumerate(lines[:50]):  # Check first 50 lines
+            if "O   R   C   A" in line or "ORCA" in line.upper():
+                # Look for version in next few lines
+                for j in range(i + 1, min(i + 5, len(lines))):
+                    version_match = re.search(r"(\d+\.\d+\.\d+)", lines[j])
+                    if version_match:
+                        return f"ORCA {version_match.group(1)}"
+        
+        return None
+    
+    def _parse_input_parameters(self, content: str) -> dict[str, Any]:
+        """Parse input parameters from ORCA output file.
+        
+        ORCA typically outputs calculation parameters in the output file.
+        This method extracts functional, basis_set, method_type, etc.
+        
+        Args:
+            content: ORCA output file content
+            
+        Returns:
+            Dictionary with input parameters, or empty dict if not found
+        """
+        params = {}
+        
+        # Parse method type (Opt, SP, Freq, etc.)
+        method_patterns = [
+            r"!\s*(Opt|SP|Freq|NumFreq|AnFreq)",
+            r"Geometry Optimization",
+            r"Single Point Calculation",
+            r"Frequency Calculation",
+        ]
+        for pattern in method_patterns:
+            match = re.search(pattern, content, re.IGNORECASE)
+            if match:
+                method_str = match.group(1) if match.groups() else match.group(0)
+                if "Opt" in method_str or "optimization" in method_str.lower():
+                    params['method_type'] = 'Opt'
+                elif "SP" in method_str or "single point" in method_str.lower():
+                    params['method_type'] = 'SP'
+                elif "Freq" in method_str or "frequency" in method_str.lower():
+                    params['method_type'] = 'Freq'
+                break
+        
+        # Parse functional and basis set from calculation line
+        # ORCA output typically shows: "! Opt PBE0 def2-SVP D3BJ ..."
+        calc_line_patterns = [
+            r"!\s*(Opt|SP|Freq)\s+([A-Z0-9]+(?:\-[A-Z0-9]+)?)\s+([A-Z0-9\-]+)",
+            r"!\s*([A-Z0-9]+(?:\-[A-Z0-9]+)?)\s+([A-Z0-9\-]+)",
+        ]
+        for pattern in calc_line_patterns:
+            match = re.search(pattern, content)
+            if match:
+                groups = match.groups()
+                if len(groups) >= 3:
+                    # Format: ! Opt PBE0 def2-SVP
+                    params['functional'] = groups[1]
+                    params['basis_set'] = groups[2]
+                elif len(groups) >= 2:
+                    # Format: ! PBE0 def2-SVP
+                    params['functional'] = groups[0]
+                    params['basis_set'] = groups[1]
+                break
+        
+        # Try to find functional in various places
+        if 'functional' not in params:
+            functional_patterns = [
+                r"Functional\s*:\s*([A-Z0-9]+(?:\-[A-Z0-9]+)?)",
+                r"DFT functional\s*:\s*([A-Z0-9]+(?:\-[A-Z0-9]+)?)",
+                r"Method\s*:\s*([A-Z0-9]+(?:\-[A-Z0-9]+)?)",
+            ]
+            for pattern in functional_patterns:
+                match = re.search(pattern, content, re.IGNORECASE)
+                if match:
+                    params['functional'] = match.group(1)
+                    break
+        
+        # Try to find basis set
+        if 'basis_set' not in params:
+            basis_patterns = [
+                r"Basis\s*:\s*([A-Z0-9\-]+)",
+                r"Basis Set\s*:\s*([A-Z0-9\-]+)",
+            ]
+            for pattern in basis_patterns:
+                match = re.search(pattern, content, re.IGNORECASE)
+                if match:
+                    params['basis_set'] = match.group(1)
+                    break
+        
+        # Parse dispersion correction
+        if re.search(r"D3BJ|D3|D4", content, re.IGNORECASE):
+            if re.search(r"D3BJ", content, re.IGNORECASE):
+                params['dispersion_correction'] = 'D3BJ'
+            elif re.search(r"D3", content, re.IGNORECASE):
+                params['dispersion_correction'] = 'D3'
+            elif re.search(r"D4", content, re.IGNORECASE):
+                params['dispersion_correction'] = 'D4'
+        
+        # Parse solvation model
+        solvation_patterns = [
+            r"COSMO\(([^)]+)\)",
+            r"CPCM\(([^)]+)\)",
+            r"SMD\(([^)]+)\)",
+        ]
+        for pattern in solvation_patterns:
+            match = re.search(pattern, content, re.IGNORECASE)
+            if match:
+                solvent = match.group(1)
+                if 'COSMO' in pattern:
+                    params['solvation_model'] = f'COSMO({solvent})'
+                elif 'CPCM' in pattern:
+                    params['solvation_model'] = f'CPCM({solvent})'
+                elif 'SMD' in pattern:
+                    params['solvation_model'] = f'SMD({solvent})'
+                break
+        
+        # Parse charge and multiplicity
+        charge_match = re.search(r"Charge\s*:\s*(-?\d+)", content, re.IGNORECASE)
+        if charge_match:
+            params['charge'] = int(charge_match.group(1))
+        
+        mult_match = re.search(r"Multiplicity\s*:\s*(\d+)", content, re.IGNORECASE)
+        if mult_match:
+            params['multiplicity'] = int(mult_match.group(1))
+        
+        return params
+    
+    def parse_input_file(self, input_file: Path) -> dict[str, Any]:
+        """Parse input parameters from ORCA input file.
+        
+        Args:
+            input_file: Path to ORCA input file
+            
+        Returns:
+            Dictionary with input parameters, or empty dict if not found
+        """
+        if not input_file.exists():
+            return {}
+        
+        try:
+            content = input_file.read_text()
+        except Exception:
+            return {}
+        
+        params = {}
+        
+        # Parse calculation line (first non-empty line usually)
+        lines = [line.strip() for line in content.split('\n') if line.strip()]
+        if lines:
+            calc_line = lines[0]
+            # Remove ! if present
+            calc_line = calc_line.lstrip('!').strip()
+            parts = calc_line.split()
+            
+            if parts:
+                # Check for method type
+                if 'Opt' in parts:
+                    params['method_type'] = 'Opt'
+                elif 'SP' in parts:
+                    params['method_type'] = 'SP'
+                elif 'Freq' in parts:
+                    params['method_type'] = 'Freq'
+                
+                # Find functional (usually first non-keyword)
+                keywords = {'Opt', 'SP', 'Freq', 'SlowConv', 'TightSCF', 'NMR', 'Mayer', 'NBO'}
+                for part in parts:
+                    if part not in keywords and not part.startswith('%'):
+                        if 'functional' not in params:
+                            params['functional'] = part
+                        elif 'basis_set' not in params and part not in {'D3BJ', 'D3', 'D4'}:
+                            params['basis_set'] = part
+                            break
+                
+                # Check for dispersion
+                if 'D3BJ' in parts:
+                    params['dispersion_correction'] = 'D3BJ'
+                elif 'D3' in parts:
+                    params['dispersion_correction'] = 'D3'
+                elif 'D4' in parts:
+                    params['dispersion_correction'] = 'D4'
+        
+        # Parse charge and multiplicity (usually in xyz block or separate)
+        charge_match = re.search(r"\*\s*xyz\s+(-?\d+)\s+(\d+)", content, re.IGNORECASE)
+        if charge_match:
+            params['charge'] = int(charge_match.group(1))
+            params['multiplicity'] = int(charge_match.group(2))
+        
+        # Parse solvation model
+        solvation_match = re.search(r"%\s*cpcm|%\s*cosmo|%\s*smd", content, re.IGNORECASE)
+        if solvation_match:
+            # Try to find solvent name
+            solvent_match = re.search(r"solvent\s+([^\s]+)", content, re.IGNORECASE)
+            if solvent_match:
+                solvent = solvent_match.group(1)
+                if 'cosmo' in solvation_match.group(0).lower():
+                    params['solvation_model'] = f'COSMO({solvent})'
+                elif 'cpcm' in solvation_match.group(0).lower():
+                    params['solvation_model'] = f'CPCM({solvent})'
+                elif 'smd' in solvation_match.group(0).lower():
+                    params['solvation_model'] = f'SMD({solvent})'
+        
+        return params
     
     def _parse_total_energy(self, content: str) -> float:
         """Parse total energy in Hartree."""

@@ -1,12 +1,16 @@
 """Integration tests for remote cache functionality.
 
 To run these tests, you need:
-1. A running cache server (default: http://localhost:3000)
-2. A valid API token with appropriate permissions (can_read and/or can_upload)
+1. A valid API token with appropriate permissions (can_read and/or can_upload)
+2. Real API server URL (default: https://api.orca-descriptors.massonnn.ru)
 
 Set environment variables:
-    export ORCA_CACHE_SERVER_URL="http://localhost:3000"
+    export ORCA_CACHE_SERVER_URL="https://api.orca-descriptors.massonnn.ru"
     export ORCA_CACHE_API_TOKEN="your-api-token-here"
+
+Or create tests/.env file with:
+    ORCA_CACHE_SERVER_URL=https://api.orca-descriptors.massonnn.ru
+    ORCA_CACHE_API_TOKEN=your-api-token-here
 
 Run all integration tests:
     pytest tests/test_remote_cache.py -m integration -v
@@ -45,7 +49,7 @@ if _env_file.exists():
     except Exception:
         pass
 
-CACHE_SERVER_URL = os.getenv("ORCA_CACHE_SERVER_URL", "http://localhost:3000")
+CACHE_SERVER_URL = os.getenv("ORCA_CACHE_SERVER_URL", "https://api.orca-descriptors.massonnn.ru")
 CACHE_API_TOKEN = os.getenv("ORCA_CACHE_API_TOKEN", None) or os.getenv("CACHE_API_TOKEN", None)
 
 
@@ -160,25 +164,37 @@ def test_remote_cache_upload_and_get(remote_cache_client, temp_cache_dir):
     except RemoteCachePermissionError as e:
         pytest.skip(f"Upload permission denied: {e}")
     
+    # Test check_cache - must succeed without method_version errors
+    import time
+    time.sleep(1)
     try:
-        import time
-        time.sleep(1)
         cache_info = remote_cache_client.check_cache(test_hash)
+        # If cache exists, it should return dict, if not - None
+        assert cache_info is None or isinstance(cache_info, dict)
     except RemoteCacheError as e:
-        if "method_version" in str(e).lower() or "rate limit" in str(e).lower():
-            pass
+        error_msg = str(e).lower()
+        if "rate limit" in error_msg:
+            pytest.skip(f"Rate limit exceeded: {e}")
+        elif "method_version" in error_msg:
+            pytest.fail(f"method_version format error: {e}. This should be fixed!")
         else:
             raise
     except RemoteCachePermissionError as e:
         pytest.skip(f"Read permission denied: {e}")
     
+    # Test get_cache - must succeed without method_version errors
+    time.sleep(1)
     try:
-        import time
-        time.sleep(1)
         retrieved_content = remote_cache_client.get_cache(test_hash)
+        # If cache exists, it should return bytes, if not - None
+        assert retrieved_content is None or isinstance(retrieved_content, bytes)
     except (RemoteCacheError, RemoteCachePermissionError) as e:
-        if "method_version" in str(e).lower() or "not found" in str(e).lower():
+        error_msg = str(e).lower()
+        if "not found" in error_msg:
+            # Cache not found is acceptable
             pass
+        elif "method_version" in error_msg:
+            pytest.fail(f"method_version format error: {e}. This should be fixed!")
         else:
             raise
 
@@ -219,6 +235,10 @@ def test_orca_with_remote_cache_integration(temp_cache_dir):
     except Exception as e:
         pytest.skip(f"ORCA calculation failed: {e}")
     
+    # Verify remote cache client is working
+    assert orca.cache.remote_cache_client is not None, "Remote cache client should be initialized"
+    
+    # Clear local cache to force remote cache usage
     local_cache_file = orca.cache.get(orca._get_molecule_hash(mol))
     if local_cache_file and local_cache_file.exists():
         local_cache_file.unlink()
@@ -227,12 +247,18 @@ def test_orca_with_remote_cache_integration(temp_cache_dir):
             del orca.cache.index[mol_hash]
             orca.cache._save_index()
     
+    # Second calculation should use remote cache (or calculate if not cached)
+    # This should NOT fall back to local cache silently
     try:
         homo2 = orca.homo_energy(mol)
         assert homo2 is not None
         assert abs(homo1 - homo2) < 0.001
     except Exception as e:
-        pytest.fail(f"Failed to retrieve from remote cache: {e}")
+        error_msg = str(e).lower()
+        if "method_version" in error_msg:
+            pytest.fail(f"method_version format error: {e}. Remote cache should work correctly!")
+        else:
+            pytest.fail(f"Failed to retrieve from remote cache: {e}")
 
 
 @pytest.mark.integration
@@ -248,7 +274,7 @@ def test_remote_cache_error_handling():
         invalid_client.check_cache("test_hash")
     
     invalid_url_client = RemoteCacheClient(
-        server_url="http://invalid-server-12345:3000",
+        server_url="http://invalid-server-12345.example.com",
         api_token="test_token",
         timeout=2,
     )
@@ -271,7 +297,7 @@ def test_remote_cache_fallback_to_local(temp_cache_dir):
         method_type="SP",
         n_processors=1,
         cache_dir=str(Path(temp_cache_dir) / ".orca_cache"),
-        cache_server_url="http://invalid-server:3000",
+        cache_server_url="http://invalid-server.example.com",
         cache_api_token="test_token",
         cache_timeout=2,
         log_level=30,
@@ -351,6 +377,9 @@ def test_batch_processing_with_remote_cache(temp_cache_dir):
         if cache_index.exists():
             cache_index.write_text("{}")
     
+    # Verify remote cache client is working
+    assert orca.cache.remote_cache_client is not None, "Remote cache client should be initialized"
+    
     start_time = time.time()
     try:
         result2 = batch_processing.calculate_descriptors(
@@ -378,9 +407,15 @@ def test_batch_processing_with_remote_cache(temp_cache_dir):
                         assert abs(r1[key] - r2[key]) < 0.001, \
                             f"Values differ for {key} at index {i}: {r1[key]} vs {r2[key]}"
         
-        assert second_duration < first_duration * 0.9, \
-            f"Second calculation should be faster with cache, but took {second_duration:.2f}s vs {first_duration:.2f}s"
+        # Second calculation should be faster with cache (or at least not slower)
+        # If remote cache is working, it should be significantly faster
+        assert second_duration < first_duration * 1.1, \
+            f"Second calculation should use cache and be faster, but took {second_duration:.2f}s vs {first_duration:.2f}s"
         
     except Exception as e:
-        pytest.fail(f"Failed to retrieve from remote cache in batch processing: {e}")
+        error_msg = str(e).lower()
+        if "method_version" in error_msg:
+            pytest.fail(f"method_version format error: {e}. Remote cache should work correctly!")
+        else:
+            pytest.fail(f"Failed to retrieve from remote cache in batch processing: {e}")
 

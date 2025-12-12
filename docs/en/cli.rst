@@ -88,6 +88,34 @@ Example::
 
    orca_descriptors purge_cache --output_dir ./calculations
 
+Remote Cache Parameters
+-----------------------
+
+The CLI supports remote caching via API. A public cache server is available at ``https://api.orca-descriptors.massonnn.ru``.
+
+To use remote cache:
+
+1. Register at `orca-descriptors.massonnn.ru <https://orca-descriptors.massonnn.ru>`_ and generate an API token
+2. Provide the API token using the ``--cache_api_token`` parameter::
+
+   orca_descriptors run_benchmark \\
+       --cache_api_token your_api_token_here \\
+       --working_dir ./calculations
+
+Available remote cache parameters:
+
+* ``--cache_server_url``: URL of the remote cache server (default: https://api.orca-descriptors.massonnn.ru)
+* ``--cache_api_token``: API token for remote cache authentication (required for remote cache)
+* ``--cache_timeout``: Timeout for remote cache requests in seconds (default: 30)
+* ``--cache_only``: Only use cache and do not run ORCA calculations (default: False)
+
+Example with remote cache::
+
+   orca_descriptors approximate_time \\
+       --molecule CCO \\
+       --cache_api_token your_api_token_here \\
+       --cache_only
+
 Available Parameters
 -------------------
 

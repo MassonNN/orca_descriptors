@@ -127,6 +127,11 @@ def create_parser() -> argparse.ArgumentParser:
         help="Timeout for remote cache requests in seconds (default: 30)",
     )
     common_parser.add_argument(
+        "--cache_only",
+        action="store_true",
+        help="Only use cache and do not run ORCA calculations (default: False)",
+    )
+    common_parser.add_argument(
         "--log_level",
         type=str,
         default="INFO",
@@ -197,6 +202,18 @@ def create_parser() -> argparse.ArgumentParser:
         "purge_cache",
         parents=[common_parser],
         help="Remove ORCA cache",
+    )
+    
+    # upload_cache command
+    upload_parser = subparsers.add_parser(
+        "upload_cache",
+        parents=[common_parser],
+        help="Upload all local cache files to remote cache server",
+    )
+    upload_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force upload even if cache already exists on server (default: False)",
     )
     
     return parser
@@ -293,8 +310,9 @@ def cmd_run_benchmark(args: argparse.Namespace) -> int:
         cache_server_url=args.cache_server_url,
         cache_api_token=args.cache_api_token,
         cache_timeout=args.cache_timeout,
+        cache_only=args.cache_only,
     )
-    
+
     try:
         benchmark_data = orca.run_benchmark(mol)
         
@@ -355,8 +373,9 @@ def cmd_approximate_time(args: argparse.Namespace) -> int:
         cache_server_url=args.cache_server_url,
         cache_api_token=args.cache_api_token,
         cache_timeout=args.cache_timeout,
+        cache_only=args.cache_only,
     )
-    
+
     try:
         estimated_time = orca.estimate_calculation_time(mol, n_opt_steps=args.n_opt_steps)
         
@@ -488,13 +507,197 @@ def cmd_purge_cache(args: argparse.Namespace) -> int:
         return 0
     
     try:
-        cache = CacheManager(cache_dir)
+        cache = CacheManager(str(cache_dir))
         cache.clear()
         print(f"\nCache cleared successfully: {cache_dir}\n")
         return 0
     except Exception as e:
         print(f"ERROR: Failed to clear cache: {e}", file=sys.stderr)
         return 1
+
+
+def cmd_upload_cache(args: argparse.Namespace) -> int:
+    """Upload all local cache files to remote cache server."""
+    from orca_descriptors.cache import CacheManager
+    from orca_descriptors.output_parser import ORCAOutputParser
+    from orca_descriptors.remote_cache import RemoteCacheClient, RemoteCacheError
+    
+    if not args.cache_api_token:
+        print("ERROR: --cache_api_token is required for upload_cache command", file=sys.stderr)
+        return 1
+    
+    if args.cache_dir:
+        cache_dir = Path(args.cache_dir)
+    else:
+        output_dir = Path(args.output_dir)
+        cache_dir = output_dir / ".orca_cache"
+    
+    if not cache_dir.exists():
+        print(f"ERROR: Cache directory does not exist: {cache_dir}", file=sys.stderr)
+        return 1
+    
+    # Initialize cache manager
+    try:
+        cache = CacheManager(str(cache_dir))
+    except Exception as e:
+        print(f"ERROR: Failed to initialize cache manager: {e}", file=sys.stderr)
+        return 1
+    
+    # Initialize remote cache client
+    try:
+        remote_client = RemoteCacheClient(
+            server_url=args.cache_server_url or "https://api.orca-descriptors.massonnn.ru",
+            api_token=args.cache_api_token,
+            timeout=args.cache_timeout,
+        )
+        # Check permissions
+        try:
+            remote_client.check_permissions()
+        except Exception as e:
+            print(f"ERROR: Failed to authenticate with remote cache server: {e}", file=sys.stderr)
+            return 1
+    except Exception as e:
+        print(f"ERROR: Failed to initialize remote cache client: {e}", file=sys.stderr)
+        return 1
+    
+    # Get all cached files from index
+    if not cache.index:
+        print("No cached files found in local cache.")
+        return 0
+    
+    print(f"\nFound {len(cache.index)} cached files in local cache.")
+    print(f"Uploading to: {remote_client.server_url}")
+    print("=" * 70)
+    
+    parser = ORCAOutputParser()
+    uploaded_count = 0
+    skipped_count = 0
+    error_count = 0
+    errors = []
+    
+    for mol_hash, index_entry in cache.index.items():
+        # Handle both old format (string path) and new format (dict with path)
+        if isinstance(index_entry, str):
+            cached_path = Path(index_entry)
+        else:
+            cached_path = Path(index_entry.get('path', ''))
+        
+        if not cached_path.exists():
+            print(f"⚠️  Skipping {mol_hash}: file not found at {cached_path}")
+            skipped_count += 1
+            continue
+        
+        try:
+            # Parse ORCA version and input_parameters from output file
+            orca_version = None
+            input_parameters = None
+            
+            # Get input_parameters from index if available (new format)
+            if isinstance(index_entry, dict):
+                input_parameters = index_entry.get('input_parameters')
+            
+            try:
+                parsed_data = parser.parse(cached_path)
+                orca_version = parsed_data.get('orca_version')
+                if orca_version:
+                    remote_client.method_version = remote_client._normalize_method_version(orca_version)
+                
+                # Extract input_parameters from output file if not in index
+                if not input_parameters or not isinstance(input_parameters, dict) or len(input_parameters) == 0:
+                    extracted_params = parsed_data.get('input_parameters', {})
+                    if extracted_params and isinstance(extracted_params, dict) and len(extracted_params) > 0:
+                        input_parameters = extracted_params
+            except Exception as e:
+                logger = logging.getLogger(__name__)
+                logger.debug(f"Could not parse ORCA output from {cached_path}: {e}")
+            
+            # Try to extract from input file if still not available
+            if not input_parameters or not isinstance(input_parameters, dict) or len(input_parameters) == 0:
+                try:
+                    input_file = cached_path.parent / cached_path.name.replace('.out', '.inp').replace('.log', '.inp').replace('.smd.out', '.inp')
+                    if not input_file.exists():
+                        base_name = cached_path.stem.replace('.smd', '')
+                        input_file = cached_path.parent.parent / f"{base_name}.inp"
+                    
+                    if input_file.exists():
+                        extracted_params = parser.parse_input_file(input_file)
+                        if extracted_params and isinstance(extracted_params, dict) and len(extracted_params) > 0:
+                            input_parameters = extracted_params
+                except Exception as e:
+                    logger = logging.getLogger(__name__)
+                    logger.debug(f"Could not parse input file: {e}")
+            
+            # Check if cache already exists on server (unless --force)
+            if not args.force:
+                try:
+                    existing_cache = remote_client.check_cache(mol_hash)
+                    if existing_cache is not None:
+                        print(f"⏭️  Skipping {mol_hash}: already exists on server")
+                        skipped_count += 1
+                        continue
+                except RemoteCacheError as e:
+                    # If check fails, try to upload anyway
+                    logger = logging.getLogger(__name__)
+                    logger.debug(f"Could not check cache existence: {e}")
+            
+            # Upload to remote cache
+            try:
+                # Only upload if we have input_parameters
+                if not input_parameters or not isinstance(input_parameters, dict) or len(input_parameters) == 0:
+                    print(f"⚠️  Skipping {mol_hash}: input_parameters not available")
+                    skipped_count += 1
+                    continue
+                
+                success = remote_client.upload_cache(
+                    input_hash=mol_hash,
+                    output_file=cached_path,
+                    input_parameters=input_parameters,
+                    file_extension=cached_path.suffix
+                )
+                
+                if success:
+                    print(f"✅ Uploaded {mol_hash} ({cached_path.name})")
+                    uploaded_count += 1
+                else:
+                    print(f"❌ Failed to upload {mol_hash}: upload returned False")
+                    error_count += 1
+                    errors.append(f"{mol_hash}: upload returned False")
+                    
+            except RemoteCacheError as e:
+                error_msg = str(e).lower()
+                if "already exists" in error_msg or "reputation" in error_msg:
+                    print(f"⏭️  Skipping {mol_hash}: {e}")
+                    skipped_count += 1
+                else:
+                    print(f"❌ Failed to upload {mol_hash}: {e}")
+                    error_count += 1
+                    errors.append(f"{mol_hash}: {e}")
+            except Exception as e:
+                print(f"❌ Failed to upload {mol_hash}: {e}")
+                error_count += 1
+                errors.append(f"{mol_hash}: {e}")
+                
+        except Exception as e:
+            print(f"❌ Error processing {mol_hash}: {e}")
+            error_count += 1
+            errors.append(f"{mol_hash}: {e}")
+    
+    print("=" * 70)
+    print("\nUpload Summary:")
+    print(f"  ✅ Successfully uploaded: {uploaded_count}")
+    print(f"  ⏭️  Skipped: {skipped_count}")
+    print(f"  ❌ Errors: {error_count}")
+    
+    if errors:
+        print(f"\nErrors encountered:")
+        for error in errors[:10]:
+            print(f"  {error}")
+        if len(errors) > 10:
+            print(f"  ... and {len(errors) - 10} more errors")
+    
+    print()
+    
+    return 0 if error_count == 0 else 1
 
 
 def main() -> int:
@@ -514,6 +717,8 @@ def main() -> int:
         return cmd_clear(args)
     elif args.command == "purge_cache":
         return cmd_purge_cache(args)
+    elif args.command == "upload_cache":
+        return cmd_upload_cache(args)
     else:
         print(f"ERROR: Unknown command: {args.command}", file=sys.stderr)
         return 1

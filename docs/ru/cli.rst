@@ -88,6 +88,34 @@ purge_cache
 
    orca_descriptors purge_cache --output_dir ./calculations
 
+Параметры удаленного кеша
+--------------------------
+
+CLI поддерживает удаленное кеширование через API. Доступен публичный сервер кеша по адресу ``https://api.orca-descriptors.massonnn.ru``.
+
+Для использования удаленного кеша:
+
+1. Зарегистрируйтесь на `orca-descriptors.massonnn.ru <https://orca-descriptors.massonnn.ru>`_ и выпустите API токен
+2. Укажите API токен с помощью параметра ``--cache_api_token``::
+
+   orca_descriptors run_benchmark \\
+       --cache_api_token ваш_api_токен \\
+       --working_dir ./calculations
+
+Доступные параметры удаленного кеша:
+
+* ``--cache_server_url``: URL удаленного сервера кеша (по умолчанию: https://api.orca-descriptors.massonnn.ru)
+* ``--cache_api_token``: API токен для аутентификации удаленного кеша (требуется для удаленного кеша)
+* ``--cache_timeout``: Таймаут для запросов удаленного кеша в секундах (по умолчанию: 30)
+* ``--cache_only``: Только использовать кеш и не запускать расчеты ORCA (по умолчанию: False)
+
+Пример с удаленным кешем::
+
+   orca_descriptors approximate_time \\
+       --molecule CCO \\
+       --cache_api_token ваш_api_токен \\
+       --cache_only
+
 Доступные параметры
 -------------------
 

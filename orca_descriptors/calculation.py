@@ -139,9 +139,18 @@ class CalculationMixin:
         
         mol_hash = self._get_molecule_hash(mol)
         
+        # Always check both local and remote cache before calculation
         cached_output = self.cache.get(mol_hash)
         if cached_output and cached_output.exists():
+            logger.debug(f"Found cached output for hash: {mol_hash}")
             return cached_output
+        
+        if getattr(self, 'cache_only', False):
+            logger.warning(f"Result not found in cache for hash: {mol_hash[:8]}... (cache_only=True)")
+            raise FileNotFoundError(
+                f"Result not found in cache and cache_only=True. "
+                f"Calculation was not performed for molecule hash: {mol_hash[:8]}..."
+            )
         
         input_content = self.input_generator.generate(
             mol=mol,
